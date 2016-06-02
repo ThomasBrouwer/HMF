@@ -12,15 +12,14 @@ import sys
 sys.path.append(project_location)
 
 import updates_Gibbs as updates
-from bmf_models.code.distributions.gamma import gamma_draw
-from bmf_models.code.distributions.normal import normal_draw
-from bmf_models.code.distributions.multivariate_normal import MN_draw
-from bmf_models.code.distributions.truncated_normal import TN_draw
-from bmf_models.code.distributions.truncated_normal_vector import TN_vector_draw
-from bmf_models.code.distributions.multivariate_truncated_normal import MTN_draw
+from HMF.code.distributions.gamma import gamma_draw
+from HMF.code.distributions.normal import normal_draw
+from HMF.code.distributions.multivariate_normal import MN_draw
+from HMF.code.distributions.truncated_normal import TN_draw
+from HMF.code.distributions.truncated_normal_vector import TN_vector_draw
+from HMF.code.distributions.multivariate_truncated_normal import MTN_draw
 
 import numpy, itertools
-
 
 ###############################################################################
 ###################### Helpers for dimensionality checks ######################

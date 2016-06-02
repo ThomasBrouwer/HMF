@@ -30,15 +30,15 @@ project_location = "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
 
-from bmf_models.code.kmeans.kmeans import KMeans
-from bmf_models.code.distributions.exponential import exponential_draw
-from bmf_models.code.distributions.gamma import gamma_draw
-from bmf_models.code.distributions.normal import normal_draw
-#from code.distributions.multivariate_normal import MN_draw
-#from code.distributions.truncated_normal import TN_draw
-#from code.distributions.truncated_normal_vector import TN_vector_draw
-#from code.distributions.multivariate_truncated_normal import MTN_draw
 import updates_Gibbs
+from HMF.code.kmeans.kmeans import KMeans
+from HMF.code.distributions.exponential import exponential_draw
+from HMF.code.distributions.gamma import gamma_draw
+from HMF.code.distributions.normal import normal_draw
+#from HMF.code.distributions.multivariate_normal import MN_draw
+#from HMF.code.distributions.truncated_normal import TN_draw
+#from HMF.code.distributions.truncated_normal_vector import TN_vector_draw
+#from HMF.code.distributions.multivariate_truncated_normal import MTN_draw
 
 import numpy, itertools
 

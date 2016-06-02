@@ -1,0 +1,613 @@
+"""
+Tests for the HMF Gibbs sampler.
+"""
+
+import sys
+sys.path.append("/home/tab43/Documents/Projects/libraries/")
+from HMF.code.models.hmf_Gibbs import HMF_Gibbs
+
+import numpy, math, pytest, itertools
+
+
+""" Test constructor """
+def test_init():
+    """
+    We need to test the following cases:
+    1. Dataset R relates same two entity types
+    2. Rn and Cm are not 2-dimensional matrices
+    3. Rn and Mn are of different sizes
+    4. Cm and Mm are of different sizes
+    5. Cm is not a square matrix
+    6. R1 and R2 both relate E but have different no. of entities
+    7. R and C both relate E but have different no. of entities
+    8. An entity has no observed datapoints at all
+    9. K does not have an entry for each entity
+    10. Finally, we need to test whether all variables are correctly initialised
+    """
+    
+    E0, E1, E2 = 'entity0','entity1',1337
+    I0, I1, I2 = 10,9,8
+    K0, K1, K2 = 3,2,1
+    J0 = 4
+    N, M, L, T = 3, 2, 1, 3
+    
+    R0 = numpy.ones((I0,I1)) # relates E0, E1
+    R1 = numpy.ones((I0,I1)) # relates E0, E1
+    R2 = numpy.ones((I1,I2)) # relates E1, E2
+    C0 = numpy.ones((I0,I0)) # relates E0
+    C1 = numpy.ones((I2,I2)) # relates E2
+    D0 = numpy.ones((I2,J0)) # relates E2
+    
+    Mn0 = numpy.ones((I0,I1))
+    Mn1 = numpy.ones((I0,I1))
+    Mn2 = numpy.ones((I1,I2))
+    Mm0 = numpy.ones((I0,I0))
+    Mm1 = numpy.ones((I2,I2))
+    Ml0 = numpy.ones((I2,J0))
+    
+    size_Omegan = [I0*I1,I0*I1,I1*I2]
+    size_Omegam = [I0*(I0-1),I2*(I2-1)]
+    size_Omegal = [I2*J0]
+    
+    alphan = [11.,12.,13.]
+    alpham = [14.,15.]
+    alphal = [16.]
+    
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[1])]
+    D = [(D0,Ml0,E2,alphal[0])]
+    E = [E0,E1,E2]
+    K = {E0:K0,E1:K1,E2:K2}
+    I = {E0:I0,E1:I1,E2:I2}
+    J = [J0]
+    
+    U1t = {'entity0':[0,1], 'entity1':[2], 1337:[] }
+    U2t = {'entity0':[], 'entity1':[0,1], 1337:[2] }
+    Vt = {'entity0':[0], 'entity1':[], 1337:[1] }
+    Wt = {'entity0':[], 'entity1':[], 1337:[0]}
+    E_per_Rn = [(E0,E1),(E0,E1),(E1,E2)]
+    E_per_Cm = [E0,E2]
+    E_per_Dl = [E2]
+    
+    alphatau, betatau = 1., 2.
+    alpha0, beta0 = 6., 7.
+    lambdaF, lambdaG = 3., 8.
+    lambdaSn, lambdaSm = 4., 5.
+    priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
+               'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    settings = { 'priorF' : 'normal', 'priorG' : 'exponential', 'priorS' : 'normal', 'orderF' : 'rows', 
+                 'orderG' : 'columns', 'orderS' : 'individual', 'ARD' : True }
+    
+    ''' 1. Dataset R relates same two entity types '''
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E1,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    with pytest.raises(AssertionError) as error:
+        HMF_Gibbs(R,C,D,K,settings,priors)
+    assert str(error.value) == "Gave same entity type for R1: entity1."
+    
+    ''' 2. Rn and Cm are not 2-dimensional matrices '''
+    R1 = numpy.ones(I0)
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    with pytest.raises(AssertionError) as error:
+        HMF_Gibbs(R,C,D,K,settings,priors)
+    assert str(error.value) == "R1 is not 2-dimensional, but instead 1-dimensional."
+    R1 = numpy.ones((I0,I1))
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+        
+    C0 = numpy.ones((I0,I1,I2))
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[1])]
+    with pytest.raises(AssertionError) as error:
+        HMF_Gibbs(R,C,D,K,settings,priors)
+    assert str(error.value) == "C0 is not 2-dimensional, but instead 3-dimensional."
+    C0 = numpy.ones((I0,I0))
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[1])]
+    
+    ''' 3. Rn and Mn are of different sizes '''
+    R2 = numpy.ones((I1,I2))
+    Mn2 = numpy.ones((I0,I1))
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[1])]
+    with pytest.raises(AssertionError) as error:
+        HMF_Gibbs(R,C,D,K,settings,priors)
+    assert str(error.value) == "Different shapes for R2 and M2: (9, 8) and (10, 9)."    
+    R2 = numpy.ones((I1,I2))
+    Mn2 = numpy.ones((I1,I2))
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    
+    ''' 4. Cm and Mm are of different sizes '''
+    C1 = numpy.ones((I2,I2))
+    Mm1 = numpy.ones((I1,I1))
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[1])]
+    with pytest.raises(AssertionError) as error:
+        HMF_Gibbs(R,C,D,K,settings,priors)
+    assert str(error.value) == "Different shapes for C1 and M1: (8, 8) and (9, 9)."
+    C1 = numpy.ones((I2,I2))
+    Mm1 = numpy.ones((I2,I2))
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[1])]
+    
+    ''' 5. Cm is not a square matrix '''
+    C0 = numpy.ones((I1,I2))
+    Mm0 = numpy.ones((I1,I2))
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[1])]
+    with pytest.raises(AssertionError) as error:
+        HMF_Gibbs(R,C,D,K,settings,priors)
+    assert str(error.value) == "C0 is not a square matrix: (9, 8)."
+    C0 = numpy.ones((I0,I0))
+    Mm0 = numpy.ones((I0,I0))
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[1])]
+    
+    ''' 6. R1 and R2 both relate E but have different no. of entities '''
+    R2 = numpy.ones((I1+1,I2))
+    Mn2 = numpy.ones((I1+1,I2))
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    with pytest.raises(AssertionError) as error:
+        HMF_Gibbs(R,C,D,K,settings,priors)
+    assert str(error.value) == "Different number of rows (10) in R2 for entity type entity1 than before (9)!"
+    R2 = numpy.ones((I1,I2))
+    Mn2 = numpy.ones((I1,I2))
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    
+    ''' 7. R and C both relate E but have different no. of entities '''
+    R2 = numpy.ones((I1,I2+1))
+    Mn2 = numpy.ones((I1,I2+1))
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    with pytest.raises(AssertionError) as error:
+        HMF_Gibbs(R,C,D,K,settings,priors)
+    assert str(error.value) == "Different number of rows (8) in C1 for entity type 1337 than before (9)!"
+    R2 = numpy.ones((I1,I2))
+    Mn2 = numpy.ones((I1,I2))
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    
+    ''' 8. An entity has no observed datapoints at all '''
+    Mn0[:,1] = numpy.zeros(I0)
+    Mn1[:,1] = numpy.zeros(I0)
+    Mn2[1,:] = numpy.zeros(I2)
+    ''' Concurrently also test not getting an error for entity0 '''
+    Mn0[2,:] = numpy.zeros(I1) 
+    Mn1[2,:] = numpy.zeros(I1) 
+    Mm0[2,:] = numpy.zeros(I0) 
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[0])]
+    with pytest.raises(AssertionError) as error:
+        HMF_Gibbs(R,C,D,K,settings,priors)
+    assert str(error.value) == "No observed datapoints in any dataset for entity 1 of type entity1."
+    Mn0 = numpy.ones((I0,I1))
+    Mn1 = numpy.ones((I0,I1))
+    Mn2 = numpy.ones((I1,I2))
+    Mm0 = numpy.ones((I0,I0))
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[1])]
+    
+    ''' 9. K does not have an entry for each entity '''
+    K = {E0:K0,E2:K2}
+    with pytest.raises(AssertionError) as error:
+        HMF_Gibbs(R,C,D,K,settings,priors)
+    assert str(error.value) == "Did not get an entry for entity entity1 in K = {1337: 1, 'entity0': 3}."
+    K = {E0:K0,E1:K1,E2:K2}
+    
+    ''' 10. Finally, we need to test whether all variables are correctly initialised '''
+    HMF = HMF_Gibbs(R,C,D,K,settings,priors)
+    
+    assert numpy.array_equal(HMF.all_E,E)
+    for R,Rtrue in zip(HMF.all_Rn,[R0,R1,R2]):
+        assert numpy.array_equal(R,Rtrue)
+    for Mn,Mntrue in zip(HMF.all_Mn,[Mn0,Mn1,Mn2]):
+        assert numpy.array_equal(Mn,Mntrue)
+    for C,Ctrue in zip(HMF.all_Cm,[C0,C1]):
+        assert numpy.array_equal(C,Ctrue)
+    for Mm,Mmtrue in zip(HMF.all_Mm,[Mm0,Mm1]):
+        assert numpy.array_equal(Mm,Mmtrue)
+    for Dl,Dltrue in zip(HMF.all_Dl,[D0]):
+        assert numpy.array_equal(Dl,Dltrue)
+        
+    assert HMF.size_Omegan == size_Omegan
+    assert HMF.size_Omegam == size_Omegam
+    assert HMF.size_Omegal == size_Omegal
+        
+    assert HMF.E_per_Rn == E_per_Rn
+    assert HMF.E_per_Cm == E_per_Cm
+    assert HMF.E_per_Dl == E_per_Dl
+    
+    assert HMF.all_alphan == alphan
+    assert HMF.all_alpham == alpham
+    assert HMF.all_alphal == alphal
+    
+    assert numpy.array_equal(HMF.K,K)
+    assert HMF.I == I
+    assert HMF.J == J
+    assert HMF.N == N
+    assert HMF.M == M
+    assert HMF.L == L
+    assert HMF.T == T
+    
+    assert HMF.U1t == U1t
+    assert HMF.U2t == U2t
+    assert HMF.Vt == Vt
+    assert HMF.Wt == Wt
+    
+    assert HMF.all_Ft == { 'entity0':[], 'entity1':[], 1337:[] }
+    assert HMF.all_Sn == []
+    assert HMF.all_Sm == []
+    assert HMF.all_Gl == []
+    
+    assert HMF.all_taun == []
+    assert HMF.all_taum == []
+    assert HMF.all_taul == []
+    
+    assert HMF.alpha0 == alpha0
+    assert HMF.beta0 == beta0
+    assert HMF.alphatau == alphatau
+    assert HMF.betatau == betatau
+    assert HMF.lambdaF == lambdaF
+    assert HMF.lambdaG == lambdaG
+    assert HMF.lambdaSn == lambdaSn
+    assert HMF.lambdaSm == lambdaSm
+    
+    # { 'priorF' : 'normal', 'priorG' : 'exponential', 'priorS' : 'normal', 'orderF' : 'rows', 'orderG' : 'columns', 'orderS' : 'individual', 'ARD' : True }
+    assert HMF.prior_F == 'normal'
+    assert HMF.prior_G == 'exponential'
+    assert HMF.prior_S == 'normal'
+    assert HMF.order_F == 'rows'
+    assert HMF.order_G == 'columns'
+    assert HMF.order_S == 'individual'
+    assert HMF.ARD == True
+    
+    assert HMF.rows_F == True
+    assert HMF.rows_G == False
+    assert HMF.rows_S == False
+    assert HMF.nonnegative_F == False
+    assert HMF.nonnegative_G == True
+    assert HMF.nonnegative_S == False
+    
+
+""" Test initialing parameters """
+def test_initialise():
+    """
+    We need to test the following cases:
+    1. Random initialisation of S
+    2. Expectation initialisation of S
+    3. Random initialisation of F
+    4. Expectation initialisation of F
+    5. K-means initialisation of F
+    """
+    E0, E1, E2 = 'entity0','entity1',1337
+    I0, I1, I2 = 10,9,8
+    K0, K1, K2 = 3,2,1
+    N, M, T = 3, 2, 3
+    
+    R0 = numpy.ones((I0,I1)) # relates E0, E1
+    R1 = numpy.ones((I0,I1)) # relates E0, E1
+    R2 = numpy.ones((I1,I2)) # relates E1, E2
+    C0 = numpy.ones((I0,I0)) # relates E0, E0
+    C1 = numpy.ones((I2,I2)) # relates E2, E2
+    
+    Mn0 = numpy.ones((I0,I1))
+    Mn1 = numpy.ones((I0,I1))
+    Mn2 = numpy.ones((I1,I2))
+    Mm0 = numpy.ones((I0,I0))
+    Mm1 = numpy.ones((I2,I2))
+    
+    size_Omegan = [I0*I1,I0*I1,I1*I2]
+    size_Omegam = [I0*(I0-1),I2*(I2-1)]
+    
+    R = [(R0,Mn0,E0,E1),(R1,Mn1,E0,E1),(R2,Mn2,E1,E2)]
+    C = [(C0,Mm0,E0),(C1,Mm1,E2)]
+    E = [E0,E1,E2]
+    K = {E0:K0,E1:K1,E2:K2}
+    I = {E0:I0,E1:I1,E2:I2}
+    U1t = {'entity0':[0,1], 'entity1':[2], 1337:[] }
+    U2t = {'entity0':[], 'entity1':[0,1], 1337:[2] }
+    Vt = {'entity0':[0], 'entity1':[], 1337:[1] }
+    E_per_Rn = [(E0,E1),(E0,E1),(E1,E2)]
+    E_per_Cm = [E0,E2]
+    
+    alpha,beta = 1., 2.
+    lambdaF = { E0:1., E1:2., E2:3. }
+    lambdaSn, lambdaSm = [4.,5.,6.], [7.,8.]
+    priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+
+    # 1 and 4 #
+    init_S, init_F = 'random', 'exp'
+    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
+    DI_MMTF.initialise(init_S,init_F)
+    
+    for E1 in E:
+        for i,k in itertools.product(xrange(0,I[E1]),xrange(0,K[E1])):
+            assert DI_MMTF.all_Ft[E1][i,k] == 1./lambdaF[E1]
+            
+    for n in range(0,N):
+        E1,E2 = E_per_Rn[n]
+        for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
+            assert DI_MMTF.all_Sn[n][k,l] != 1./lambdaSn[n]
+            
+    for m in range(0,M):
+        E1 = E_per_Cm[m]
+        for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
+            assert DI_MMTF.all_Sm[m][k,l] != 1./lambdaSm[m]
+    
+    # 2 and 3 #
+    init_S, init_F = 'exp', 'random'
+    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
+    DI_MMTF.initialise(init_S,init_F)
+    
+    for E1 in E:
+        for i,k in itertools.product(xrange(0,I[E1]),xrange(0,K[E1])):
+            assert DI_MMTF.all_Ft[E1][i,k] != 1./lambdaF[E1]
+            
+    for n in range(0,N):
+        E1,E2 = E_per_Rn[n]
+        for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
+            assert DI_MMTF.all_Sn[n][k,l] == 1./lambdaSn[n]
+            
+    for m in range(0,M):
+        E1 = E_per_Cm[m]
+        for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
+            assert DI_MMTF.all_Sm[m][k,l] == 1./lambdaSm[m]
+    
+    # 5 #
+    init_S, init_F = 'exp', 'kmeans'
+    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
+    DI_MMTF.initialise(init_S,init_F)
+    
+    for E1 in E:
+        for i,k in itertools.product(xrange(0,I[E1]),xrange(0,K[E1])):
+            assert DI_MMTF.all_Ft[E1][i,k] == 0.2 or DI_MMTF.all_Ft[E1][i,k] == 1.2
+            
+    for n in range(0,N):
+        E1,E2 = E_per_Rn[n]
+        for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
+            assert DI_MMTF.all_Sn[n][k,l] == 1./lambdaSn[n]
+            
+    for m in range(0,M):
+        E1 = E_per_Cm[m]
+        for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
+            assert DI_MMTF.all_Sm[m][k,l] == 1./lambdaSm[m]
+    
+            
+""" Test some iterations, and that the values have changed in the F, S. """
+def test_run():
+    iterations = 10
+    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
+    DI_MMTF.initialise(init_S,init_F)
+    DI_MMTF.run(iterations)
+    
+    for E0 in E:
+        assert len(DI_MMTF.iterations_all_Ft[E0]) == iterations
+    for n in range(0,N):
+        assert len(DI_MMTF.iterations_all_Sn[n]) == iterations
+        assert len(DI_MMTF.iterations_all_taun[n]) == iterations
+    for m in range(0,M):
+        assert len(DI_MMTF.iterations_all_Sm[m]) == iterations
+        assert len(DI_MMTF.iterations_all_taum[m]) == iterations
+    
+    for iteration in range(1,iterations):
+        for E0 in E:
+            for i,k in itertools.product(xrange(0,I[E0]),xrange(0,K[E0])):
+                assert DI_MMTF.iterations_all_Ft[E0][iteration][i,k] != lambdaF[E0]
+                assert DI_MMTF.iterations_all_Ft[E0][iteration][i,k] != DI_MMTF.iterations_all_Ft[E0][iteration-1][i,k]
+        for n in range(0,N):
+            E0,E1 = E_per_Rn[n]
+            for k,l in itertools.product(xrange(0,K[E0]),xrange(0,K[E1])):
+                assert DI_MMTF.iterations_all_Sn[n][iteration][k,l] != lambdaSn[n]
+                assert DI_MMTF.iterations_all_Sn[n][iteration][k,l] != DI_MMTF.iterations_all_Sn[n][iteration-1][k,l]
+            assert DI_MMTF.iterations_all_taun[n][iteration] != alpha/beta
+            print DI_MMTF.iterations_all_taun
+            assert DI_MMTF.iterations_all_taun[n][iteration] != DI_MMTF.iterations_all_taun[n][iteration-1]
+        for m in range(0,M):
+            E0 = E_per_Cm[m]
+            for k,l in itertools.product(xrange(0,K[E0]),xrange(0,K[E0])):
+                assert DI_MMTF.iterations_all_Sm[m][iteration][k,l] != lambdaSm[m]
+                assert DI_MMTF.iterations_all_Sm[m][iteration][k,l] != DI_MMTF.iterations_all_Sm[m][iteration-1][k,l]
+            assert DI_MMTF.iterations_all_taum[m][iteration] != alpha/beta
+            assert DI_MMTF.iterations_all_taum[m][iteration] != DI_MMTF.iterations_all_taum[m][iteration-1]
+            
+            
+""" Test approximating the expectations for the F, S, tau """
+def test_approx_expectation():
+    iterations = 10
+    burn_in = 2
+    thinning = 3 # so index 2,5,8 -> m=3,m=6,m=9
+    
+    E = ['entity0','entity1']
+    I = {E[0]:5, E[1]:3}
+    K = {E[0]:2, E[1]:4}
+    
+    iterations_all_Ft = {
+        E[0] : [numpy.ones((I[E[0]],K[E[0]])) * 3*m**2 for m in range(1,10+1)],
+        E[1] : [numpy.ones((I[E[1]],K[E[1]])) * 1*m**2 for m in range(1,10+1)]
+    }
+    iterations_all_Sn = [[numpy.ones((K[E[0]],K[E[1]])) * 2*m**2 for m in range(1,10+1)]]
+    iterations_all_taun = [[m**2 for m in range(1,10+1)]]
+    iterations_all_Sm = [[numpy.ones((K[E[1]],K[E[1]])) * 2*m**2 * 2 for m in range(1,10+1)]]
+    iterations_all_taum = [[m**2*2 for m in range(1,10+1)]]
+    
+    expected_exp_F0 = numpy.array([[9.+36.+81. for k in range(0,2)] for i in range(0,5)])
+    expected_exp_F1 = numpy.array([[(9.+36.+81.)*(1./3.) for k in range(0,4)] for i in range(0,3)])
+    expected_exp_Sn = numpy.array([[(9.+36.+81.)*(2./3.) for l in range(0,4)] for k in range(0,2)])
+    expected_exp_taun = (9.+36.+81.)/3.
+    expected_exp_Sm = numpy.array([[(18.+72.+162.)*(2./3.) for l in range(0,4)] for k in range(0,4)])
+    expected_exp_taum = (18.+72.+162.)/3.
+    
+    R0, M0 = numpy.ones((I[E[0]],I[E[1]])), numpy.ones((I[E[0]],I[E[1]]))
+    C0, M1 = numpy.ones((I[E[1]],I[E[1]])), numpy.ones((I[E[1]],I[E[1]]))
+    R, C = [(R0,M0,E[0],E[1])], [(C0,M1,E[1])]
+    lambdaF = {E[0]:2,E[1]:4}
+    lambdaSn, lambdaSm = [3], [4]
+    alpha, beta = 3, 1
+    priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    
+    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
+    DI_MMTF.iterations_all_Ft = iterations_all_Ft
+    DI_MMTF.iterations_all_Sn = iterations_all_Sn
+    DI_MMTF.iterations_all_taun = iterations_all_taun
+    DI_MMTF.iterations_all_Sm = iterations_all_Sm
+    DI_MMTF.iterations_all_taum = iterations_all_taum
+    
+    exp_F0 = DI_MMTF.approx_expectation_Ft(E[0],iterations,burn_in,thinning)
+    exp_F1 = DI_MMTF.approx_expectation_Ft(E[1],iterations,burn_in,thinning)
+    exp_Sn = DI_MMTF.approx_expectation_Sn(0,iterations,burn_in,thinning)
+    exp_taun = DI_MMTF.approx_expectation_taun(0,iterations,burn_in,thinning)
+    exp_Sm = DI_MMTF.approx_expectation_Sm(0,iterations,burn_in,thinning)
+    exp_taum = DI_MMTF.approx_expectation_taum(0,iterations,burn_in,thinning)
+    
+    assert numpy.array_equal(expected_exp_F0,exp_F0)
+    assert numpy.array_equal(expected_exp_F1,exp_F1)
+    assert numpy.array_equal(expected_exp_Sn,exp_Sn)
+    assert expected_exp_taun == exp_taun
+    assert numpy.array_equal(expected_exp_Sm,exp_Sm)
+    assert expected_exp_taum == exp_taum
+
+    
+""" Test computing the performance of the predictions using the expectations """
+def test_predict():
+    iterations = 10
+    burn_in = 2
+    thinning = 3 # so index 2,5,8 -> m=3,m=6,m=9
+    
+    E = ['entity0','entity1']
+    I = {E[0]:5, E[1]:3}
+    K = {E[0]:2, E[1]:4}
+    
+    iterations_all_Ft = {
+        E[0] : [numpy.ones((I[E[0]],K[E[0]])) * 3*m**2 for m in range(1,10+1)],
+        E[1] : [numpy.ones((I[E[1]],K[E[1]])) * 1*m**2 for m in range(1,10+1)] 
+    }
+    iterations_all_Ft['entity0'][2][0,0] = 24 #instead of 27 - to ensure we do not get 0 variance in our predictions
+    iterations_all_Sn = [[numpy.ones((K[E[0]],K[E[1]])) * 2*m**2 for m in range(1,10+1)]]
+    iterations_all_taun = [[m**2 for m in range(1,10+1)]]
+    iterations_all_Sm = [[numpy.ones((K[E[1]],K[E[1]])) * 2*m**2 * 2 for m in range(1,10+1)]]
+    iterations_all_taum = [[m**2*2 for m in range(1,10+1)]]
+    
+    R0 = numpy.array([[1,2,3],[4,5,6],[7,8,9],[10,11,12],[13,14,15]],dtype=float)
+    C0 = numpy.array([[1,2,3],[4,5,6],[7,8,9]],dtype=float)
+    M0, M1 = numpy.ones((5,3)), numpy.ones((3,3))
+    R, C = [(R0,M0,E[0],E[1])], [(C0,M1,E[1])]
+    lambdaF = {E[0]:2,E[1]:5}
+    lambdaSn, lambdaSm = [3], [4]
+    alpha, beta = 3, 1
+    priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    
+    #expected_exp_F0 = numpy.array([[9.+36.+81. for k in range(0,2)] for i in range(0,5)])
+    #expected_exp_F1 = numpy.array([[(9.+36.+81.)*(1./3.) for k in range(0,4)] for i in range(0,3)])
+    #expected_exp_Sn = numpy.array([[(9.+36.+81.)*(2./3.) for l in range(0,4)] for k in range(0,2)])
+    #expected_exp_taun = (9.+36.+81.)/3.
+    #R_pred = numpy.array([[ 3542112.,  3542112.,  3542112.],[ 3556224.,  3556224.,  3556224.],[ 3556224.,  3556224.,  3556224.],[ 3556224.,  3556224.,  3556224.],[ 3556224.,  3556224.,  3556224.]])
+    
+    #expected_exp_Sm = numpy.array([[(18.+72.+162.)*(2./3.) for l in range(0,4)] for k in range(0,4)])
+    #expected_exp_taum = (18.+72.+162.)/3.
+    #C_pred = array([[4741632.,4741632.,4741632.],[4741632.,4741632.,4741632.],[4741632.,4741632.,4741632.]])
+    
+    M_test_R = numpy.array([[0,0,1],[0,1,0],[0,0,0],[1,1,0],[0,0,0]]) #R->3,5,10,11, R_pred->3542112,3556224,3556224,3556224
+    MSE_R = ((3.-3542112.)**2 + (5.-3556224.)**2 + (10.-3556224.)**2 + (11.-3556224.)**2) / 4.
+    R2_R = 1. - ((3.-3542112.)**2 + (5.-3556224.)**2 + (10.-3556224.)**2 + (11.-3556224.)**2) / (4.25**2+2.25**2+2.75**2+3.75**2) #mean=7.25
+    Rp_R = 357. / ( math.sqrt(44.75) * math.sqrt(5292.) ) #mean=7.25,var=44.75, mean_pred=3552696,var_pred=5292, corr=(-4.25*-63 + -2.25*21 + 2.75*21 + 3.75*21)
+    
+    M_test_C = numpy.array([[0,0,1],[0,1,0],[1,1,0]]) #R->3,5,7,8, R_pred->4741632,4741632,4741632,4741632
+    MSE_C = ((3.-4741632.)**2 + (5.-4741632.)**2 + (7.-4741632.)**2 + (8.-4741632.)**2) / 4.
+    R2_C = 1. - ((3.-4741632.)**2 + (5.-4741632.)**2 + (7.-4741632.)**2 + (8.-4741632.)**2) / (2.75**2+0.75**2+1.25**2+2.25**2) #mean=5.75
+    
+    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
+    DI_MMTF.iterations_all_Ft = iterations_all_Ft
+    DI_MMTF.iterations_all_Sn = iterations_all_Sn
+    DI_MMTF.iterations_all_taun = iterations_all_taun
+    DI_MMTF.iterations_all_Sm = iterations_all_Sm
+    DI_MMTF.iterations_all_taum = iterations_all_taum
+    
+    performances_R = DI_MMTF.predict_Rn(0,M_test_R,iterations,burn_in,thinning)
+    performances_C = DI_MMTF.predict_Cm(0,M_test_C,iterations,burn_in,thinning)
+    
+    assert performances_R['MSE'] == MSE_R
+    assert performances_R['R^2'] == R2_R
+    assert performances_R['Rp'] == Rp_R
+    
+    assert performances_C['MSE'] == MSE_C
+    assert performances_C['R^2'] == R2_C
+    assert numpy.isnan(performances_C['Rp'])
+
+
+""" Test the evaluation measures MSE, R^2, Rp """
+def test_compute_statistics():
+    R0 = numpy.array([[1,2],[3,4]],dtype=float)
+    M0 = numpy.array([[1,1],[0,1]])
+    E = ['entity0','entity1']
+    K = {E[0]:3,E[1]:4}
+    lambdaF = {E[0]:2, E[1]:4}
+    lambdaSn, lambdaSm = [3], []
+    alpha, beta = 3, 1
+    priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    
+    R = [(R0,M0,E[0],E[1])]
+    C, D = [], []
+    DI_MMTF = HMF_Gibbs(R,C,D,K,priors)
+    
+    R_pred = numpy.array([[500,550],[1220,1342]],dtype=float)
+    M_pred = numpy.array([[0,0],[1,1]])
+    
+    MSE_pred = (1217**2 + 1338**2) / 2.0
+    R2_pred = 1. - (1217**2+1338**2)/(0.5**2+0.5**2) #mean=3.5
+    Rp_pred = 61. / ( math.sqrt(.5) * math.sqrt(7442.) ) #mean=3.5,var=0.5,mean_pred=1281,var_pred=7442,cov=61
+    
+    assert MSE_pred == DI_MMTF.compute_MSE(M_pred,R0,R_pred)
+    assert R2_pred == DI_MMTF.compute_R2(M_pred,R0,R_pred)
+    assert Rp_pred == DI_MMTF.compute_Rp(M_pred,R0,R_pred)
+    
+    
+""" Test the model quality measures. """
+def test_log_likelihood():
+    iterations = 10
+    burn_in = 2
+    thinning = 3 # so index 2,5,8 -> m=3,m=6,m=9
+    
+    E = ['entity0','entity1']
+    I = {E[0]:5, E[1]:3}
+    K = {E[0]:2, E[1]:4}
+    
+    iterations_all_Ft = {
+        E[0] : [numpy.ones((I[E[0]],K[E[0]])) * 3*m**2 for m in range(1,iterations+1)],
+        E[1] : [numpy.ones((I[E[1]],K[E[1]])) * 1*m**2 for m in range(1,iterations+1)]
+    }
+    iterations_all_Ft['entity0'][2][0,0] = 24 #instead of 27 - to ensure we do not get 0 variance in our predictions
+    iterations_all_Sn = [[numpy.ones((K[E[0]],K[E[1]])) * 2*m**2 for m in range(1,iterations+1)]]
+    iterations_all_taun = [[m**2 for m in range(1,iterations+1)]]
+    iterations_all_Sm = [[numpy.ones((K[E[1]],K[E[1]])) * 2*m**2 * 2 for m in range(1,iterations+1)]]
+    iterations_all_taum = [[m**2*2 for m in range(1,iterations+1)]]
+    
+    R0 = numpy.array([[1,2,3],[4,5,6],[7,8,9],[10,11,12],[13,14,15]],dtype=float)
+    M0 = numpy.array([[0,0,1],[0,1,0],[0,0,1],[1,1,0],[0,0,1]]) #R->3,5,9,10,11,15, R_pred->3542112,3556224,3556224,3556224,3556224,3556224
+    C0 = numpy.array([[1,2,3],[4,5,6],[7,8,9]],dtype=float)
+    M1 = numpy.array([[0,0,1],[0,0,0],[1,1,0]]) #R->3,7,8, R_pred->4741632,4741632,4741632
+    R, C = [(R0,M0,E[0],E[1])], [(C0,M1,E[1])]
+    lambdaF = {E[0]:2,E[1]:5}
+    lambdaSn, lambdaSm = [3], [4]
+    alpha, beta = 3, 1
+    priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    
+    #expected_exp_F0 = numpy.array([[9.+36.+81. for k in range(0,2)] for i in range(0,5)])
+    #expected_exp_F1 = numpy.array([[(9.+36.+81.)*(1./3.) for k in range(0,4)] for i in range(0,3)])
+    #expected_exp_Sn = numpy.array([[(9.+36.+81.)*(2./3.) for l in range(0,4)] for k in range(0,2)])
+    #expected_exp_taun = (9.+36.+81.)/3.
+    #R_pred = numpy.array([[ 3542112.,  3542112.,  3542112.],[ 3556224.,  3556224.,  3556224.],[ 3556224.,  3556224.,  3556224.],[ 3556224.,  3556224.,  3556224.],[ 3556224.,  3556224.,  3556224.]])
+    
+    #expected_exp_Sm = numpy.array([[(18.+72.+162.)*(2./3.) for l in range(0,4)] for k in range(0,4)])
+    #expected_exp_taum = (18.+72.+162.)/3.
+    #C_pred = array([[4741632.,4741632.,4741632.],[4741632.,4741632.,4741632.],[4741632.,4741632.,4741632.]])
+    
+    MSE_R = ((3.-3542112.)**2 + (5.-3556224.)**2 + (9.-3556224.)**2 + (10.-3556224.)**2 + (11.-3556224.)**2 + (15.-3556224.)**2) / 6.
+    MSE_C = ((3.-4741632.)**2 + (7.-4741632.)**2 + (8.-4741632.)**2) / 3.
+    
+    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
+    DI_MMTF.iterations_all_Ft = iterations_all_Ft
+    DI_MMTF.iterations_all_Sn = iterations_all_Sn
+    DI_MMTF.iterations_all_taun = iterations_all_taun
+    DI_MMTF.iterations_all_Sm = iterations_all_Sm
+    DI_MMTF.iterations_all_taum = iterations_all_taum
+    
+    log_likelihood = 6./2. * (math.log(42.) - math.log(2*math.pi)) - 42./2.*(MSE_R*6.) + \
+                     3./2. * (math.log(84.) - math.log(2*math.pi)) - 84./2.*(MSE_C*3.)           
+    AIC = -2*log_likelihood + 2*(5*2+4*3+2*4+4*4+2)
+    BIC = -2*log_likelihood + (5*2+4*3+2*4+4*4+2)*math.log(9.)
+    
+    assert log_likelihood == DI_MMTF.quality('loglikelihood',iterations,burn_in,thinning)
+    assert AIC == DI_MMTF.quality('AIC',iterations,burn_in,thinning)
+    assert BIC == DI_MMTF.quality('BIC',iterations,burn_in,thinning)
+    with pytest.raises(AssertionError) as error:
+        DI_MMTF.quality('FAIL',iterations,burn_in,thinning)
+    assert str(error.value) == "Unrecognised metric for model quality: FAIL."

@@ -111,8 +111,8 @@ quality(metric,thinning,burn_in) function:
 import sys
 sys.path.append("/home/tab43/Documents/Projects/libraries/")
 
-from HybridMatrixFactorisation.code.Gibbs.draws_Gibbs import draw_tau, draw_lambda, draw_F, draw_S
-from HybridMatrixFactorisation.code.Gibbs.init_Gibbs import init_lambdak, init_FG, init_S, init_V, init_tau
+from HMF.code.Gibbs.draws_Gibbs import draw_tau, draw_lambda, draw_F, draw_S
+from HMF.code.Gibbs.init_Gibbs import init_lambdak, init_FG, init_S, init_V, init_tau
 
 import numpy, math, time
 
@@ -210,20 +210,20 @@ class HMF_Gibbs:
         ''' Extract the info from R '''
         for n,(Rn,Mn,E1,E2,alpha) in enumerate(R):
             assert E1 != E2, "Gave same entity type for R%s: %s." % (n,E1)
-            if E1 not in self.all_E: self.all_E.append(E1)
-            if E2 not in self.all_E: self.all_E.append(E2)
-            self.E_per_Rn.append((E1,E2))
-                
             assert len(Rn.shape) == 2, "R%s is not 2-dimensional, but instead %s-dimensional." % (n,len(Rn.shape))
             assert len(Mn.shape) == 2, "M%s is not 2-dimensional, but instead %s-dimensional." % (n,len(Mn.shape))
             assert Rn.shape == Mn.shape, "Different shapes for R%s and M%s: %s and %s." % (n,n,Rn.shape,Mn.shape)
-            
+                
             (I,J) = Rn.shape
             if E1 in self.I.keys(): assert self.I[E1] == I, \
                 "Different number of rows (%s) in R%s for entity type %s than before (%s)!" % (I,n,E1,self.I[E1])
             if E2 in self.I.keys(): assert self.I[E2] == J, \
                 "Different number of columns (%s) in R%s for entity type %s than before (%s)!" % (J,n,E2,self.I[E2])
             self.I[E1], self.I[E2] = I, J
+            
+            if E1 not in self.all_E: self.all_E.append(E1)
+            if E2 not in self.all_E: self.all_E.append(E2)
+            self.E_per_Rn.append((E1,E2))
             
             self.all_Rn.append(numpy.array(Rn))
             self.all_Mn.append(numpy.array(Mn))
@@ -234,10 +234,7 @@ class HMF_Gibbs:
             self.U2t.setdefault(E2,[]).append(n)
             
         ''' Extract the info from C '''
-        for m,(Cm,Mm,E,alpha) in enumerate(C):
-            if E not in self.all_E: self.all_E.append(E)
-            self.E_per_Cm.append(E)
-            
+        for m,(Cm,Mm,E,alpha) in enumerate(C):            
             assert len(Cm.shape) == 2, "C%s is not 2-dimensional, but instead %s-dimensional." % (m,len(Cm.shape))
             assert len(Mm.shape) == 2, "M%s is not 2-dimensional, but instead %s-dimensional." % (m,len(Mm.shape))
             assert Cm.shape == Mm.shape, "Different shapes for C%s and M%s: %s and %s." % (m,m,Cm.shape,Mm.shape)
@@ -247,6 +244,9 @@ class HMF_Gibbs:
             if E in self.I.keys(): assert self.I[E] == I, \
                 "Different number of rows (%s) in C%s for entity type %s than before (%s)!" % (I,m,E,self.I[E])
             self.I[E] = I
+            
+            if E not in self.all_E: self.all_E.append(E)
+            self.E_per_Cm.append(E)
             
             # Set the diagonal entries as unobserved
             for i in range(0,I):
@@ -260,10 +260,7 @@ class HMF_Gibbs:
             self.Vt.setdefault(E,[]).append(m)
         
         ''' Extract the info from D '''
-        for l,(Dl,Ml,E,alpha) in enumerate(D):
-            if E not in self.all_E: self.all_E.append(E)
-            self.E_per_Dl.append(E)
-            
+        for l,(Dl,Ml,E,alpha) in enumerate(D):            
             assert len(Dl.shape) == 2, "D%s is not 2-dimensional, but instead %s-dimensional." % (l,len(Dl.shape))
             assert len(Ml.shape) == 2, "M%s is not 2-dimensional, but instead %s-dimensional." % (l,len(Ml.shape))
             assert Dl.shape == Ml.shape, "Different shapes for D%s and M%s: %s and %s." % (l,l,Dl.shape,Ml.shape)
@@ -274,6 +271,9 @@ class HMF_Gibbs:
             self.I[E] = I
             self.J.append(J)
             
+            if E not in self.all_E: self.all_E.append(E)
+            self.E_per_Dl.append(E)
+            
             self.all_Dl.append(numpy.array(Dl))
             self.all_Ml.append(numpy.array(Ml))
             self.size_Omegal.append(Ml.sum())
@@ -281,6 +281,7 @@ class HMF_Gibbs:
             
             self.Wt.setdefault(E,[]).append(l)
         
+        ''' Compute the number of datasets and entity types '''
         self.N = len(self.all_Rn) 
         self.M = len(self.all_Cm)
         self.L = len(self.all_Dl)
@@ -338,8 +339,8 @@ class HMF_Gibbs:
         self.nonnegative_G = True if self.prior_G == 'exponential' else False
         self.nonnegative_S = True if self.prior_S == 'exponential' else False
         
-        print "Instantiated HMF model with: F,G ~ %s, S ~ %s, and update order %s for FG, %s for S." % \
-            (self.prior_FG,self.prior_S,self.order_FG,self.order_S)
+        print "Instantiated HMF model with: F ~ %s, G ~ %s, S ~ %s, and update order %s for F, %s for G, %s for S." % \
+            (self.prior_F,self.prior_G,self.prior_S,self.order_F,self.order_G,self.order_S)
         
       
       
@@ -783,7 +784,7 @@ class HMF_Gibbs:
             rows/columns for the same entity type. '''
         U1,U2,V,W = self.U1t[E],self.U2t[E],self.Vt[E],self.Wt[E]
         sizes = [self.all_Rn[n].shape[0] for n in U1] + [self.all_Rn[n].shape[1] for n in U2] + \
-                [self.all_Rm[m].shape[0] for m in V]  + [self.all_Dl[l].shape[0] for l in W]
+                [self.all_Cm[m].shape[0] for m in V]  + [self.all_Dl[l].shape[0] for l in W]
         assert len(set(sizes)) == 1, "Different dataset sizes for entity type %s across datasets R%s, C%s, M%s: %s, respectively." % (E,U1+U2,V,W,sizes)
 
     def check_observed_entry(self,E):
