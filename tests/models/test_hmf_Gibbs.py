@@ -649,27 +649,40 @@ def test_predict():
     E = ['entity0','entity1']
     I = {E[0]:5, E[1]:3}
     K = {E[0]:2, E[1]:4}
+    J = [6]
     
     iterations_all_Ft = {
         E[0] : [numpy.ones((I[E[0]],K[E[0]])) * 3*m**2 for m in range(1,10+1)],
         E[1] : [numpy.ones((I[E[1]],K[E[1]])) * 1*m**2 for m in range(1,10+1)] 
+    }
+    iterations_all_lambdat = {
+        E[0] : [numpy.ones(K[E[0]]) * 3*m**2 for m in range(1,10+1)],
+        E[1] : [numpy.ones(K[E[1]]) * 1*m**2 for m in range(1,10+1)]
     }
     iterations_all_Ft['entity0'][2][0,0] = 24 #instead of 27 - to ensure we do not get 0 variance in our predictions
     iterations_all_Sn = [[numpy.ones((K[E[0]],K[E[1]])) * 2*m**2 for m in range(1,10+1)]]
     iterations_all_taun = [[m**2 for m in range(1,10+1)]]
     iterations_all_Sm = [[numpy.ones((K[E[1]],K[E[1]])) * 2*m**2 * 2 for m in range(1,10+1)]]
     iterations_all_taum = [[m**2*2 for m in range(1,10+1)]]
+    iterations_all_Gl = [[numpy.ones((J[0],K[E[0]])) * 2*m**2 * 3 for m in range(1,10+1)]]
+    iterations_all_taul = [[m**2*3 for m in range(1,10+1)]]
     
     R0 = numpy.array([[1,2,3],[4,5,6],[7,8,9],[10,11,12],[13,14,15]],dtype=float)
     C0 = numpy.array([[1,2,3],[4,5,6],[7,8,9]],dtype=float)
-    M0, M1 = numpy.ones((5,3)), numpy.ones((3,3))
-    R, C = [(R0,M0,E[0],E[1])], [(C0,M1,E[1])]
-    lambdaF = {E[0]:2,E[1]:5}
-    lambdaSn, lambdaSm = [3], [4]
-    alpha, beta = 3, 1
-    priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    D0 = numpy.array([[1,2,3,4,5,6],[7,8,9,10,11,12],[13,14,15,16,17,18],[19,20,21,22,23,24],[25,26,27,28,29,30]],dtype=float)
+    M0, M1, M2 = numpy.ones((5,3)), numpy.ones((3,3)), numpy.ones((5,6))
+    R, C, D = [(R0,M0,E[0],E[1],1.)], [(C0,M1,E[1],1.)], [(D0,M2,E[0],1.)]
     
-    #expected_exp_F0 = numpy.array([[9.+36.+81. for k in range(0,2)] for i in range(0,5)])
+    alphatau, betatau = 1., 2.
+    alpha0, beta0 = 6., 7.
+    lambdaF, lambdaG = 3., 8.
+    lambdaSn, lambdaSm = 4., 5.
+    priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
+               'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorS' : 'normal', 'ARD' : True, 
+                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    
+    #expected_exp_F0 = numpy.array([[125.,126.],[126.,126.],[126.,126.],[126.,126.],[126.,126.]])
     #expected_exp_F1 = numpy.array([[(9.+36.+81.)*(1./3.) for k in range(0,4)] for i in range(0,3)])
     #expected_exp_Sn = numpy.array([[(9.+36.+81.)*(2./3.) for l in range(0,4)] for k in range(0,2)])
     #expected_exp_taun = (9.+36.+81.)/3.
@@ -679,24 +692,38 @@ def test_predict():
     #expected_exp_taum = (18.+72.+162.)/3.
     #C_pred = array([[4741632.,4741632.,4741632.],[4741632.,4741632.,4741632.],[4741632.,4741632.,4741632.]])
     
+    #expected_exp_Gl = numpy.array([[(27.+108.+243.)*(2./3.) for k in range(0,2)] for j in range(0,6)])
+    #expected_exp_taul = (27.+108.+243.)/3. 
+    #D_pred = array([[63252.,63252.,63252.,63252.,63252.,63252.],[63504.,63504.,63504.,63504.,63504.,63504.],[63504.,63504.,63504.,63504.,63504.,63504.],[63504.,63504.,63504.,63504.,63504.,63504.],[63504.,63504.,63504.,63504.,63504.,63504.]])
+    
     M_test_R = numpy.array([[0,0,1],[0,1,0],[0,0,0],[1,1,0],[0,0,0]]) #R->3,5,10,11, R_pred->3542112,3556224,3556224,3556224
     MSE_R = ((3.-3542112.)**2 + (5.-3556224.)**2 + (10.-3556224.)**2 + (11.-3556224.)**2) / 4.
     R2_R = 1. - ((3.-3542112.)**2 + (5.-3556224.)**2 + (10.-3556224.)**2 + (11.-3556224.)**2) / (4.25**2+2.25**2+2.75**2+3.75**2) #mean=7.25
     Rp_R = 357. / ( math.sqrt(44.75) * math.sqrt(5292.) ) #mean=7.25,var=44.75, mean_pred=3552696,var_pred=5292, corr=(-4.25*-63 + -2.25*21 + 2.75*21 + 3.75*21)
     
-    M_test_C = numpy.array([[0,0,1],[0,1,0],[1,1,0]]) #R->3,5,7,8, R_pred->4741632,4741632,4741632,4741632
+    M_test_C = numpy.array([[0,0,1],[0,1,0],[1,1,0]]) #C->3,5,7,8, C_pred->4741632,4741632,4741632,4741632
     MSE_C = ((3.-4741632.)**2 + (5.-4741632.)**2 + (7.-4741632.)**2 + (8.-4741632.)**2) / 4.
     R2_C = 1. - ((3.-4741632.)**2 + (5.-4741632.)**2 + (7.-4741632.)**2 + (8.-4741632.)**2) / (2.75**2+0.75**2+1.25**2+2.25**2) #mean=5.75
     
-    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
-    DI_MMTF.iterations_all_Ft = iterations_all_Ft
-    DI_MMTF.iterations_all_Sn = iterations_all_Sn
-    DI_MMTF.iterations_all_taun = iterations_all_taun
-    DI_MMTF.iterations_all_Sm = iterations_all_Sm
-    DI_MMTF.iterations_all_taum = iterations_all_taum
+    M_test_D = numpy.array([[0,0,1,0,0,1],[0,1,0,0,0,0],[1,1,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]) #D->3,6,8,13,14, D_pred->63252,63252,63504,63504,63504
+    MSE_D = ((3.-63252.)**2 + (6.-63252.)**2 + (8.-63504.)**2 + (13.-63504.)**2 + (14.-63504.)**2) / 5.
+    R2_D = 1. - ((3.-63252.)**2 + (6.-63252.)**2 + (8.-63504.)**2 + (13.-63504.)**2 + (14.-63504.)**2) / (5.8**2+2.8**2+0.8**2+4.2**2+5.2**2) #mean=8.8
+    Rp_D = 0.84265143679484211    
     
-    performances_R = DI_MMTF.predict_Rn(0,M_test_R,iterations,burn_in,thinning)
-    performances_C = DI_MMTF.predict_Cm(0,M_test_C,iterations,burn_in,thinning)
+    HMF = HMF_Gibbs(R,C,D,K,settings,priors)
+    HMF.iterations = iterations
+    HMF.iterations_all_Ft = iterations_all_Ft
+    HMF.iterations_all_lambdat = iterations_all_lambdat
+    HMF.iterations_all_Sn = iterations_all_Sn
+    HMF.iterations_all_taun = iterations_all_taun
+    HMF.iterations_all_Sm = iterations_all_Sm
+    HMF.iterations_all_taum = iterations_all_taum
+    HMF.iterations_all_Gl = iterations_all_Gl
+    HMF.iterations_all_taul = iterations_all_taul
+    
+    performances_R = HMF.predict_Rn(0,M_test_R,burn_in,thinning)
+    performances_C = HMF.predict_Cm(0,M_test_C,burn_in,thinning)
+    performances_D = HMF.predict_Dl(0,M_test_D,burn_in,thinning)
     
     assert performances_R['MSE'] == MSE_R
     assert performances_R['R^2'] == R2_R
@@ -705,6 +732,10 @@ def test_predict():
     assert performances_C['MSE'] == MSE_C
     assert performances_C['R^2'] == R2_C
     assert numpy.isnan(performances_C['Rp'])
+    
+    assert performances_D['MSE'] == MSE_D
+    assert performances_D['R^2'] == R2_D
+    assert performances_D['Rp'] == Rp_D
 
 
 """ Test the evaluation measures MSE, R^2, Rp """
