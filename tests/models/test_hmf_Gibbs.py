@@ -555,7 +555,7 @@ def test_run():
             assert HMF.iterations_all_taul[l][iteration] != HMF.iterations_all_taul[l][iteration-1]
             
             
-""" Test approximating the expectations for the F, S, tau """
+""" Test approximating the expectations for the F, S, G, lambda, tau """
 def test_approx_expectation():
     iterations = 10
     burn_in = 2
@@ -564,51 +564,80 @@ def test_approx_expectation():
     E = ['entity0','entity1']
     I = {E[0]:5, E[1]:3}
     K = {E[0]:2, E[1]:4}
+    J = [6]
     
     iterations_all_Ft = {
         E[0] : [numpy.ones((I[E[0]],K[E[0]])) * 3*m**2 for m in range(1,10+1)],
         E[1] : [numpy.ones((I[E[1]],K[E[1]])) * 1*m**2 for m in range(1,10+1)]
     }
+    iterations_all_lambdat = {
+        E[0] : [numpy.ones(K[E[0]]) * 3*m**2 for m in range(1,10+1)],
+        E[1] : [numpy.ones(K[E[1]]) * 1*m**2 for m in range(1,10+1)]
+    }
     iterations_all_Sn = [[numpy.ones((K[E[0]],K[E[1]])) * 2*m**2 for m in range(1,10+1)]]
     iterations_all_taun = [[m**2 for m in range(1,10+1)]]
     iterations_all_Sm = [[numpy.ones((K[E[1]],K[E[1]])) * 2*m**2 * 2 for m in range(1,10+1)]]
     iterations_all_taum = [[m**2*2 for m in range(1,10+1)]]
+    iterations_all_Gl = [[numpy.ones((J[0],K[E[1]])) * 2*m**2 * 3 for m in range(1,10+1)]]
+    iterations_all_taul = [[m**2*3 for m in range(1,10+1)]]
     
     expected_exp_F0 = numpy.array([[9.+36.+81. for k in range(0,2)] for i in range(0,5)])
     expected_exp_F1 = numpy.array([[(9.+36.+81.)*(1./3.) for k in range(0,4)] for i in range(0,3)])
+    expected_exp_lambda0 = numpy.array([9.+36.+81. for k in range(0,2)])
+    expected_exp_lambda1 = numpy.array([(9.+36.+81.)*(1./3.) for k in range(0,4)])
     expected_exp_Sn = numpy.array([[(9.+36.+81.)*(2./3.) for l in range(0,4)] for k in range(0,2)])
     expected_exp_taun = (9.+36.+81.)/3.
     expected_exp_Sm = numpy.array([[(18.+72.+162.)*(2./3.) for l in range(0,4)] for k in range(0,4)])
     expected_exp_taum = (18.+72.+162.)/3.
+    expected_exp_Gl = numpy.array([[(27.+108.+243.)*(2./3.) for k in range(0,4)] for j in range(0,6)])
+    expected_exp_taul = (27.+108.+243.)/3.
     
     R0, M0 = numpy.ones((I[E[0]],I[E[1]])), numpy.ones((I[E[0]],I[E[1]]))
     C0, M1 = numpy.ones((I[E[1]],I[E[1]])), numpy.ones((I[E[1]],I[E[1]]))
-    R, C = [(R0,M0,E[0],E[1])], [(C0,M1,E[1])]
-    lambdaF = {E[0]:2,E[1]:4}
-    lambdaSn, lambdaSm = [3], [4]
-    alpha, beta = 3, 1
-    priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    D0, M2 = numpy.ones((I[E[1]],J[0])), numpy.ones((I[E[1]],J[0]))
+    R, C, D = [(R0,M0,E[0],E[1],1.)], [(C0,M1,E[1],1.)], [(D0,M2,E[1],1.)]
     
-    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
-    DI_MMTF.iterations_all_Ft = iterations_all_Ft
-    DI_MMTF.iterations_all_Sn = iterations_all_Sn
-    DI_MMTF.iterations_all_taun = iterations_all_taun
-    DI_MMTF.iterations_all_Sm = iterations_all_Sm
-    DI_MMTF.iterations_all_taum = iterations_all_taum
+    alphatau, betatau = 1., 2.
+    alpha0, beta0 = 6., 7.
+    lambdaF, lambdaG = 3., 8.
+    lambdaSn, lambdaSm = 4., 5.
+    priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
+               'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorS' : 'normal', 'ARD' : True, 
+                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
     
-    exp_F0 = DI_MMTF.approx_expectation_Ft(E[0],iterations,burn_in,thinning)
-    exp_F1 = DI_MMTF.approx_expectation_Ft(E[1],iterations,burn_in,thinning)
-    exp_Sn = DI_MMTF.approx_expectation_Sn(0,iterations,burn_in,thinning)
-    exp_taun = DI_MMTF.approx_expectation_taun(0,iterations,burn_in,thinning)
-    exp_Sm = DI_MMTF.approx_expectation_Sm(0,iterations,burn_in,thinning)
-    exp_taum = DI_MMTF.approx_expectation_taum(0,iterations,burn_in,thinning)
+    HMF = HMF_Gibbs(R,C,D,K,settings,priors)
+    HMF.iterations = iterations
+    HMF.iterations_all_Ft = iterations_all_Ft
+    HMF.iterations_all_lambdat = iterations_all_lambdat
+    HMF.iterations_all_Sn = iterations_all_Sn
+    HMF.iterations_all_taun = iterations_all_taun
+    HMF.iterations_all_Sm = iterations_all_Sm
+    HMF.iterations_all_taum = iterations_all_taum
+    HMF.iterations_all_Gl = iterations_all_Gl
+    HMF.iterations_all_taul = iterations_all_taul
+    
+    exp_F0 = HMF.approx_expectation_Ft(E[0],burn_in,thinning)
+    exp_F1 = HMF.approx_expectation_Ft(E[1],burn_in,thinning)
+    exp_lambda0 = HMF.approx_expectation_lambdat(E[0],burn_in,thinning)
+    exp_lambda1 = HMF.approx_expectation_lambdat(E[1],burn_in,thinning)
+    exp_Sn = HMF.approx_expectation_Sn(0,burn_in,thinning)
+    exp_taun = HMF.approx_expectation_taun(0,burn_in,thinning)
+    exp_Sm = HMF.approx_expectation_Sm(0,burn_in,thinning)
+    exp_taum = HMF.approx_expectation_taum(0,burn_in,thinning)
+    exp_Gl = HMF.approx_expectation_Gl(0,burn_in,thinning)
+    exp_taul = HMF.approx_expectation_taul(0,burn_in,thinning)
     
     assert numpy.array_equal(expected_exp_F0,exp_F0)
     assert numpy.array_equal(expected_exp_F1,exp_F1)
+    assert numpy.array_equal(expected_exp_lambda0,exp_lambda0)
+    assert numpy.array_equal(expected_exp_lambda1,exp_lambda1)
     assert numpy.array_equal(expected_exp_Sn,exp_Sn)
     assert expected_exp_taun == exp_taun
     assert numpy.array_equal(expected_exp_Sm,exp_Sm)
     assert expected_exp_taum == exp_taum
+    assert numpy.array_equal(expected_exp_Gl,exp_Gl)
+    assert expected_exp_taul == exp_taul
 
     
 """ Test computing the performance of the predictions using the expectations """

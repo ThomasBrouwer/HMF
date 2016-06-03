@@ -649,6 +649,12 @@ class HMF_Gibbs:
         indices = range(burn_in,self.iterations,thinning)  
         return numpy.array([self.iterations_all_Ft[E][i] for i in indices]).sum(axis=0) / float(len(indices))   
         
+    def approx_expectation_lambdat(self,E,burn_in,thinning):
+        ''' Expectation of lambdat belonging to entity type E '''
+        assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
+        indices = range(burn_in,self.iterations,thinning)  
+        return numpy.array([self.iterations_all_lambdat[E][i] for i in indices]).sum(axis=0) / float(len(indices))   
+        
     def approx_expectation_Gl(self,l,burn_in,thinning):
         ''' Expectation of Gl '''
         assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
