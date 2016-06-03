@@ -456,40 +456,103 @@ def test_initialise():
     
 """ Test some iterations, and that the values have changed in the F, S. """
 def test_run():
+    ''' Settings '''
+    E0, E1, E2 = 'entity0','entity1',1337
+    I0, I1, I2 = 10,9,8
+    K0, K1, K2 = 3,2,1
+    J0 = 4
+    N, M, L, T = 3, 2, 1, 3
+    
+    R0 = numpy.ones((I0,I1)) # relates E0, E1
+    R1 = numpy.ones((I0,I1)) # relates E0, E1
+    R2 = numpy.ones((I1,I2)) # relates E1, E2
+    C0 = numpy.ones((I0,I0)) # relates E0
+    C1 = numpy.ones((I2,I2)) # relates E2
+    D0 = numpy.ones((I2,J0)) # relates E2
+    
+    Mn0 = numpy.ones((I0,I1))
+    Mn1 = numpy.ones((I0,I1))
+    Mn2 = numpy.ones((I1,I2))
+    Mm0 = numpy.ones((I0,I0))
+    Mm1 = numpy.ones((I2,I2))
+    Ml0 = numpy.ones((I2,J0))
+    
+    #size_Omegan = [I0*I1,I0*I1,I1*I2]
+    #size_Omegam = [I0*(I0-1),I2*(I2-1)]
+    #size_Omegal = [I2*J0]
+    
+    alphan = [11.,12.,13.]
+    alpham = [14.,15.]
+    alphal = [16.]
+    
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[1])]
+    D = [(D0,Ml0,E2,alphal[0])]
+    E = [E0,E1,E2]
+    K = {E0:K0,E1:K1,E2:K2}
+    I = {E0:I0,E1:I1,E2:I2}
+    J = [J0]
+    
+    #U1t = {'entity0':[0,1], 'entity1':[2], 1337:[] }
+    #U2t = {'entity0':[], 'entity1':[0,1], 1337:[2] }
+    #Vt = {'entity0':[0], 'entity1':[], 1337:[1] }
+    #Wt = {'entity0':[], 'entity1':[], 1337:[0]}
+    
+    E_per_Rn = [(E0,E1),(E0,E1),(E1,E2)]
+    E_per_Cm = [E0,E2]
+    E_per_Dl = [E2]
+    
+    alphatau, betatau = 1., 2.
+    alpha0, beta0 = 6., 7.
+    lambdaF, lambdaG = 3., 8.
+    lambdaSn, lambdaSm = 4., 5.
+    priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
+               'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorS' : 'normal', 'ARD' : True, 
+                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    init = { 'F' : 'kmeans', 'G' : 'least', 'S' : 'least', 'lambdat' : 'random', 'tau' : 'random' }
     iterations = 10
-    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
-    DI_MMTF.initialise(init_S,init_F)
-    DI_MMTF.run(iterations)
     
+    HMF = HMF_Gibbs(R,C,D,K,settings,priors)
+    HMF.initialise(init)
+    HMF.run(iterations)
+    
+    ''' Do size checks '''
     for E0 in E:
-        assert len(DI_MMTF.iterations_all_Ft[E0]) == iterations
+        assert len(HMF.iterations_all_Ft[E0]) == iterations
+        assert len(HMF.iterations_all_lambdat[E0]) == iterations
     for n in range(0,N):
-        assert len(DI_MMTF.iterations_all_Sn[n]) == iterations
-        assert len(DI_MMTF.iterations_all_taun[n]) == iterations
+        assert len(HMF.iterations_all_Sn[n]) == iterations
+        assert len(HMF.iterations_all_taun[n]) == iterations
     for m in range(0,M):
-        assert len(DI_MMTF.iterations_all_Sm[m]) == iterations
-        assert len(DI_MMTF.iterations_all_taum[m]) == iterations
+        assert len(HMF.iterations_all_Sm[m]) == iterations
+        assert len(HMF.iterations_all_taum[m]) == iterations
+    for l in range(0,L):
+        assert len(HMF.iterations_all_Gl[l]) == iterations
+        assert len(HMF.iterations_all_taul[l]) == iterations
     
+    ''' Check whether values change each iteration '''
     for iteration in range(1,iterations):
         for E0 in E:
+            for k in range(0,K[E0]):
+                assert HMF.iterations_all_lambdat[E0][iteration][k] != HMF.iterations_all_lambdat[E0][iteration-1][k]
             for i,k in itertools.product(xrange(0,I[E0]),xrange(0,K[E0])):
-                assert DI_MMTF.iterations_all_Ft[E0][iteration][i,k] != lambdaF[E0]
-                assert DI_MMTF.iterations_all_Ft[E0][iteration][i,k] != DI_MMTF.iterations_all_Ft[E0][iteration-1][i,k]
+                assert HMF.iterations_all_Ft[E0][iteration][i,k] != HMF.iterations_all_Ft[E0][iteration-1][i,k]
         for n in range(0,N):
             E0,E1 = E_per_Rn[n]
             for k,l in itertools.product(xrange(0,K[E0]),xrange(0,K[E1])):
-                assert DI_MMTF.iterations_all_Sn[n][iteration][k,l] != lambdaSn[n]
-                assert DI_MMTF.iterations_all_Sn[n][iteration][k,l] != DI_MMTF.iterations_all_Sn[n][iteration-1][k,l]
-            assert DI_MMTF.iterations_all_taun[n][iteration] != alpha/beta
-            print DI_MMTF.iterations_all_taun
-            assert DI_MMTF.iterations_all_taun[n][iteration] != DI_MMTF.iterations_all_taun[n][iteration-1]
+                assert HMF.iterations_all_Sn[n][iteration][k,l] != HMF.iterations_all_Sn[n][iteration-1][k,l]
+            assert HMF.iterations_all_taun[n][iteration] != HMF.iterations_all_taun[n][iteration-1]
         for m in range(0,M):
             E0 = E_per_Cm[m]
             for k,l in itertools.product(xrange(0,K[E0]),xrange(0,K[E0])):
-                assert DI_MMTF.iterations_all_Sm[m][iteration][k,l] != lambdaSm[m]
-                assert DI_MMTF.iterations_all_Sm[m][iteration][k,l] != DI_MMTF.iterations_all_Sm[m][iteration-1][k,l]
-            assert DI_MMTF.iterations_all_taum[m][iteration] != alpha/beta
-            assert DI_MMTF.iterations_all_taum[m][iteration] != DI_MMTF.iterations_all_taum[m][iteration-1]
+                assert HMF.iterations_all_Sm[m][iteration][k,l] != HMF.iterations_all_Sm[m][iteration-1][k,l]
+            assert HMF.iterations_all_taum[m][iteration] != HMF.iterations_all_taum[m][iteration-1]
+        for l in range(0,l):
+            E0 = E_per_Dl[l]
+            for j,k in itertools.product(xrange(0,J[l]),xrange(0,K[E0])):
+                assert HMF.iterations_all_Gl[l][iteration][j,k] != HMF.iterations_all_Dl[l][iteration-1][j,k]
+            assert HMF.iterations_all_taul[l][iteration] != HMF.iterations_all_taul[l][iteration-1]
             
             
 """ Test approximating the expectations for the F, S, tau """

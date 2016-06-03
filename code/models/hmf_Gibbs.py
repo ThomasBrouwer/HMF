@@ -469,11 +469,12 @@ class HMF_Gibbs:
         self.iterations = iterations
         self.iterations_all_Ft =      {E:[] for E in self.all_E}
         self.iterations_all_lambdat = {E:[] for E in self.all_E}
-        self.iterations_all_Gl =      [[] for l in range(0,self.L)]
         self.iterations_all_Sn =      [[] for n in range(0,self.N)]
         self.iterations_all_Sm =      [[] for m in range(0,self.M)]
+        self.iterations_all_Gl =      [[] for l in range(0,self.L)]
         self.iterations_all_taun =    [[] for n in range(0,self.N)]
         self.iterations_all_taum =    [[] for m in range(0,self.M)]
+        self.iterations_all_taul =    [[] for l in range(0,self.L)]
         self.all_times = [] 
         
         metrics = ['MSE','R^2','Rp']
@@ -512,7 +513,7 @@ class HMF_Gibbs:
                     Fs = [(self.all_Ft[E],self.nonnegative_F)]
                     for l in self.Wt[E]:
                         Fs.append((self.all_Gl[l],self.nonnegative_G))
-                    self.lambdak = draw_lambda(
+                    self.all_lambdat[E] = draw_lambda(
                         alpha0=self.alpha0,
                         beta0=self.beta0,
                         Fs=Fs,
@@ -531,8 +532,8 @@ class HMF_Gibbs:
             ''' Draw new values for the Gl '''
             for l in range(0,self.L):
                 E = self.E_per_Dl[l]
-                D = [self.all_Dl[l].T,self.all_Ml[l].T,self.all_Gl[l],
-                     self.all_Ft[E],self.all_taul[l],self.all_alphal[l]]
+                D = [(self.all_Dl[l].T,self.all_Ml[l].T,self.all_Gl[l],
+                     self.all_Ft[E],self.all_taul[l],self.all_alphal[l])]
                 lambdaGl = self.all_lambdat[E] if self.ARD else self.lambdaG*numpy.ones(self.K[E])
                 self.all_Gl[l] = draw_F(
                     R=[],C=[],D=D,
@@ -543,7 +544,7 @@ class HMF_Gibbs:
             ''' Draw new values for the Sn '''
             for n in range(0,self.N):
                 E1,E2 = self.E_per_Rn[n]
-                lambdaSn = self.lambdaS * numpy.ones((self.K[E1],self.K[E2]))
+                lambdaSn = self.lambdaSn * numpy.ones((self.K[E1],self.K[E2]))
                 self.all_Sn[n] = draw_S(
                     dataset=self.all_Rn[n],
                     mask=self.all_Mn[n],
@@ -559,7 +560,7 @@ class HMF_Gibbs:
             ''' Draw new values for the Sm '''
             for m in range(0,self.M):
                 E = self.E_per_Cm[m]
-                lambdaSm = self.lambdaS * numpy.ones((self.K[E],self.K[E]))
+                lambdaSm = self.lambdaSm * numpy.ones((self.K[E],self.K[E]))
                 self.all_Sm[m] = draw_S(
                     dataset=self.all_Cm[m],
                     mask=self.all_Mm[m],
@@ -607,6 +608,7 @@ class HMF_Gibbs:
                 
             ''' Store the draws - have to make a deep copy for the dicts and lists '''
             for E in self.all_E:
+                self.iterations_all_lambdat[E].append(numpy.copy(self.all_lambdat[E]))
                 self.iterations_all_Ft[E].append(numpy.copy(self.all_Ft[E]))
             for n in range(0,self.N):
                 self.iterations_all_Sn[n].append(numpy.copy(self.all_Sn[n]))
@@ -614,7 +616,11 @@ class HMF_Gibbs:
             for m in range(0,self.M):
                 self.iterations_all_Sm[m].append(numpy.copy(self.all_Sm[m]))
                 self.iterations_all_taum[m].append(self.all_taum[m])
+            for l in range(0,self.L):
+                self.iterations_all_Gl[l].append(numpy.copy(self.all_Gl[l]))
+                self.iterations_all_taul[l].append(self.all_taul[l])
             
+            ''' Print the performancs and store them '''
             print "Iteration %s. Performances (MSE, R^2, Rp):" % (it+1)
             for n in range(0,self.N):  
                 perf = self.predict_while_running_Rn(n)
@@ -636,8 +642,7 @@ class HMF_Gibbs:
             self.all_times.append(time_iteration-time_start)       
       
 
-    """ Return the average value for the Fs, Ss,, Gs taus - i.e. our approximation to the expectations. 
-        Throw away the first <burn_in> samples, and then use every <thinning>th after. """
+    """ Return the average value for the Fs, Ss,, Gs taus - i.e. our approximation to the expectations. """
     def approx_expectation_Ft(self,E,burn_in,thinning):
         ''' Expectation of F belonging to entity type E '''
         assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
@@ -841,13 +846,13 @@ class HMF_Gibbs:
         for n in self.U1t[E]:
             _,E2 = self.E_per_Rn[n]
             R.append((self.all_Rn[n],self.all_Mn[n],self.all_Ft[E],self.all_Sn[n],
-                      self.all_F[E2],self.all_taun[n],self.all_alphan[n]))
+                      self.all_Ft[E2],self.all_taun[n],self.all_alphan[n]))
                       
         for n in self.U2t[E]:
             ''' In this case we take the transpose of R, M, S so that our F is the first matrix. '''
-            E1 = self.E_per_Rn[n]
+            E1,_ = self.E_per_Rn[n]
             R.append((self.all_Rn[n].T,self.all_Mn[n].T,self.all_Ft[E],self.all_Sn[n].T,
-                      self.all_F[E1],self.all_taun[n],self.all_alphan[n]))
+                      self.all_Ft[E1],self.all_taun[n],self.all_alphan[n]))
                       
         for m in self.Vt[E]:
             C.append((self.all_Cm[m],self.all_Mm[m],self.all_Ft[E],self.all_Sm[m],
@@ -868,17 +873,6 @@ class HMF_Gibbs:
             return numpy.dot(M1,numpy.dot(M2,M3))
         else:
             return numpy.dot(numpy.dot(M1,M2),M3)
-        
-    def deep_copy_dict(self,dictionary_of_numpy):
-        ''' Make a deep copy of a dictionary of numpy arrays '''
-        new_dict = {}
-        for key,val in dictionary_of_numpy.iteritems():
-            new_dict[key] = numpy.copy(val)
-        return new_dict
-        
-    def deep_copy_list(self,list_of_numpy):
-        ''' Make a deep copy of a list of numpy arrays '''
-        return [numpy.copy(array) for array in list_of_numpy]
         
     def log_likelihood_mf(self,R,M,expF,expG,exptau):
         ''' Return the matrix tri-factorisation likelihood of the data given 
