@@ -835,21 +835,11 @@ def test_log_likelihood():
     AIC = -2*log_likelihood + 2*no_parameters #F0,F1,Sn0,Sm0,G,lambda0,lambda1,tau
     BIC = -2*log_likelihood + no_parameters*math.log(no_datapoints)
     
-    print '{0:.20f}'.format(4./2. * (math.log(42.) - math.log(2*math.pi)) - 42./2.*(MSE_R*4.))
-    print '{0:.20f}'.format(3./2. * (math.log(84.) - math.log(2*math.pi)) - 84./2.*(MSE_C*3.))
-    print '{0:.20f}'.format(4./2. * (math.log(42.) - math.log(2*math.pi)) - 42./2.*(MSE_R*4.) + \
-                     3./2. * (math.log(84.) - math.log(2*math.pi)) - 84./2.*(MSE_C*3.))
-    print '{0:.20f}'.format(6./2. * (math.log(126.) - math.log(2*math.pi)) - 126./2.*(MSE_D*6.))
-    print '{0:.20f}'.format(4./2. * (math.log(42.) - math.log(2*math.pi)) - 42./2.*(MSE_R*4.) + \
-                     3./2. * (math.log(84.) - math.log(2*math.pi)) - 84./2.*(MSE_C*3.) + \
-                     6./2. * (math.log(126.) - math.log(2*math.pi)) - 126./2.*(MSE_D*6.))
-    print '{0:.20f}'.format(log_likelihood)
-    
     assert HMF.no_datapoints() == no_datapoints
     assert HMF.no_parameters() == no_parameters
-    assert log_likelihood == HMF.quality('loglikelihood',burn_in,thinning)
-    assert AIC == HMF.quality('AIC',burn_in,thinning)
-    assert BIC == HMF.quality('BIC',burn_in,thinning)
+    assert abs(log_likelihood - HMF.quality('loglikelihood',burn_in,thinning)) <= 1.
+    assert abs(AIC - HMF.quality('AIC',burn_in,thinning)) <= 1.
+    assert abs(BIC - HMF.quality('BIC',burn_in,thinning)) <= 1.
     with pytest.raises(AssertionError) as error:
-        HMF.quality('FAIL',iterations,burn_in,thinning)
+        HMF.quality('FAIL',burn_in,thinning)
     assert str(error.value) == "Unrecognised metric for model quality: FAIL."

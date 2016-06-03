@@ -782,9 +782,6 @@ class HMF_Gibbs:
             exptau = self.approx_expectation_taun(n,burn_in,thinning)
             log_likelihood += self.log_likelihood_mtf(self.all_Rn[n],self.all_Mn[n],expF1,expS,expF2,exptau)
             
-            print '{0:.20f}'.format(self.log_likelihood_mtf(self.all_Rn[n],self.all_Mn[n],expF1,expS,expF2,exptau))
-            print '{0:.20f}'.format(log_likelihood)  
-            
         for m in range(0,self.M):
             E1 = self.E_per_Cm[m]
             expF1 = self.approx_expectation_Ft(E1,burn_in,thinning)
@@ -792,20 +789,12 @@ class HMF_Gibbs:
             exptau = self.approx_expectation_taum(m,burn_in,thinning)
             log_likelihood += self.log_likelihood_mtf(self.all_Cm[m],self.all_Mm[m],expF1,expS,expF1,exptau)
             
-            print '{0:.20f}'.format(self.log_likelihood_mtf(self.all_Cm[m],self.all_Mm[m],expF1,expS,expF1,exptau))
-            print '{0:.20f}'.format(log_likelihood)  
-            
         for l in range(0,self.L):
             E = self.E_per_Dl[l]
             expF = self.approx_expectation_Ft(E,burn_in,thinning)
             expG = self.approx_expectation_Gl(l,burn_in,thinning)
             exptau = self.approx_expectation_taul(l,burn_in,thinning)
             log_likelihood += self.log_likelihood_mf(self.all_Dl[l],self.all_Ml[l],expF,expG,exptau)
-            
-            print '{0:.20f}'.format(self.log_likelihood_mf(self.all_Dl[l],self.all_Ml[l],expF,expG,exptau))
-            print '{0:.20f}'.format(log_likelihood)  
-            
-        print '{0:.20f}'.format(log_likelihood)            
             
         return log_likelihood            
             
