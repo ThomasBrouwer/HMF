@@ -260,108 +260,200 @@ def test_init():
 
 """ Test initialing parameters """
 def test_initialise():
-    """
-    We need to test the following cases:
-    1. Random initialisation of S
-    2. Expectation initialisation of S
-    3. Random initialisation of F
-    4. Expectation initialisation of F
-    5. K-means initialisation of F
-    """
     E0, E1, E2 = 'entity0','entity1',1337
     I0, I1, I2 = 10,9,8
     K0, K1, K2 = 3,2,1
-    N, M, T = 3, 2, 3
+    J0 = 4
+    N, M, L, T = 3, 2, 1, 3
     
     R0 = numpy.ones((I0,I1)) # relates E0, E1
     R1 = numpy.ones((I0,I1)) # relates E0, E1
     R2 = numpy.ones((I1,I2)) # relates E1, E2
-    C0 = numpy.ones((I0,I0)) # relates E0, E0
-    C1 = numpy.ones((I2,I2)) # relates E2, E2
+    C0 = numpy.ones((I0,I0)) # relates E0
+    C1 = numpy.ones((I2,I2)) # relates E2
+    D0 = numpy.ones((I2,J0)) # relates E2
     
     Mn0 = numpy.ones((I0,I1))
     Mn1 = numpy.ones((I0,I1))
     Mn2 = numpy.ones((I1,I2))
     Mm0 = numpy.ones((I0,I0))
     Mm1 = numpy.ones((I2,I2))
+    Ml0 = numpy.ones((I2,J0))
     
-    size_Omegan = [I0*I1,I0*I1,I1*I2]
-    size_Omegam = [I0*(I0-1),I2*(I2-1)]
+    #size_Omegan = [I0*I1,I0*I1,I1*I2]
+    #size_Omegam = [I0*(I0-1),I2*(I2-1)]
+    #size_Omegal = [I2*J0]
     
-    R = [(R0,Mn0,E0,E1),(R1,Mn1,E0,E1),(R2,Mn2,E1,E2)]
-    C = [(C0,Mm0,E0),(C1,Mm1,E2)]
+    alphan = [11.,12.,13.]
+    alpham = [14.,15.]
+    alphal = [16.]
+    
+    R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E0,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
+    C = [(C0,Mm0,E0,alpham[0]),(C1,Mm1,E2,alpham[1])]
+    D = [(D0,Ml0,E2,alphal[0])]
     E = [E0,E1,E2]
     K = {E0:K0,E1:K1,E2:K2}
     I = {E0:I0,E1:I1,E2:I2}
-    U1t = {'entity0':[0,1], 'entity1':[2], 1337:[] }
-    U2t = {'entity0':[], 'entity1':[0,1], 1337:[2] }
-    Vt = {'entity0':[0], 'entity1':[], 1337:[1] }
+    J = [J0]
+    
+    #U1t = {'entity0':[0,1], 'entity1':[2], 1337:[] }
+    #U2t = {'entity0':[], 'entity1':[0,1], 1337:[2] }
+    #Vt = {'entity0':[0], 'entity1':[], 1337:[1] }
+    Wt = {'entity0':[], 'entity1':[], 1337:[0]}
     E_per_Rn = [(E0,E1),(E0,E1),(E1,E2)]
     E_per_Cm = [E0,E2]
+    E_per_Dl = [E2]
     
-    alpha,beta = 1., 2.
-    lambdaF = { E0:1., E1:2., E2:3. }
-    lambdaSn, lambdaSm = [4.,5.,6.], [7.,8.]
-    priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
-
-    # 1 and 4 #
-    init_S, init_F = 'random', 'exp'
-    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
-    DI_MMTF.initialise(init_S,init_F)
+    alphatau, betatau = 1., 2.
+    alpha0, beta0 = 6., 7.
+    lambdaF, lambdaG = 3., 8.
+    lambdaSn, lambdaSm = 4., 5.
+    priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
+               'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+               
+    """
+    We need to test the following cases:
+    - F ~ Exp or ~ N
+    - G ~ Exp or ~ N
+    - S ~ Exp or ~ N
+    - ARD or no ARD
+    - F init random, exp, kmeans
+    - G init random, exp, least
+    - S init random, exp, least
+    - lambdat init random, exp
+    - tau init random, exp
+    """
+    
+    ''' F Exp, G Exp, S Exp, ARD. F exp, G exp, S exp, lambdat exp, tau exp. '''
+    settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorS' : 'exponential', 'ARD' : True, 
+                 'orderF' : 'rows', 'orderG' : 'columns', 'orderS' : 'individual' }    
+    init = { 'F' : 'exp', 'G' : 'exp', 'S' : 'exp', 'lambdat' : 'exp', 'tau' : 'exp'}
+    HMF = HMF_Gibbs(R,C,D,K,settings,priors)
+    HMF.initialise(init)
+    
+    for E1 in E:
+        for k in range(0,K[E1]):
+            assert HMF.all_lambdat[E1][k] == alpha0 / float(beta0)
+        for i,k in itertools.product(xrange(0,I[E1]),xrange(0,K[E1])):
+            assert HMF.all_Ft[E1][i,k] == 1./HMF.all_lambdat[E1][k]
+            
+    expected_all_taun = [0.90501075929910901,0.90501075929910901,6.5214198286413811]
+    for n in range(0,N):
+        E1,E2 = E_per_Rn[n]
+        for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
+            assert HMF.all_Sn[n][k,l] == 1./lambdaSn
+        assert HMF.all_taun[n] == expected_all_taun[n]
+            
+    expected_all_taum = [0.47612886531245974,1.7230629295737439]
+    for m in range(0,M):
+        E1 = E_per_Cm[m]
+        for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
+            assert HMF.all_Sm[m][k,l] == 1./lambdaSm
+        assert HMF.all_taum[m] == expected_all_taum[m]
+            
+    expected_all_taul = [4.1601208459214458]
+    for l in range(0,L):
+        E1 = E_per_Dl[l]
+        for j,k in itertools.product(xrange(0,J[l]),xrange(0,K[E1])):
+            assert HMF.all_Gl[l][j,k] == 1./HMF.all_lambdat[E1][k]
+        assert HMF.all_taul[l] == expected_all_taul[l]
+            
+    ''' F Exp, G Exp, S N, no ARD. F random, G exp, S exp, tau random. '''
+    settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorS' : 'normal', 'ARD' : False, 
+                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    init = { 'F' : 'random', 'G' : 'exp', 'S' : 'exp', 'tau' : 'random' }
+    HMF = HMF_Gibbs(R,C,D,K,settings,priors)
+    HMF.initialise(init)
     
     for E1 in E:
         for i,k in itertools.product(xrange(0,I[E1]),xrange(0,K[E1])):
-            assert DI_MMTF.all_Ft[E1][i,k] == 1./lambdaF[E1]
+            assert HMF.all_Ft[E1][i,k] != 1./lambdaF
             
     for n in range(0,N):
         E1,E2 = E_per_Rn[n]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
-            assert DI_MMTF.all_Sn[n][k,l] != 1./lambdaSn[n]
+            assert HMF.all_Sn[n][k,l] == 0.
+        assert HMF.all_taun[n] >= 0.
             
+    expected_all_taum = [0.47612886531245974,1.7230629295737439]
     for m in range(0,M):
         E1 = E_per_Cm[m]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
-            assert DI_MMTF.all_Sm[m][k,l] != 1./lambdaSm[m]
-    
-    # 2 and 3 #
-    init_S, init_F = 'exp', 'random'
-    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
-    DI_MMTF.initialise(init_S,init_F)
+            assert HMF.all_Sm[m][k,l] == 0.
+        assert HMF.all_taum[m] >= 0.
+            
+    expected_all_taul = [4.1601208459214458]
+    for l in range(0,L):
+        E1 = E_per_Dl[l]
+        for j,k in itertools.product(xrange(0,J[l]),xrange(0,K[E1])):
+            assert HMF.all_Gl[l][j,k] == 1./lambdaG
+        assert HMF.all_taul[l] >= 0.
+            
+    ''' F N, G N, S Exp, ARD. F kmeans, G exp, S random, lambdat random, tau random. '''
+    settings = { 'priorF' : 'normal', 'priorG' : 'normal', 'priorS' : 'exponential', 'ARD' : True, 
+                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    init = { 'F' : 'kmeans', 'G' : 'exp', 'S' : 'random', 'lambdat' : 'random', 'tau' : 'random' }
+    HMF = HMF_Gibbs(R,C,D,K,settings,priors)
+    HMF.initialise(init)
     
     for E1 in E:
+        for k in range(0,K[E1]):
+            assert HMF.all_lambdat[E1][k] >= 0.
         for i,k in itertools.product(xrange(0,I[E1]),xrange(0,K[E1])):
-            assert DI_MMTF.all_Ft[E1][i,k] != 1./lambdaF[E1]
+            assert HMF.all_Ft[E1][i,k] == 0.2 or HMF.all_Ft[E1][i,k] == 1.2
             
     for n in range(0,N):
         E1,E2 = E_per_Rn[n]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
-            assert DI_MMTF.all_Sn[n][k,l] == 1./lambdaSn[n]
+            assert HMF.all_Sn[n][k,l] >= 0.
+        assert HMF.all_taun[n] >= 0.
             
+    expected_all_taum = [0.47612886531245974,1.7230629295737439]
     for m in range(0,M):
         E1 = E_per_Cm[m]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
-            assert DI_MMTF.all_Sm[m][k,l] == 1./lambdaSm[m]
-    
-    # 5 #
-    init_S, init_F = 'exp', 'kmeans'
-    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
-    DI_MMTF.initialise(init_S,init_F)
+            assert HMF.all_Sm[m][k,l] >= 0.
+        assert HMF.all_taum[m] >= 0.
+            
+    expected_all_taul = [4.1601208459214458]
+    for l in range(0,L):
+        E1 = E_per_Dl[l]
+        for j,k in itertools.product(xrange(0,J[l]),xrange(0,K[E1])):
+            assert HMF.all_Gl[l][j,k] == 0.
+        assert HMF.all_taul[l] >= 0.
+            
+    ''' F Exp, G N, S N, no ARD. F kmeans, G least, S least, lambdat random, tau random. '''
+    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorS' : 'normal', 'ARD' : False, 
+                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    init = { 'F' : 'kmeans', 'G' : 'least', 'S' : 'least', 'lambdat' : 'random', 'tau' : 'random' }
+    HMF = HMF_Gibbs(R,C,D,K,settings,priors)
+    HMF.initialise(init)
     
     for E1 in E:
         for i,k in itertools.product(xrange(0,I[E1]),xrange(0,K[E1])):
-            assert DI_MMTF.all_Ft[E1][i,k] == 0.2 or DI_MMTF.all_Ft[E1][i,k] == 1.2
+            assert HMF.all_Ft[E1][i,k] == 0.2 or HMF.all_Ft[E1][i,k] == 1.2
             
     for n in range(0,N):
         E1,E2 = E_per_Rn[n]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
-            assert DI_MMTF.all_Sn[n][k,l] == 1./lambdaSn[n]
+            assert HMF.all_Sn[n][k,l] != 1./lambdaSn
+        assert HMF.all_taun[n] >= 0.
             
+    expected_all_taum = [0.47612886531245974,1.7230629295737439]
     for m in range(0,M):
         E1 = E_per_Cm[m]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
-            assert DI_MMTF.all_Sm[m][k,l] == 1./lambdaSm[m]
-    
+            assert HMF.all_Sm[m][k,l] != 1./lambdaSm
+        assert HMF.all_taum[m] >= 0.
             
+    expected_all_taul = [4.1601208459214458]
+    for l in range(0,L):
+        E1 = E_per_Dl[l]
+        for j,k in itertools.product(xrange(0,J[l]),xrange(0,K[E1])):
+            assert HMF.all_Gl[l][j,k] != 1./lambdaG
+        assert HMF.all_taul[l] >= 0.
+    
+    
 """ Test some iterations, and that the values have changed in the F, S. """
 def test_run():
     iterations = 10

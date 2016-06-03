@@ -157,6 +157,9 @@ def init_S_leastsquares(R,M,F,G):
     R_imp = impute_missing_row_average(R,M)
     F_pinv = numpy.linalg.pinv(F)
     G_T_pinv = numpy.linalg.pinv(G.T)
+    
+    print R_imp.shape, F_pinv.shape, G_T_pinv.shape
+        
     S = numpy.dot(F_pinv,numpy.dot(R_imp,G_T_pinv))
     return S
     

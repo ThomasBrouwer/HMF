@@ -85,20 +85,15 @@ This gives a dictionary of performances,
     performance = { 'MSE', 'R^2', 'Rp' }
     
 We also store information about each iteration, namely:
-- all_performances - dictionary from 'MSE', 'R^2', or 'Rp' to a list of performances
-- all_times        - list of timesteps at which the iteration was completed
-- all_Ft           - dictionary from entity type name to list of numpy arrays 
-                     of Ft at each iteration
-- all_Sn           - list of length N of lists of numpy arrays of Sn at each 
-                     iteration (so N x It x size Sn)
-- all_Sm           - list of length M of lists of numpy arrays of Sn at each 
-                     iteration (so M x It x size Sm)
-- all_Gl           - list of length L of lists of numpy arrays of Gl at each 
-                     iteration (so L x It x size Gl)
-- all_lambdat      - dictionary from entity type name to list of numpy vectors
-                     of lambdat at each iterations
-- all_taun         - list of length N of lists of taun values at each iteration
-- all_taum         - list of length M of lists of taum values at each iteration
+- iterations_all_performances - dictionary from 'MSE', 'R^2', or 'Rp' to a list of performances
+- iterations_all_times        - list of timesteps at which the iteration was completed
+- iterations_all_Ft           - dictionary from entity type name to list of numpy arrays of Ft at each iteration
+- iterations_all_Sn           - list of length N of lists of numpy arrays of Sn at each iteration (so N x It x size Sn)
+- iterations_all_Sm           - list of length M of lists of numpy arrays of Sn at each iteration (so M x It x size Sm)
+- iterations_all_Gl           - list of length L of lists of numpy arrays of Gl at each iteration (so L x It x size Gl)
+- iterations_all_lambdat      - dictionary from entity type name to list of numpy vectors of lambdat at each iterations
+- iterations_all_taun         - list of length N of lists of taun values at each iteration
+- iterations_all_taum         - list of length M of lists of taum values at each iteration
 
 Finally, we can return the goodness of fit of the data using the 
 quality(metric,thinning,burn_in) function:
@@ -339,8 +334,8 @@ class HMF_Gibbs:
         self.nonnegative_G = True if self.prior_G == 'exponential' else False
         self.nonnegative_S = True if self.prior_S == 'exponential' else False
         
-        print "Instantiated HMF model with: F ~ %s, G ~ %s, S ~ %s, and update order %s for F, %s for G, %s for S." % \
-            (self.prior_F,self.prior_G,self.prior_S,self.order_F,self.order_G,self.order_S)
+        print "Instantiated HMF model with: F ~ %s, G ~ %s, S ~ %s, ARD = %s, and update order %s for F, %s for G, %s for S." % \
+            (self.prior_F,self.prior_G,self.prior_S,self.ARD,self.order_F,self.order_G,self.order_S)
         
       
       
@@ -360,8 +355,8 @@ class HMF_Gibbs:
         
         ''' Initialise the ARD: lambdat '''
         if self.ARD:
-            self.lambdat = {
-                init_lambdak(
+            self.all_lambdat = {
+                E : init_lambdak(
                     init=self.init_lambdat,
                     K=self.K[E],
                     alpha0=self.alpha0,
@@ -372,11 +367,11 @@ class HMF_Gibbs:
         ''' Initialise the Ft - for KMeans use first dataset with 1+ observed 
             entry for each entity instance. '''
         for E in self.all_E:
-            lambdaFt = self.lambdat[E] if self.ARD else self.lambdaF*numpy.ones(self.K[E])
-            R, M = self.find_dataset(E) if self.init_F == 'kmeans' else None, None
+            lambdaFt = self.all_lambdat[E] if self.ARD else self.lambdaF*numpy.ones(self.K[E])
+            (R, M) = self.find_dataset(E) if self.init_F == 'kmeans' else (None, None)
             self.all_Ft[E] = init_FG(
-                prior=self.prior_FG,
-                init=self.init_FG,
+                prior=self.prior_F,
+                init=self.init_F,
                 I=self.I[E],
                 K=self.K[E],
                 lambdak=lambdaFt,
@@ -386,8 +381,9 @@ class HMF_Gibbs:
         ''' Initialise the Gl '''
         for l in range(0,self.L):
             E = self.E_per_Dl[l]
-            lambdaGl = self.lambdat[E] if self.ARD else self.lambdaG*numpy.ones(self.K[E])
-            self.all_Gl[l] = init_V(
+            
+            lambdaGl = self.all_lambdat[E] if self.ARD else self.lambdaG*numpy.ones(self.K[E])
+            Gl = init_V(
                 prior=self.prior_G,
                 init=self.init_G,
                 I=self.J[l],
@@ -396,21 +392,35 @@ class HMF_Gibbs:
                 R=self.all_Dl[l],
                 M=self.all_Ml[l],
                 U=self.all_Ft[E])
-                
+            self.all_Gl.append(Gl)
+            
+            taul = init_tau(
+                init=self.init_tau,
+                alphatau=self.alphatau,
+                betatau=self.betatau,
+                R=self.all_Dl[l],
+                M=self.all_Ml[l],
+                F=self.all_Ft[E],
+                G=self.all_Gl[l])
+            self.all_taul.append(taul)
+            
         ''' Initialise the Sn and taun '''
         for n in range(0,self.N):
             E1,E2 = self.E_per_Rn[n]
-            lambdaS = self.lambdaS * numpy.ones((self.K[E1],self.K[E2]))
-            self.all_Sn[n] = init_S(
+            
+            lambdaS = self.lambdaSn * numpy.ones((self.K[E1],self.K[E2]))
+            Sn = init_S(
                 prior=self.prior_S,
                 init=self.init_S,
                 K=self.K[E1],
                 L=self.K[E2],
                 lambdaS=lambdaS,
-                R=self.all_Dl[l],
-                M=self.all_Ml[l],
+                R=self.all_Rn[n],
+                M=self.all_Mn[n],
                 F=self.all_Ft[E1],
                 G=self.all_Ft[E2])
+            self.all_Sn.append(Sn)
+            
             taun = init_tau(
                 init=self.init_tau,
                 alphatau=self.alphatau,
@@ -425,8 +435,9 @@ class HMF_Gibbs:
         ''' Initialise the Sm and taum '''
         for m in range(0,self.M):
             E = self.E_per_Cm[m]
-            lambdaS = self.lambdaS * numpy.ones((self.K[E],self.K[E]))
-            self.all_Sm[m] = init_S(
+            
+            lambdaS = self.lambdaSm * numpy.ones((self.K[E],self.K[E]))
+            Sm = init_S(
                 prior=self.prior_S,
                 init=self.init_S,
                 K=self.K[E],
@@ -436,6 +447,8 @@ class HMF_Gibbs:
                 M=self.all_Mm[m],
                 F=self.all_Ft[E],
                 G=self.all_Ft[E])
+            self.all_Sm.append(Sm)
+                
             taum = init_tau(
                 init=self.init_tau,
                 alphatau=self.alphatau,
@@ -449,7 +462,6 @@ class HMF_Gibbs:
       
         print "Finished initialising. F: %s. G: %s. Sn: %s. lambdat: %s. tau: %s." % \
             (self.init_F,self.init_G,self.init_S,self.init_lambdat,self.init_tau)
-      
       
       
     def run(self,iterations):
@@ -509,7 +521,7 @@ class HMF_Gibbs:
             ''' Draw new values for the Ft '''
             for E in self.all_E:
                 R, C, D = self.construct_RCD(E)
-                lambdaFt = self.lambdat[E] if self.ARD else self.lambdaF*numpy.ones(self.K[E])
+                lambdaFt = self.all_lambdat[E] if self.ARD else self.lambdaF*numpy.ones(self.K[E])
                 self.all_Ft[E] = draw_F(
                     R=R,C=C,D=D,
                     lambdaF=lambdaFt,
@@ -521,7 +533,7 @@ class HMF_Gibbs:
                 E = self.E_per_Dl[l]
                 D = [self.all_Dl[l].T,self.all_Ml[l].T,self.all_Gl[l],
                      self.all_Ft[E],self.all_taul[l],self.all_alphal[l]]
-                lambdaGl = self.lambdat[E] if self.ARD else self.lambdaG*numpy.ones(self.K[E])
+                lambdaGl = self.all_lambdat[E] if self.ARD else self.lambdaG*numpy.ones(self.K[E])
                 self.all_Gl[l] = draw_F(
                     R=[],C=[],D=D,
                     lambdaF=lambdaGl,
@@ -812,13 +824,13 @@ class HMF_Gibbs:
         ''' For the given entity type, find a dataset R, C, or D, for which 
             every entity instance has at least one observed entry. 
             If there is none, raise an AssertError.'''
-        datasets = [(self.all_Rn[n],self.all_Mn[n]) for n in self.U1t[E]] + \
+        datasets = [(self.all_Rn[n],  self.all_Mn[n])   for n in self.U1t[E]] + \
                    [(self.all_Rn[n].T,self.all_Mn[n].T) for n in self.U2t[E]] + \
-                   [(self.all_Cm[m],self.all_Mm[m]) for m in self.Vt[E]] + \
+                   [(self.all_Cm[m],  self.all_Mm[m])   for m in self.Vt[E]] + \
                    [(self.all_Cm[m].T,self.all_Mm[m].T) for m in self.Vt[E]] + \
-                   [(self.all_Dl[l],self.all_Ml[l].T) for l in self.Wt[E]]
+                   [(self.all_Dl[l],  self.all_Ml[l].T) for l in self.Wt[E]]
         for (R,M) in datasets:
-            if all([True if row.sum() > 0 else False for row in M]):       
+            if all([True if row.sum() > 0 else False for row in M]):   
                 return R,M
         assert False, "Could not initialise F for entity type %s with K-means as no dataset R or C has at least one datapoint for each entity." % E
          
