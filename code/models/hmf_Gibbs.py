@@ -155,7 +155,7 @@ OPTIONS_INIT_LAMBDAT = ['random','exp']
 OPTIONS_INIT_TAU = ['random','exp']
 
 METRICS_PERFORMANCE = ['MSE','R^2','Rp'] 
-METRICS_QUALITY = ['loglikelihood','BIC','AIC','MSE','ELBO']
+METRICS_QUALITY = ['loglikelihood','BIC','AIC']
 
 
 ''' Class definition '''
@@ -758,10 +758,9 @@ class HMF_Gibbs:
 
     """ Functions for model selection, measuring the goodness of fit vs model complexity """          
     def quality(self,metric,burn_in,thinning): 
-        assert metric in METRICS_PERFORMANCE, 'Unrecognised metric for model quality: %s.' % metric
+        assert metric in METRICS_QUALITY, 'Unrecognised metric for model quality: %s.' % metric
 
-        log_likelihood = self.log_likelihood(burn_in,thinning)        
-        
+        log_likelihood = self.log_likelihood(burn_in,thinning)   
         if metric == 'loglikelihood':
             return log_likelihood
         elif metric == 'BIC':
@@ -770,7 +769,6 @@ class HMF_Gibbs:
         elif metric == 'AIC':
             # -2*loglikelihood + 2*no. free parameters
             return - 2 * log_likelihood + 2 * self.no_parameters()
-      
       
     def log_likelihood(self,burn_in,thinning):
         ''' Compute the log likelihood of the model '''
@@ -796,12 +794,11 @@ class HMF_Gibbs:
             expG = self.approx_expectation_Gl(l,burn_in,thinning)
             exptau = self.approx_expectation_taul(l,burn_in,thinning)
             log_likelihood += self.log_likelihood_mf(self.all_Dl[l],self.all_Ml[l],expF,expG,exptau)
-    
+            
         return log_likelihood            
             
       
     """ Helper methods """
-    
     def check_same_size(self,E):
         '''Method for checking whether the datasets have the same number of 
             rows/columns for the same entity type. '''
@@ -828,6 +825,7 @@ class HMF_Gibbs:
             ''' Sum each row, and add that to sums_per_entity '''
             sums_rows = M.sum(axis=1)
             sums_per_entity = numpy.add(sums_per_entity,sums_rows)
+            
         for i,s in enumerate(sums_per_entity):
             assert s > 0, "No observed datapoints in any dataset for entity %s of type %s." % (i,E) 
             

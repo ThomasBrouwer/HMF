@@ -744,14 +744,10 @@ def test_compute_statistics():
     M0 = numpy.array([[1,1],[0,1]])
     E = ['entity0','entity1']
     K = {E[0]:3,E[1]:4}
-    lambdaF = {E[0]:2, E[1]:4}
-    lambdaSn, lambdaSm = [3], []
-    alpha, beta = 3, 1
-    priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
     
-    R = [(R0,M0,E[0],E[1])]
+    R = [(R0,M0,E[0],E[1],1.)]
     C, D = [], []
-    DI_MMTF = HMF_Gibbs(R,C,D,K,priors)
+    HMF = HMF_Gibbs(R,C,D,K,{},{})
     
     R_pred = numpy.array([[500,550],[1220,1342]],dtype=float)
     M_pred = numpy.array([[0,0],[1,1]])
@@ -760,9 +756,9 @@ def test_compute_statistics():
     R2_pred = 1. - (1217**2+1338**2)/(0.5**2+0.5**2) #mean=3.5
     Rp_pred = 61. / ( math.sqrt(.5) * math.sqrt(7442.) ) #mean=3.5,var=0.5,mean_pred=1281,var_pred=7442,cov=61
     
-    assert MSE_pred == DI_MMTF.compute_MSE(M_pred,R0,R_pred)
-    assert R2_pred == DI_MMTF.compute_R2(M_pred,R0,R_pred)
-    assert Rp_pred == DI_MMTF.compute_Rp(M_pred,R0,R_pred)
+    assert MSE_pred == HMF.compute_MSE(M_pred,R0,R_pred)
+    assert R2_pred == HMF.compute_R2(M_pred,R0,R_pred)
+    assert Rp_pred == HMF.compute_Rp(M_pred,R0,R_pred)
     
     
 """ Test the model quality measures. """
@@ -774,28 +770,35 @@ def test_log_likelihood():
     E = ['entity0','entity1']
     I = {E[0]:5, E[1]:3}
     K = {E[0]:2, E[1]:4}
+    J = [6]
     
     iterations_all_Ft = {
-        E[0] : [numpy.ones((I[E[0]],K[E[0]])) * 3*m**2 for m in range(1,iterations+1)],
-        E[1] : [numpy.ones((I[E[1]],K[E[1]])) * 1*m**2 for m in range(1,iterations+1)]
+        E[0] : [numpy.ones((I[E[0]],K[E[0]])) * 3*m**2 for m in range(1,10+1)],
+        E[1] : [numpy.ones((I[E[1]],K[E[1]])) * 1*m**2 for m in range(1,10+1)] 
+    }
+    iterations_all_lambdat = {
+        E[0] : [numpy.ones(K[E[0]]) * 3*m**2 for m in range(1,10+1)],
+        E[1] : [numpy.ones(K[E[1]]) * 1*m**2 for m in range(1,10+1)]
     }
     iterations_all_Ft['entity0'][2][0,0] = 24 #instead of 27 - to ensure we do not get 0 variance in our predictions
-    iterations_all_Sn = [[numpy.ones((K[E[0]],K[E[1]])) * 2*m**2 for m in range(1,iterations+1)]]
-    iterations_all_taun = [[m**2 for m in range(1,iterations+1)]]
-    iterations_all_Sm = [[numpy.ones((K[E[1]],K[E[1]])) * 2*m**2 * 2 for m in range(1,iterations+1)]]
-    iterations_all_taum = [[m**2*2 for m in range(1,iterations+1)]]
+    iterations_all_Sn = [[numpy.ones((K[E[0]],K[E[1]])) * 2*m**2 for m in range(1,10+1)]]
+    iterations_all_taun = [[m**2 for m in range(1,10+1)]]
+    iterations_all_Sm = [[numpy.ones((K[E[1]],K[E[1]])) * 2*m**2 * 2 for m in range(1,10+1)]]
+    iterations_all_taum = [[m**2*2 for m in range(1,10+1)]]
+    iterations_all_Gl = [[numpy.ones((J[0],K[E[0]])) * 2*m**2 * 3 for m in range(1,10+1)]]
+    iterations_all_taul = [[m**2*3 for m in range(1,10+1)]]
     
     R0 = numpy.array([[1,2,3],[4,5,6],[7,8,9],[10,11,12],[13,14,15]],dtype=float)
-    M0 = numpy.array([[0,0,1],[0,1,0],[0,0,1],[1,1,0],[0,0,1]]) #R->3,5,9,10,11,15, R_pred->3542112,3556224,3556224,3556224,3556224,3556224
     C0 = numpy.array([[1,2,3],[4,5,6],[7,8,9]],dtype=float)
-    M1 = numpy.array([[0,0,1],[0,0,0],[1,1,0]]) #R->3,7,8, R_pred->4741632,4741632,4741632
-    R, C = [(R0,M0,E[0],E[1])], [(C0,M1,E[1])]
-    lambdaF = {E[0]:2,E[1]:5}
-    lambdaSn, lambdaSm = [3], [4]
-    alpha, beta = 3, 1
-    priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
+    D0 = numpy.array([[1,2,3,4,5,6],[7,8,9,10,11,12],[13,14,15,16,17,18],[19,20,21,22,23,24],[25,26,27,28,29,30]],dtype=float)
     
-    #expected_exp_F0 = numpy.array([[9.+36.+81. for k in range(0,2)] for i in range(0,5)])
+    M0 = numpy.array([[0,0,1],[0,1,0],[0,0,0],[1,1,0],[0,0,0]]) #R->3,5,10,11, R_pred->3542112,3556224,3556224,3556224    
+    M1 = numpy.array([[0,0,1],[0,1,0],[1,1,0]]) #C->3,7,8, C_pred->4741632,4741632,4741632 - entry 5 gets set to 0 since it is the diagonal
+    M2 = numpy.array([[0,0,1,0,0,1],[0,1,0,0,0,0],[1,1,0,0,0,0],[0,0,0,0,0,0],[1,0,0,0,0,0]]) #D->3,6,8,13,14,25, D_pred->63252,63252,63504,63504,63504,63504
+     
+    R, C, D = [(R0,M0,E[0],E[1],1.)], [(C0,M1,E[1],1.)], [(D0,M2,E[0],1.)]
+    
+    #expected_exp_F0 = numpy.array([[125.,126.],[126.,126.],[126.,126.],[126.,126.],[126.,126.]])
     #expected_exp_F1 = numpy.array([[(9.+36.+81.)*(1./3.) for k in range(0,4)] for i in range(0,3)])
     #expected_exp_Sn = numpy.array([[(9.+36.+81.)*(2./3.) for l in range(0,4)] for k in range(0,2)])
     #expected_exp_taun = (9.+36.+81.)/3.
@@ -805,24 +808,38 @@ def test_log_likelihood():
     #expected_exp_taum = (18.+72.+162.)/3.
     #C_pred = array([[4741632.,4741632.,4741632.],[4741632.,4741632.,4741632.],[4741632.,4741632.,4741632.]])
     
-    MSE_R = ((3.-3542112.)**2 + (5.-3556224.)**2 + (9.-3556224.)**2 + (10.-3556224.)**2 + (11.-3556224.)**2 + (15.-3556224.)**2) / 6.
+    #expected_exp_Gl = numpy.array([[(27.+108.+243.)*(2./3.) for k in range(0,2)] for j in range(0,6)])
+    #expected_exp_taul = (27.+108.+243.)/3. 
+    #D_pred = array([[63252.,63252.,63252.,63252.,63252.,63252.],[63504.,63504.,63504.,63504.,63504.,63504.],[63504.,63504.,63504.,63504.,63504.,63504.],[63504.,63504.,63504.,63504.,63504.,63504.],[63504.,63504.,63504.,63504.,63504.,63504.]])
+    
+    MSE_R = ((3.-3542112.)**2 + (5.-3556224.)**2 + (10.-3556224.)**2 + (11.-3556224.)**2) / 4.
     MSE_C = ((3.-4741632.)**2 + (7.-4741632.)**2 + (8.-4741632.)**2) / 3.
+    MSE_D = ((3.-63252.)**2 + (6.-63252.)**2 + (8.-63504.)**2 + (13.-63504.)**2 + (14.-63504.)**2 + (25.-63504.)**2) / 6.
+      
+    HMF = HMF_Gibbs(R,C,D,K,{},{})
+    HMF.iterations = iterations
+    HMF.iterations_all_Ft = iterations_all_Ft
+    HMF.iterations_all_lambdat = iterations_all_lambdat
+    HMF.iterations_all_Sn = iterations_all_Sn
+    HMF.iterations_all_taun = iterations_all_taun
+    HMF.iterations_all_Sm = iterations_all_Sm
+    HMF.iterations_all_taum = iterations_all_taum
+    HMF.iterations_all_Gl = iterations_all_Gl
+    HMF.iterations_all_taul = iterations_all_taul
     
-    DI_MMTF = di_mmtf_gibbs(R,C,K,priors)
-    DI_MMTF.iterations_all_Ft = iterations_all_Ft
-    DI_MMTF.iterations_all_Sn = iterations_all_Sn
-    DI_MMTF.iterations_all_taun = iterations_all_taun
-    DI_MMTF.iterations_all_Sm = iterations_all_Sm
-    DI_MMTF.iterations_all_taum = iterations_all_taum
+    log_likelihood = 4./2. * (math.log(42.) - math.log(2*math.pi)) - 42./2.*(MSE_R*4.) + \
+                     3./2. * (math.log(84.) - math.log(2*math.pi)) - 84./2.*(MSE_C*3.) + \
+                     6./2. * (math.log(126.) - math.log(2*math.pi)) - 126./2.*(MSE_D*6.)    
+    no_parameters = (5*2+4*3+2*4+4*4+2*6+2+4+3)
+    no_datapoints = 4+3+6
+    AIC = -2*log_likelihood + 2*no_parameters #F0,F1,Sn0,Sm0,G,lambda0,lambda1,tau
+    BIC = -2*log_likelihood + no_parameters*math.log(no_datapoints)
     
-    log_likelihood = 6./2. * (math.log(42.) - math.log(2*math.pi)) - 42./2.*(MSE_R*6.) + \
-                     3./2. * (math.log(84.) - math.log(2*math.pi)) - 84./2.*(MSE_C*3.)           
-    AIC = -2*log_likelihood + 2*(5*2+4*3+2*4+4*4+2)
-    BIC = -2*log_likelihood + (5*2+4*3+2*4+4*4+2)*math.log(9.)
-    
-    assert log_likelihood == DI_MMTF.quality('loglikelihood',iterations,burn_in,thinning)
-    assert AIC == DI_MMTF.quality('AIC',iterations,burn_in,thinning)
-    assert BIC == DI_MMTF.quality('BIC',iterations,burn_in,thinning)
+    assert HMF.no_datapoints() == no_datapoints
+    assert HMF.no_parameters() == no_parameters
+    assert log_likelihood == HMF.quality('loglikelihood',burn_in,thinning)
+    assert AIC == HMF.quality('AIC',burn_in,thinning)
+    assert BIC == HMF.quality('BIC',burn_in,thinning)
     with pytest.raises(AssertionError) as error:
-        DI_MMTF.quality('FAIL',iterations,burn_in,thinning)
+        HMF.quality('FAIL',iterations,burn_in,thinning)
     assert str(error.value) == "Unrecognised metric for model quality: FAIL."
