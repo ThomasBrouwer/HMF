@@ -134,8 +134,8 @@ if __name__ == "__main__":
     '''    
     # Parameters for the Ft
     E = [1,2]
-    I = { 1:200, 2:180 }
-    K = { 1:20,  2:15  }
+    I = { 1:100, 2:80 }
+    K = { 1:10,  2:8  }
     lambdaF = { 1: 1., 2: 1. }
     prior_F = 'exponential'
     params_F = [(E1,I[E1],K[E1],lambdaF[E1],prior_F) for E1 in E]
