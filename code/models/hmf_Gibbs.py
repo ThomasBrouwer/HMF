@@ -33,7 +33,8 @@ We expect the following arguments:
 - settings, a dictionary defining the model settings
     { 'priorF', 'priorG', priorS', 'orderFG', 'orderS', 'ARD' }
     priorFG: defines prior over the Ft and Gl; 'exponential' or 'normal'
-    priorS:  defines prior over the Sn, Sm; 'exponential' or 'normal'
+    priorSn: defines prior over the Sn; 'exponential' or 'normal'
+    priorSm: defines prior over the Sm; 'exponential' or 'normal'
     orderFG: draw new values for F and G per column, or per row: 'columns' or 'rows'
     orderS:  draw new values for S per individual element, or per row: 'individual' or 'rows'
     ARD:     True if we use Automatic Relevance Determination over F and G, else False
@@ -115,13 +116,15 @@ import numpy, math, time
 ''' Default settings '''
 IMPORTANCE_DATASET = 1.
 DEFAULT_SETTINGS = {
-    'priorF' : 'exponential',
-    'priorG' : 'normal',
-    'priorS' : 'normal',
-    'orderF' : 'columns',
-    'orderG' : 'columns',
-    'orderS' : 'rows',
-    'ARD'    : True
+    'priorF'  : 'exponential',
+    'priorG'  : 'normal',
+    'priorSn' : 'normal',
+    'priorSm' : 'normal',
+    'orderF'  : 'columns',
+    'orderG'  : 'columns',
+    'orderSn' : 'rows',
+    'orderSm' : 'rows',
+    'ARD'     : True
 }
 OPTIONS_PRIOR_F = ['exponential','normal']
 OPTIONS_PRIOR_S = ['exponential','normal']
@@ -311,31 +314,37 @@ class HMF_Gibbs:
         
         self.prior_F =  settings.get('priorF', DEFAULT_SETTINGS['priorF'])
         self.prior_G =  settings.get('priorG', DEFAULT_SETTINGS['priorG'])
-        self.prior_S =  settings.get('priorS', DEFAULT_SETTINGS['priorS'])
+        self.prior_Sn = settings.get('priorSn', DEFAULT_SETTINGS['priorSn'])
+        self.prior_Sm = settings.get('priorSm', DEFAULT_SETTINGS['priorSm'])
         
-        assert self.prior_F in OPTIONS_PRIOR_F, "Unexpected prior for F: %s." % self.prior_F
-        assert self.prior_G in OPTIONS_PRIOR_G, "Unexpected prior for G: %s." % self.prior_G
-        assert self.prior_S in OPTIONS_PRIOR_S, "Unexpected prior for S: %s." % self.prior_S
+        assert self.prior_F  in OPTIONS_PRIOR_F, "Unexpected prior for F: %s."  % self.prior_F
+        assert self.prior_G  in OPTIONS_PRIOR_G, "Unexpected prior for G: %s."  % self.prior_G
+        assert self.prior_Sn in OPTIONS_PRIOR_S, "Unexpected prior for Sn: %s." % self.prior_Sn
+        assert self.prior_Sm in OPTIONS_PRIOR_S, "Unexpected prior for Sm: %s." % self.prior_Sm
         
-        self.order_F =  settings.get('orderF', DEFAULT_SETTINGS['orderF'])
-        self.order_G =  settings.get('orderG', DEFAULT_SETTINGS['orderG'])
-        self.order_S =  settings.get('orderS', DEFAULT_SETTINGS['orderS'])
+        self.order_F =  settings.get('orderF',  DEFAULT_SETTINGS['orderF'])
+        self.order_G =  settings.get('orderG',  DEFAULT_SETTINGS['orderG'])
+        self.order_Sn = settings.get('orderSn', DEFAULT_SETTINGS['orderSn'])
+        self.order_Sm = settings.get('orderSm', DEFAULT_SETTINGS['orderSm'])
         
-        assert self.order_F in OPTIONS_ORDER_F, "Unexpected order for F: %s." % self.prior_F
-        assert self.order_G in OPTIONS_ORDER_G, "Unexpected order for G: %s." % self.order_G
-        assert self.order_S in OPTIONS_ORDER_S, "Unexpected order for S: %s." % self.order_S
+        assert self.order_F in OPTIONS_ORDER_F,  "Unexpected order for F: %s." % self.prior_F
+        assert self.order_G in OPTIONS_ORDER_G,  "Unexpected order for G: %s." % self.order_G
+        assert self.order_Sn in OPTIONS_ORDER_S, "Unexpected order for Sn: %s." % self.order_Sn
+        assert self.order_Sm in OPTIONS_ORDER_S, "Unexpected order for Sm: %s." % self.order_Sm
         
         self.ARD =      settings.get('ARD',     DEFAULT_SETTINGS['ARD'])
         
-        self.rows_F =        True if self.order_F == 'rows' else False
-        self.rows_G =        True if self.order_G == 'rows' else False
-        self.rows_S =        True if self.order_S == 'rows' else False
-        self.nonnegative_F = True if self.prior_F == 'exponential' else False
-        self.nonnegative_G = True if self.prior_G == 'exponential' else False
-        self.nonnegative_S = True if self.prior_S == 'exponential' else False
+        self.rows_F =         True if self.order_F  == 'rows' else False
+        self.rows_G =         True if self.order_G  == 'rows' else False
+        self.rows_Sn =        True if self.order_Sn == 'rows' else False
+        self.rows_Sm =        True if self.order_Sm == 'rows' else False
+        self.nonnegative_F  = True if self.prior_F  == 'exponential' else False
+        self.nonnegative_G  = True if self.prior_G  == 'exponential' else False
+        self.nonnegative_Sn = True if self.prior_Sn == 'exponential' else False
+        self.nonnegative_Sm = True if self.prior_Sm == 'exponential' else False
         
-        print "Instantiated HMF model with: F ~ %s, G ~ %s, S ~ %s, ARD = %s, and update order %s for F, %s for G, %s for S." % \
-            (self.prior_F,self.prior_G,self.prior_S,self.ARD,self.order_F,self.order_G,self.order_S)
+        print "Instantiated HMF model with: F ~ %s, G ~ %s, Sn ~ %s, Sm ~ %s, ARD = %s, and update order %s for F, %s for G, %s for Sn, %s for Sm." % \
+            (self.prior_F,self.prior_G,self.prior_Sn,self.prior_Sm,self.ARD,self.order_F,self.order_G,self.order_Sn,self.order_Sm)
         
       
       
@@ -410,7 +419,7 @@ class HMF_Gibbs:
             
             lambdaS = self.lambdaSn * numpy.ones((self.K[E1],self.K[E2]))
             Sn = init_S(
-                prior=self.prior_S,
+                prior=self.prior_Sn,
                 init=self.init_S,
                 K=self.K[E1],
                 L=self.K[E2],
@@ -438,7 +447,7 @@ class HMF_Gibbs:
             
             lambdaS = self.lambdaSm * numpy.ones((self.K[E],self.K[E]))
             Sm = init_S(
-                prior=self.prior_S,
+                prior=self.prior_Sm,
                 init=self.init_S,
                 K=self.K[E],
                 L=self.K[E],
@@ -554,8 +563,8 @@ class HMF_Gibbs:
                     S=self.all_Sn[n],
                     G=self.all_Ft[E2],
                     lambdaS=lambdaSn,
-                    nonnegative=self.nonnegative_S,
-                    rows=self.rows_S) 
+                    nonnegative=self.nonnegative_Sn,
+                    rows=self.rows_Sn) 
                 
             ''' Draw new values for the Sm '''
             for m in range(0,self.M):
@@ -570,8 +579,8 @@ class HMF_Gibbs:
                     S=self.all_Sm[m],
                     G=self.all_Ft[E],
                     lambdaS=lambdaSm,
-                    nonnegative=self.nonnegative_S,
-                    rows=self.rows_S) 
+                    nonnegative=self.nonnegative_Sm,
+                    rows=self.rows_Sm) 
             
             ''' Draw new values for the taun, taum, taul '''
             for n in range(0,self.N):

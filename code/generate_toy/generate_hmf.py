@@ -154,8 +154,8 @@ if __name__ == "__main__":
     M = 1
     lambdaSm = [1000.]
     taum = [100.]
-    prior_Sn = 'exponential'
-    params_C = [(1,lambdaSm[0],prior_Sn,taum[0])] # similarity kernel entity 1 
+    prior_Sm = 'exponential'
+    params_C = [(1,lambdaSm[0],prior_Sm,taum[0])] # similarity kernel entity 1 
     
     # Parameters for D1, D2
     L = 2

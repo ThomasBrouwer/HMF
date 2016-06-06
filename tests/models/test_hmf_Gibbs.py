@@ -75,8 +75,8 @@ def test_init():
     lambdaSn, lambdaSm = 4., 5.
     priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
                'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
-    settings = { 'priorF' : 'normal', 'priorG' : 'exponential', 'priorS' : 'normal', 'orderF' : 'rows', 
-                 'orderG' : 'columns', 'orderS' : 'individual', 'ARD' : True }
+    settings = { 'priorF' : 'normal', 'priorG' : 'exponential', 'priorSn' : 'normal', 'priorSm' : 'exponential',
+                 'orderF' : 'rows', 'orderG' : 'columns', 'orderSn' : 'individual', 'orderSm' : 'rows', 'ARD' : True }
     
     ''' 1. Dataset R relates same two entity types '''
     R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E1,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
@@ -241,21 +241,26 @@ def test_init():
     assert HMF.lambdaSn == lambdaSn
     assert HMF.lambdaSm == lambdaSm
     
-    # { 'priorF' : 'normal', 'priorG' : 'exponential', 'priorS' : 'normal', 'orderF' : 'rows', 'orderG' : 'columns', 'orderS' : 'individual', 'ARD' : True }
+    # { 'priorF' : 'normal', 'priorG' : 'exponential', 'priorSn' : 'normal', 'priorSm' : 'exponential', 
+    #   'orderF' : 'rows', 'orderG' : 'columns', 'orderSn' : 'individual', 'orderSm' : 'rows', 'ARD' : True }
     assert HMF.prior_F == 'normal'
     assert HMF.prior_G == 'exponential'
-    assert HMF.prior_S == 'normal'
+    assert HMF.prior_Sn == 'normal'
+    assert HMF.prior_Sm == 'exponential'
     assert HMF.order_F == 'rows'
     assert HMF.order_G == 'columns'
-    assert HMF.order_S == 'individual'
+    assert HMF.order_Sn == 'individual'
+    assert HMF.order_Sm == 'rows'
     assert HMF.ARD == True
     
     assert HMF.rows_F == True
     assert HMF.rows_G == False
-    assert HMF.rows_S == False
+    assert HMF.rows_Sn == False
+    assert HMF.rows_Sm == True
     assert HMF.nonnegative_F == False
     assert HMF.nonnegative_G == True
-    assert HMF.nonnegative_S == False
+    assert HMF.nonnegative_Sn == False
+    assert HMF.nonnegative_Sm == True
     
 
 """ Test initialing parameters """
@@ -325,8 +330,8 @@ def test_initialise():
     """
     
     ''' F Exp, G Exp, S Exp, ARD. F exp, G exp, S exp, lambdat exp, tau exp. '''
-    settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorS' : 'exponential', 'ARD' : True, 
-                 'orderF' : 'rows', 'orderG' : 'columns', 'orderS' : 'individual' }    
+    settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorSn' : 'exponential', 'priorSm' : 'exponential',
+                 'ARD' : True, 'orderF' : 'rows', 'orderG' : 'columns', 'orderSn' : 'individual', 'orderSm' : 'individual' }    
     init = { 'F' : 'exp', 'G' : 'exp', 'S' : 'exp', 'lambdat' : 'exp', 'tau' : 'exp'}
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
@@ -359,8 +364,8 @@ def test_initialise():
         assert HMF.all_taul[l] == expected_all_taul[l]
             
     ''' F Exp, G Exp, S N, no ARD. F random, G exp, S exp, tau random. '''
-    settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorS' : 'normal', 'ARD' : False, 
-                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorSn' : 'normal', 'priorSm' : 'normal',
+                 'ARD' : False, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
     init = { 'F' : 'random', 'G' : 'exp', 'S' : 'exp', 'tau' : 'random' }
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
@@ -389,9 +394,9 @@ def test_initialise():
             assert HMF.all_Gl[l][j,k] == 1./lambdaG
         assert HMF.all_taul[l] >= 0.
             
-    ''' F N, G N, S Exp, ARD. F kmeans, G exp, S random, lambdat random, tau random. '''
-    settings = { 'priorF' : 'normal', 'priorG' : 'normal', 'priorS' : 'exponential', 'ARD' : True, 
-                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    ''' F N, G N, Sn Exp, Sm N, ARD. F kmeans, G exp, S random, lambdat random, tau random. '''
+    settings = { 'priorF' : 'normal', 'priorG' : 'normal', 'priorSn' : 'exponential', 'priorSm' : 'normal',
+                 'ARD' : True, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
     init = { 'F' : 'kmeans', 'G' : 'exp', 'S' : 'random', 'lambdat' : 'random', 'tau' : 'random' }
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
@@ -412,7 +417,7 @@ def test_initialise():
     for m in range(0,M):
         E1 = E_per_Cm[m]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
-            assert HMF.all_Sm[m][k,l] >= 0.
+            assert HMF.all_Sm[m][k,l] != 0.
         assert HMF.all_taum[m] >= 0.
             
     expected_all_taul = [4.1601208459214458]
@@ -423,8 +428,8 @@ def test_initialise():
         assert HMF.all_taul[l] >= 0.
             
     ''' F Exp, G N, S N, no ARD. F kmeans, G least, S least, lambdat random, tau random. '''
-    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorS' : 'normal', 'ARD' : False, 
-                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorSn' : 'normal', 'priorSm' : 'normal', 
+                 'ARD' : False, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
     init = { 'F' : 'kmeans', 'G' : 'least', 'S' : 'least', 'lambdat' : 'random', 'tau' : 'random' }
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
@@ -436,14 +441,14 @@ def test_initialise():
     for n in range(0,N):
         E1,E2 = E_per_Rn[n]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
-            assert HMF.all_Sn[n][k,l] != 1./lambdaSn
+            assert HMF.all_Sn[n][k,l] != 0.
         assert HMF.all_taun[n] >= 0.
             
     expected_all_taum = [0.47612886531245974,1.7230629295737439]
     for m in range(0,M):
         E1 = E_per_Cm[m]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
-            assert HMF.all_Sm[m][k,l] != 1./lambdaSm
+            assert HMF.all_Sm[m][k,l] != 0.
         assert HMF.all_taum[m] >= 0.
             
     expected_all_taul = [4.1601208459214458]
@@ -508,8 +513,8 @@ def test_run():
     lambdaSn, lambdaSm = 4., 5.
     priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
                'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
-    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorS' : 'normal', 'ARD' : True, 
-                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorSn' : 'normal', 'priorSm' : 'normal',
+                 'ARD' : True, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
     init = { 'F' : 'kmeans', 'G' : 'least', 'S' : 'least', 'lambdat' : 'random', 'tau' : 'random' }
     iterations = 10
     
@@ -603,8 +608,8 @@ def test_approx_expectation():
     lambdaSn, lambdaSm = 4., 5.
     priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
                'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
-    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorS' : 'normal', 'ARD' : True, 
-                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorSn' : 'normal', 'priorSm' : 'normal', 
+                 'ARD' : True, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
     
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.iterations = iterations
@@ -679,8 +684,8 @@ def test_predict():
     lambdaSn, lambdaSm = 4., 5.
     priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
                'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
-    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorS' : 'normal', 'ARD' : True, 
-                 'orderF' : 'columns', 'orderG' : 'rows', 'orderS' : 'rows' }    
+    settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorSn' : 'normal', 'priorSm' : 'normal', 
+                 'ARD' : True, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
     
     #expected_exp_F0 = numpy.array([[125.,126.],[126.,126.],[126.,126.],[126.,126.],[126.,126.]])
     #expected_exp_F1 = numpy.array([[(9.+36.+81.)*(1./3.) for k in range(0,4)] for i in range(0,3)])
