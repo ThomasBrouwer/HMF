@@ -124,7 +124,7 @@ def generate_all_masks(all_It, params_R_M, params_C_M, params_D_M):
 
 
 if __name__ == "__main__":
-    output_folder = project_location+"HMF/data/toy/"
+    output_folder = project_location+"HMF/toy_experiments/data/"
     
     ''' 
     Main dataset is R12_1.
