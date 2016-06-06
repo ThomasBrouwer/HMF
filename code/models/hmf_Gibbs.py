@@ -48,16 +48,16 @@ We expect the following arguments:
     
 We initialise the values of the Ft, Sn, Sm, Gl, lambdat, taun, taum, taul, 
 according to the given argument 'init', which is a dictionary:
-    { 'FG' : init_FG, 'S' : init_S, 'lambdat' : init_lambdat, 'tau' : init_tau }
+    { 'F', 'G', 'Sn', 'Sm', 'lambdat', 'tau' }
 Options:
 - 'random' -> draw initial values randomly from model definition, using given hyperparameters
 - 'exp'    -> use the expectation of the model definition, using given hyperparameters
 - 'kmeans' -> initialise F and G using Kmeans on the rows of R
 - 'least'  -> initialise Sn, Sm using least squares (find S to minimise ||R-FSG.T||^2)
-FG      -> ['random','exp','kmeans']
-S       -> ['random','exp','least']
-lambdat -> ['random','exp']
-tau     -> ['random','exp']
+F         -> ['random','exp','kmeans']
+G, Sn, Sm -> ['random','exp','least']
+lambdat   -> ['random','exp']
+tau       -> ['random','exp']
 
 ---
 
@@ -147,7 +147,8 @@ DEFAULT_PRIORS = {
 DEFAULT_INIT = {
     'F'       : 'kmeans',
     'G'       : 'least',
-    'S'       : 'least',
+    'Sn'      : 'least',
+    'Sm'      : 'least',
     'lambdat' : 'exp',
     'tau'     : 'exp'
 }
@@ -352,13 +353,15 @@ class HMF_Gibbs:
     def initialise(self,init={}):
         self.init_F =       init.get('F',      DEFAULT_INIT['F'])
         self.init_G =       init.get('G',      DEFAULT_INIT['G'])
-        self.init_S =       init.get('S',      DEFAULT_INIT['S'])
+        self.init_Sn =      init.get('Sn',     DEFAULT_INIT['Sn'])
+        self.init_Sm =      init.get('Sm',     DEFAULT_INIT['Sm'])
         self.init_lambdat = init.get('lambdat',DEFAULT_INIT['lambdat'])
         self.init_tau =     init.get('tau',    DEFAULT_INIT['tau'])
         
         assert self.init_F in OPTIONS_INIT_F, "Unexpected init for F: %s." % self.init_F
         assert self.init_G in OPTIONS_INIT_G, "Unexpected init for G: %s." % self.init_G
-        assert self.init_S in OPTIONS_INIT_S, "Unexpected init for S: %s." % self.init_S
+        assert self.init_Sn in OPTIONS_INIT_S, "Unexpected init for Sn: %s." % self.init_Sn
+        assert self.init_Sm in OPTIONS_INIT_S, "Unexpected init for Sm: %s." % self.init_Sm
         assert self.init_lambdat in OPTIONS_INIT_LAMBDAT, "Unexpected init for lambdat: %s." % self.init_lambdat
         assert self.init_tau in OPTIONS_INIT_TAU, "Unexpected init for tau: %s." % self.init_tau
         
@@ -420,7 +423,7 @@ class HMF_Gibbs:
             lambdaS = self.lambdaSn * numpy.ones((self.K[E1],self.K[E2]))
             Sn = init_S(
                 prior=self.prior_Sn,
-                init=self.init_S,
+                init=self.init_Sn,
                 K=self.K[E1],
                 L=self.K[E2],
                 lambdaS=lambdaS,
@@ -448,7 +451,7 @@ class HMF_Gibbs:
             lambdaS = self.lambdaSm * numpy.ones((self.K[E],self.K[E]))
             Sm = init_S(
                 prior=self.prior_Sm,
-                init=self.init_S,
+                init=self.init_Sm,
                 K=self.K[E],
                 L=self.K[E],
                 lambdaS=lambdaS,
@@ -469,8 +472,8 @@ class HMF_Gibbs:
                 S=self.all_Sm[m])
             self.all_taum.append(taum)
       
-        print "Finished initialising. F: %s. G: %s. Sn: %s. lambdat: %s. tau: %s." % \
-            (self.init_F,self.init_G,self.init_S,self.init_lambdat,self.init_tau)
+        print "Finished initialising with settings: F: %s. G: %s. Sn: %s. Sm: %s. lambdat: %s. tau: %s." % \
+            (self.init_F,self.init_G,self.init_Sn,self.init_Sm,self.init_lambdat,self.init_tau)
       
       
     def run(self,iterations):

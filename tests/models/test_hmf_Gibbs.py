@@ -332,7 +332,7 @@ def test_initialise():
     ''' F Exp, G Exp, S Exp, ARD. F exp, G exp, S exp, lambdat exp, tau exp. '''
     settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorSn' : 'exponential', 'priorSm' : 'exponential',
                  'ARD' : True, 'orderF' : 'rows', 'orderG' : 'columns', 'orderSn' : 'individual', 'orderSm' : 'individual' }    
-    init = { 'F' : 'exp', 'G' : 'exp', 'S' : 'exp', 'lambdat' : 'exp', 'tau' : 'exp'}
+    init = { 'F' : 'exp', 'G' : 'exp', 'Sn' : 'exp', 'Sm' : 'exp', 'lambdat' : 'exp', 'tau' : 'exp'}
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
     
@@ -363,10 +363,10 @@ def test_initialise():
             assert HMF.all_Gl[l][j,k] == 1./HMF.all_lambdat[E1][k]
         assert HMF.all_taul[l] == expected_all_taul[l]
             
-    ''' F Exp, G Exp, S N, no ARD. F random, G exp, S exp, tau random. '''
+    ''' F Exp, G Exp, S N, no ARD. F random, G exp, Sn exp, Sm random, tau random. '''
     settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorSn' : 'normal', 'priorSm' : 'normal',
                  'ARD' : False, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
-    init = { 'F' : 'random', 'G' : 'exp', 'S' : 'exp', 'tau' : 'random' }
+    init = { 'F' : 'random', 'G' : 'exp', 'Sn' : 'exp', 'Sm' : 'random', 'tau' : 'random' }
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
     
@@ -380,14 +380,12 @@ def test_initialise():
             assert HMF.all_Sn[n][k,l] == 0.
         assert HMF.all_taun[n] >= 0.
             
-    expected_all_taum = [0.47612886531245974,1.7230629295737439]
     for m in range(0,M):
         E1 = E_per_Cm[m]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
-            assert HMF.all_Sm[m][k,l] == 0.
+            assert HMF.all_Sm[m][k,l] != 0.
         assert HMF.all_taum[m] >= 0.
             
-    expected_all_taul = [4.1601208459214458]
     for l in range(0,L):
         E1 = E_per_Dl[l]
         for j,k in itertools.product(xrange(0,J[l]),xrange(0,K[E1])):
@@ -397,7 +395,7 @@ def test_initialise():
     ''' F N, G N, Sn Exp, Sm N, ARD. F kmeans, G exp, S random, lambdat random, tau random. '''
     settings = { 'priorF' : 'normal', 'priorG' : 'normal', 'priorSn' : 'exponential', 'priorSm' : 'normal',
                  'ARD' : True, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
-    init = { 'F' : 'kmeans', 'G' : 'exp', 'S' : 'random', 'lambdat' : 'random', 'tau' : 'random' }
+    init = { 'F' : 'kmeans', 'G' : 'exp', 'Sn' : 'random', 'Sm' : 'random', 'lambdat' : 'random', 'tau' : 'random' }
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
     
@@ -430,7 +428,7 @@ def test_initialise():
     ''' F Exp, G N, S N, no ARD. F kmeans, G least, S least, lambdat random, tau random. '''
     settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorSn' : 'normal', 'priorSm' : 'normal', 
                  'ARD' : False, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
-    init = { 'F' : 'kmeans', 'G' : 'least', 'S' : 'least', 'lambdat' : 'random', 'tau' : 'random' }
+    init = { 'F' : 'kmeans', 'G' : 'least', 'Sn' : 'least', 'Sm' : 'least', 'lambdat' : 'random', 'tau' : 'random' }
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
     
@@ -515,7 +513,7 @@ def test_run():
                'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
     settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorSn' : 'normal', 'priorSm' : 'normal',
                  'ARD' : True, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
-    init = { 'F' : 'kmeans', 'G' : 'least', 'S' : 'least', 'lambdat' : 'random', 'tau' : 'random' }
+    init = { 'F' : 'kmeans', 'G' : 'least', 'Sn' : 'least', 'Sm' : 'least', 'lambdat' : 'random', 'tau' : 'random' }
     iterations = 10
     
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
