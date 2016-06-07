@@ -100,14 +100,19 @@ def init_matrix_kmeans(R,M,K):
     kmeans_matrix.cluster()
     return kmeans_matrix.clustering_results + 0.2   
 
-def impute_missing_row_average(R,M):
-    ''' Impute missing values in R indicated by M, using the row average of observed values. '''
+def impute_missing_average(R,M):
+    ''' Impute missing values in R indicated by M, using (row_avr+column_avr)/2 of observed values. '''
     I,J = R.shape
     indices_missing = [(i,j) for (i,j) in itertools.product(range(0,I),range(0,J)) if M[i,j] == 0.]
+    
     row_averages = [(M[i]*R[i]).sum() / float(M[i].sum()) for i in range(0,I)]
+    column_averages = [(M[:,j]*R[:,j]).sum() / float(M[:,j].sum()) for j in range(0,J)]
+    
     R_imp = numpy.copy(R)
     for i,j in indices_missing:
-        R_imp[i,j] = float(row_averages[i])
+        R_imp[i,j] = ( float(row_averages[i])    if not numpy.isnan(float(row_averages[i]))    else 0.
+                     + float(column_averages[j]) if not numpy.isnan(float(column_averages[j])) else 0. 
+                     ) / 2.
     return R_imp
     
 def init_V_leastsquares(R,M,U):
@@ -118,7 +123,7 @@ def init_V_leastsquares(R,M,U):
     
     print "Initialising V using least squares."
     
-    R_imp = impute_missing_row_average(R,M)
+    R_imp = impute_missing_average(R,M)
     #(V,residuals,rank,singular_vals) = numpy.linalg.lstsq(a=U,b=R_imp) #returns x s.t. ||b-ax||^2 is minimised 
     U_pinv = numpy.linalg.pinv(U)
     V = numpy.dot(U_pinv,R_imp).T
@@ -154,7 +159,7 @@ def init_S_leastsquares(R,M,F,G):
     
     print "Initialising S using least squares."
     
-    R_imp = impute_missing_row_average(R,M)
+    R_imp = impute_missing_average(R,M)
     F_pinv = numpy.linalg.pinv(F)
     G_T_pinv = numpy.linalg.pinv(G.T)
         
