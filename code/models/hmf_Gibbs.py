@@ -33,10 +33,11 @@ We expect the following arguments:
 - settings, a dictionary defining the model settings
     { 'priorF', 'priorG', priorS', 'orderFG', 'orderS', 'ARD' }
     priorFG: defines prior over the Ft and Gl; 'exponential' or 'normal'
-    priorSn: defines prior over the Sn; 'exponential' or 'normal'
-    priorSm: defines prior over the Sm; 'exponential' or 'normal'
+    priorSn: defines prior over the Sn; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Rn.
+    priorSm: defines prior over the Sm; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Cm.
     orderFG: draw new values for F and G per column, or per row: 'columns' or 'rows'
-    orderS:  draw new values for S per individual element, or per row: 'individual' or 'rows'
+    orderSn: draw new values for Sn per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Rn.
+    orderSm: draw new values for Sm per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Cm.
     ARD:     True if we use Automatic Relevance Determination over F and G, else False
 - hyperparameters, a dictionary defining the priors over the taus, Fs, Ss,
     { 'alphatau', 'betatau', 'alpha0', 'beta0', 'lambdaSn', 'lambdaSm', 'lambdaF', 'lambdaG' }
@@ -58,6 +59,7 @@ F         -> ['random','exp','kmeans']
 G, Sn, Sm -> ['random','exp','least']
 lambdat   -> ['random','exp']
 tau       -> ['random','exp']
+For Sn and Sm this can be a single string, or a list with elements per Rn and Cm.
 
 ---
 
@@ -316,33 +318,45 @@ class HMF_Gibbs:
         self.prior_F =  settings.get('priorF', DEFAULT_SETTINGS['priorF'])
         self.prior_G =  settings.get('priorG', DEFAULT_SETTINGS['priorG'])
         self.prior_Sn = settings.get('priorSn', DEFAULT_SETTINGS['priorSn'])
+        self.prior_Sn = self.prior_Sn if isinstance(self.prior_Sn,list) \
+                        else [self.prior_Sn for n in range(0,self.N)]
         self.prior_Sm = settings.get('priorSm', DEFAULT_SETTINGS['priorSm'])
+        self.prior_Sm = self.prior_Sm if isinstance(self.prior_Sm,list) \
+                        else [self.prior_Sm for m in range(0,self.M)]
         
         assert self.prior_F  in OPTIONS_PRIOR_F, "Unexpected prior for F: %s."  % self.prior_F
         assert self.prior_G  in OPTIONS_PRIOR_G, "Unexpected prior for G: %s."  % self.prior_G
-        assert self.prior_Sn in OPTIONS_PRIOR_S, "Unexpected prior for Sn: %s." % self.prior_Sn
-        assert self.prior_Sm in OPTIONS_PRIOR_S, "Unexpected prior for Sm: %s." % self.prior_Sm
+        for prior_Sn in self.prior_Sn:
+            assert prior_Sn in OPTIONS_PRIOR_S, "Unexpected prior for Sn: %s." % prior_Sn
+        for prior_Sm in self.prior_Sm:
+            assert prior_Sm in OPTIONS_PRIOR_S, "Unexpected prior for Sm: %s." % prior_Sm
         
         self.order_F =  settings.get('orderF',  DEFAULT_SETTINGS['orderF'])
         self.order_G =  settings.get('orderG',  DEFAULT_SETTINGS['orderG'])
         self.order_Sn = settings.get('orderSn', DEFAULT_SETTINGS['orderSn'])
+        self.order_Sn = self.order_Sn if isinstance(self.order_Sn,list) \
+                        else [self.order_Sn for n in range(0,self.N)]
         self.order_Sm = settings.get('orderSm', DEFAULT_SETTINGS['orderSm'])
+        self.order_Sm = self.order_Sm if isinstance(self.order_Sm,list) \
+                        else [self.order_Sm for m in range(0,self.M)]
         
         assert self.order_F in OPTIONS_ORDER_F,  "Unexpected order for F: %s." % self.prior_F
         assert self.order_G in OPTIONS_ORDER_G,  "Unexpected order for G: %s." % self.order_G
-        assert self.order_Sn in OPTIONS_ORDER_S, "Unexpected order for Sn: %s." % self.order_Sn
-        assert self.order_Sm in OPTIONS_ORDER_S, "Unexpected order for Sm: %s." % self.order_Sm
+        for order_Sn in self.order_Sn:
+            assert order_Sn in OPTIONS_ORDER_S, "Unexpected order for Sn: %s." % order_Sn
+        for order_Sm in self.order_Sm:
+            assert order_Sm in OPTIONS_ORDER_S, "Unexpected order for Sm: %s." % order_Sm
         
         self.ARD =      settings.get('ARD',     DEFAULT_SETTINGS['ARD'])
         
         self.rows_F =         True if self.order_F  == 'rows' else False
         self.rows_G =         True if self.order_G  == 'rows' else False
-        self.rows_Sn =        True if self.order_Sn == 'rows' else False
-        self.rows_Sm =        True if self.order_Sm == 'rows' else False
+        self.rows_Sn =        [True if order_Sn == 'rows' else False for order_Sn in self.order_Sn]
+        self.rows_Sm =        [True if order_Sm == 'rows' else False for order_Sm in self.order_Sm]
         self.nonnegative_F  = True if self.prior_F  == 'exponential' else False
         self.nonnegative_G  = True if self.prior_G  == 'exponential' else False
-        self.nonnegative_Sn = True if self.prior_Sn == 'exponential' else False
-        self.nonnegative_Sm = True if self.prior_Sm == 'exponential' else False
+        self.nonnegative_Sn = [True if prior_Sn == 'exponential' else False for prior_Sn in self.prior_Sn]
+        self.nonnegative_Sm = [True if prior_Sm == 'exponential' else False for prior_Sm in self.prior_Sm]
         
         print "Instantiated HMF model with: F ~ %s, G ~ %s, Sn ~ %s, Sm ~ %s, ARD = %s, and update order %s for F, %s for G, %s for Sn, %s for Sm." % \
             (self.prior_F,self.prior_G,self.prior_Sn,self.prior_Sm,self.ARD,self.order_F,self.order_G,self.order_Sn,self.order_Sm)
@@ -354,14 +368,18 @@ class HMF_Gibbs:
         self.init_F =       init.get('F',      DEFAULT_INIT['F'])
         self.init_G =       init.get('G',      DEFAULT_INIT['G'])
         self.init_Sn =      init.get('Sn',     DEFAULT_INIT['Sn'])
+        self.init_Sn =      self.init_Sn if isinstance(self.init_Sn,list) else [self.init_Sn for n in range(0,self.N)]
         self.init_Sm =      init.get('Sm',     DEFAULT_INIT['Sm'])
+        self.init_Sm =      self.init_Sm if isinstance(self.init_Sm,list) else [self.init_Sm for m in range(0,self.M)]
         self.init_lambdat = init.get('lambdat',DEFAULT_INIT['lambdat'])
         self.init_tau =     init.get('tau',    DEFAULT_INIT['tau'])
         
         assert self.init_F in OPTIONS_INIT_F, "Unexpected init for F: %s." % self.init_F
         assert self.init_G in OPTIONS_INIT_G, "Unexpected init for G: %s." % self.init_G
-        assert self.init_Sn in OPTIONS_INIT_S, "Unexpected init for Sn: %s." % self.init_Sn
-        assert self.init_Sm in OPTIONS_INIT_S, "Unexpected init for Sm: %s." % self.init_Sm
+        for init_Sn in self.init_Sn:
+            assert init_Sn in OPTIONS_INIT_S, "Unexpected init for Sn: %s." % init_Sn
+        for init_Sm in self.init_Sm:
+            assert init_Sm in OPTIONS_INIT_S, "Unexpected init for Sm: %s." % init_Sm
         assert self.init_lambdat in OPTIONS_INIT_LAMBDAT, "Unexpected init for lambdat: %s." % self.init_lambdat
         assert self.init_tau in OPTIONS_INIT_TAU, "Unexpected init for tau: %s." % self.init_tau
         
@@ -422,8 +440,8 @@ class HMF_Gibbs:
             
             lambdaS = self.lambdaSn * numpy.ones((self.K[E1],self.K[E2]))
             Sn = init_S(
-                prior=self.prior_Sn,
-                init=self.init_Sn,
+                prior=self.prior_Sn[n],
+                init=self.init_Sn[n],
                 K=self.K[E1],
                 L=self.K[E2],
                 lambdaS=lambdaS,
@@ -450,8 +468,8 @@ class HMF_Gibbs:
             
             lambdaS = self.lambdaSm * numpy.ones((self.K[E],self.K[E]))
             Sm = init_S(
-                prior=self.prior_Sm,
-                init=self.init_Sm,
+                prior=self.prior_Sm[m],
+                init=self.init_Sm[m],
                 K=self.K[E],
                 L=self.K[E],
                 lambdaS=lambdaS,
@@ -566,8 +584,8 @@ class HMF_Gibbs:
                     S=self.all_Sn[n],
                     G=self.all_Ft[E2],
                     lambdaS=lambdaSn,
-                    nonnegative=self.nonnegative_Sn,
-                    rows=self.rows_Sn) 
+                    nonnegative=self.nonnegative_Sn[n],
+                    rows=self.rows_Sn[n]) 
                 
             ''' Draw new values for the Sm '''
             for m in range(0,self.M):
@@ -582,8 +600,8 @@ class HMF_Gibbs:
                     S=self.all_Sm[m],
                     G=self.all_Ft[E],
                     lambdaS=lambdaSm,
-                    nonnegative=self.nonnegative_Sm,
-                    rows=self.rows_Sm) 
+                    nonnegative=self.nonnegative_Sm[m],
+                    rows=self.rows_Sm[m]) 
             
             ''' Draw new values for the taun, taum, taul '''
             for n in range(0,self.N):

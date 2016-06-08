@@ -6,7 +6,7 @@ values, using promoter region methylation as features.
 project_location = "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
-from HMF.methylation.load_methylation import load_ge_pm_top_n_genes
+from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes
 from HMF.code.statistics.statistics import all_statistics_matrix
 
 from sklearn.ensemble import RandomForestRegressor
@@ -20,10 +20,11 @@ n_estimators = 1000 # number of trees
 max_depth = None    # until what depth of feature splits we go
 
 ''' Load in data '''
-(R_ge_n, R_pm_n, genes, samples) = load_ge_pm_top_n_genes(no_genes)
+#(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
+R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
 
-Y = R_ge_n.T
-X = R_pm_n.T
+Y = R_ge.T
+X = R_pm.T
 
 ''' Compute the folds '''
 n = len(X)
@@ -58,23 +59,43 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 
 """
-100 top genes, 10 folds, 1 estimator:
-Average MSE: 4.59619664101 +- 0.391542612006. 
-Average R^2: 0.245268284771 +- 0.0618955608979. 
-Average Rp:  0.624323630501 +- 0.0311250012654.
+100 top genes
+    10 folds, 1 estimator:
+    Average MSE: 4.59619664101 +- 0.391542612006. 
+    Average R^2: 0.245268284771 +- 0.0618955608979. 
+    Average Rp:  0.624323630501 +- 0.0311250012654.
 
-100 top genes, 10 folds, 10 estimators:
-Average MSE: 2.44648211214 +- 0.177148708446. 
-Average R^2: 0.598882261217 +- 0.0197071411403. 
-Average Rp:  0.775234934427 +- 0.0122348032184.
+    10 folds, 10 estimators:
+    Average MSE: 2.44648211214 +- 0.177148708446. 
+    Average R^2: 0.598882261217 +- 0.0197071411403. 
+    Average Rp:  0.775234934427 +- 0.0122348032184.
 
-100 top genes, 10 folds, 100 estimators:
-Average MSE: 2.21053647099 +- 0.179784131312. 
-Average R^2: 0.638012016481 +- 0.0235131342244. 
-Average Rp:  0.799459653049 +- 0.0145718211889.
+    10 folds, 100 estimators:
+    Average MSE: 2.21053647099 +- 0.179784131312. 
+    Average R^2: 0.638012016481 +- 0.0235131342244. 
+    Average Rp:  0.799459653049 +- 0.0145718211889.
 
-100 top genes, 10 folds, 1000 estimators:
-Average MSE: 2.17811147119 +- 0.185525207994. 
-Average R^2: 0.642477537706 +- 0.0317788162907. 
-Average Rp:  0.802426441531 +- 0.020128752759.
+    10 folds, 1000 estimators:
+    Average MSE: 2.17811147119 +- 0.185525207994. 
+    Average R^2: 0.642477537706 +- 0.0317788162907. 
+    Average Rp:  0.802426441531 +- 0.020128752759.
+    
+160 driver genes
+    10 folds, 1 estimator:
+    Average MSE: 0.795970953741 +- 0.0768369693165. 
+    Average R^2: 0.3404355513 +- 0.0625050414068. 
+    Average Rp:  0.672859373517 +- 0.0286886342839.
+
+    10 folds, 10 estimators:
+    Average MSE: 0.410015632458 +- 0.0339477463786. 
+    Average R^2: 0.660683660383 +- 0.0252118225275. 
+    Average Rp:  0.813861487885 +- 0.0147419218431.
+
+    10 folds, 100 estimators:
+    Average MSE: 0.374325092472 +- 0.0278174076743. 
+    Average R^2: 0.690146579209 +- 0.0238359601365. 
+    Average Rp:  0.830914237051 +- 0.0144322054166.
+
+    10 folds, 1000 estimators:
+    
 """

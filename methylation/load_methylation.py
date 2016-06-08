@@ -9,6 +9,7 @@ location_methylation = '/home/tab43/Documents/Projects/libraries/HMF/methylation
 name_gene_expression = 'matched_expression'
 name_promoter_methylation = 'matched_methylation_genePromoter'
 name_gene_body_methylation = 'matched_methylation_geneBody'
+name_driver_genes = 'intogen-BRCA-drivers-data.geneid'
 
 def load_dataset(filename,delim='\t'):
     ''' Return a tuple (values,genes,samples) - numpy array, row names, column names. '''
@@ -70,3 +71,18 @@ def load_ge_pm_top_n_genes(n):
     (R_ge, R_pm, _, genes, samples) = load_all()
     R_ge_n, R_pm_n = tuple(return_top_n_genes([R_ge,R_pm],n))
     return (R_ge_n, R_pm_n, genes, samples)
+    
+def filter_driver_genes():
+    ''' For each dataset R in Rs, filter out the driver genes. '''
+    (R_ge, R_pm, R_gm, all_genes, samples) = load_all()
+    driver_gene_names = [line.split("\n")[0] for line in open(location_methylation+name_driver_genes,'r').readlines()]
+    all_genes = list(all_genes)
+    
+    genes_in_overlap = [gene for gene in driver_gene_names if gene in all_genes]
+    genes_not_in_overlap = [gene for gene in driver_gene_names if not gene in all_genes]
+    print "Selecting %s driver genes. %s driver genes are not in the methylation data." % \
+        (len(genes_in_overlap),len(genes_not_in_overlap))
+    
+    driver_gene_indices = [all_genes.index(gene) for gene in genes_in_overlap]
+    (R_ge, R_pm, R_gm) = (R_ge[driver_gene_indices,:], R_pm[driver_gene_indices,:], R_gm[driver_gene_indices,:])
+    return (R_ge, R_pm, R_gm, genes_in_overlap, samples)

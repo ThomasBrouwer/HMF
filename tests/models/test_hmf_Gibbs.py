@@ -245,22 +245,22 @@ def test_init():
     #   'orderF' : 'rows', 'orderG' : 'columns', 'orderSn' : 'individual', 'orderSm' : 'rows', 'ARD' : True }
     assert HMF.prior_F == 'normal'
     assert HMF.prior_G == 'exponential'
-    assert HMF.prior_Sn == 'normal'
-    assert HMF.prior_Sm == 'exponential'
+    assert HMF.prior_Sn == ['normal','normal','normal']
+    assert HMF.prior_Sm == ['exponential','exponential']
     assert HMF.order_F == 'rows'
     assert HMF.order_G == 'columns'
-    assert HMF.order_Sn == 'individual'
-    assert HMF.order_Sm == 'rows'
+    assert HMF.order_Sn == ['individual','individual','individual']
+    assert HMF.order_Sm == ['rows','rows']
     assert HMF.ARD == True
     
     assert HMF.rows_F == True
     assert HMF.rows_G == False
-    assert HMF.rows_Sn == False
-    assert HMF.rows_Sm == True
+    assert HMF.rows_Sn == [False,False,False]
+    assert HMF.rows_Sm == [True,True]
     assert HMF.nonnegative_F == False
     assert HMF.nonnegative_G == True
-    assert HMF.nonnegative_Sn == False
-    assert HMF.nonnegative_Sm == True
+    assert HMF.nonnegative_Sn == [False,False,False]
+    assert HMF.nonnegative_Sm == [True,True]
     
 
 """ Test initialing parameters """

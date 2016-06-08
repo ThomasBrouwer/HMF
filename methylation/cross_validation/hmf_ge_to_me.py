@@ -8,7 +8,7 @@ We append the columns of the two matrices, and mark the unknown rows as 0 in M.
 project_location = "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
-from HMF.methylation.load_methylation import load_ge_pm_top_n_genes
+from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs
 
 from sklearn.cross_validation import KFold
@@ -20,10 +20,10 @@ no_genes = 100 #13966
 iterations, burn_in, thinning = 100, 80, 2
 
 settings = {
-    'priorF'  : 'exponential',
-    'priorSn' : 'normal',
-    'orderF'  : 'columns',
-    'orderSn' : 'rows',
+    'priorF'  : 'normal',
+    'priorSn' : ['normal','exponential'], #GE,ME
+    'orderF'  : 'rows',
+    'orderSn' : ['rows','individual'],
     'ARD'     : True
 }
 hyperparameters = {
@@ -36,24 +36,26 @@ hyperparameters = {
 }
 init = {
     'F'       : 'kmeans',
-    'Sn'      : 'random',
+    'Sn'      : ['least','random'],
     'lambdat' : 'exp',
     'tau'     : 'exp'
 }
 
 E = ['genes','samples']
-I = {'genes':no_genes, 'samples':254}
-K = {'genes':10, 'samples':10}
-alpha_n = [.1, 10.] # GE, PM
+#I = {'genes':no_genes, 'samples':254}
+K = {'genes':5, 'samples':5}
+alpha_n = [1., 1.] # GE, PM
 
 
 ''' Load in data '''
-(R_ge_n, R_pm_n, genes, samples) = load_ge_pm_top_n_genes(no_genes)
-X, Y = R_ge_n.T, R_pm_n.T
+#(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
+R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
+
+X, Y = R_ge.T, R_pm.T
 C, D = [], []
 
 ''' Compute the folds '''
-n = len(R_ge_n)
+n = len(R_ge)
 n_folds = 10
 shuffle = True
 folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle)
@@ -89,73 +91,114 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 
 """
-F ~ Exp, S ~ N (kmeans, random)
+160 driver genes, F ~ Exp, S_ge ~ N, S_me ~ Exp (kmeans, least/random)
 
-    10 folds, K = {'genes':1, 'samples':1}, alpha_n = [1., 1.]
-    Average MSE: 0.117651366722 +- 0.0298548177772. 
-    Average R^2: -1.26606510328 +- 0.420622968113. 
-    Average Rp:  0.241168685116 +- 0.090845204215.
+    K = {'genes':1, 'samples':1}
+        alpha_n = [1., 1.]
+            
+
+    K = {'genes':5, 'samples':5}
+        alpha_n = [1., 1.]
+                    
+        
+
+160 driver genes, F ~ Exp, S ~ N (kmeans, least)
+
+    K = {'genes':1, 'samples':1}
+        alpha_n = [1., 1.]
+            Average MSE: 0.0149405897035 +- 0.00308398760147. 
+            Average R^2: 0.6667677241 +- 0.0694125181607. 
+            Average Rp:  0.845228199569 +- 0.0324158523075.
+
+        alpha_n = [.9, .1]
+            Average MSE: 0.0656341622939 +- 0.00171696001673. 
+            Average R^2: -0.462783762411 +- 0.0120617222758. 
+            Average Rp:  0.187213235549 +- 0.00771361505496.
+
+        alpha_n = [.1, .9]
+            Average MSE: 0.00915173355995 +- 0.00169133136236. 
+            Average R^2: 0.795891845187 +- 0.0379651615426. 
+            Average Rp:  0.901861507044 +- 0.0137047011738.
     
-    10 folds, K = {'genes':1, 'samples':1}, alpha_n = [2., .5]
-    Average MSE: 0.161406056211 +- 0.0479807544257. 
-    Average R^2: -2.14793405047 +- 0.957895830721. 
-    Average Rp:  0.126945212981 +- 0.0599642190343.
+        alpha_n = [.01, .99]
+            Average MSE: 0.0110235306303 +- 0.00546498020856. 
+            Average R^2: 0.755366806415 +- 0.116517550767. 
+            Average Rp:  0.894185206293 +- 0.0256377237106.
     
-    10 folds, K = {'genes':1, 'samples':1}, alpha_n = [10., .1]
-    Average MSE: 0.208091626515 +- 0.0335425004304. 
-    Average R^2: -3.07100888448 +- 0.670907869579. 
-    Average Rp:  0.0376879160985 +- 0.0291385188905.
+    K = {'genes':5, 'samples':5}
+        alpha_n = [1., 1.]
+            Average MSE: 0.00428166461493 +- 0.000768395577562. 
+            Average R^2: 0.904677337726 +- 0.0159646931067. 
+            Average Rp:  0.95247478509 +- 0.00834541107817.
+        
+        alpha_n = [.9, .1]
+            Average MSE: 0.00423015773172 +- 0.00058639227605. 
+            Average R^2: 0.90595123264 +- 0.0106390461575. 
+            Average Rp:  0.953807184655 +- 0.00602184541991.
+        
+        alpha_n = [.1, .9]
+            Average MSE: 0.00518338758917 +- 0.000863827879565. 
+            Average R^2: 0.884450623678 +- 0.0190712561609. 
+            Average Rp:  0.942220181337 +- 0.00915853781432.
+        
+    K = {'genes':10, 'samples':10}
+        alpha_n = [1., 1.]
+            Average MSE: 0.00439354343213 +- 0.00101391271495. 
+            Average R^2: 0.902550292426 +- 0.0197568819492. 
+            Average Rp:  0.952108337596 +- 0.0105324758504.
     
-    10 folds, K = {'genes':1, 'samples':1}, alpha_n = [.5, 2.]
-    Average MSE: 0.105595791535 +- 0.0325040924271. 
-    Average R^2: -1.03872154112 +- 0.543172163437. 
-    Average Rp:  0.279137459256 +- 0.0744145354584.
-    
-    10 folds, K = {'genes':1, 'samples':1}, alpha_n = [.1, 10.]
-    Average MSE: 0.067457682849 +- 0.0116381144111. 
-    Average R^2: -0.315306702401 +- 0.252593697919. 
-    Average Rp:  0.363955822806 +- 0.0895892010406.
-    
+        alpha_n = [.9, .1]
+            Average MSE: 0.00412125686078 +- 0.000590578816185. 
+            Average R^2: 0.908220554609 +- 0.0123826019994. 
+            Average Rp:  0.954082273181 +- 0.00652850217941.
+            
+        alpha_n = [.1, .9]
+            Average MSE: 0.00414024222346 +- 0.00132728722418. 
+            Average R^2: 0.908309856252 +- 0.0271272241042. 
+            Average Rp:  0.95469975701 +- 0.0130031570097.
 
-    10 folds, K = {'genes':5, 'samples':5}, alpha_n = [1., 1.]
-    Average MSE: 0.111865974174 +- 0.102632189013. 
-    Average R^2: -1.20736389562 +- 2.06809623465. 
-    Average Rp:  0.390839452864 +- 0.149491707925.
+        alpha_n = [.99, .01]
+            Average MSE: 0.0402457592316 +- 0.00310555730664. 
+            Average R^2: 0.103304165696 +- 0.061906017555. 
+            Average Rp:  0.350994980153 +- 0.0700154493853.
 
-    10 folds, K = {'genes':5, 'samples':5}, alpha_n = [2., 0.5]
-    Average MSE: 0.243555752455 +- 0.318902035875. 
-    Average R^2: -3.94065499045 +- 6.89957698886. 
-    Average Rp:  0.35425588746 +- 0.121414980162.
+        alpha_n = [.01, .99]
+            Average MSE: 0.00496648102011 +- 0.000722434029565. 
+            Average R^2: 0.889422981353 +- 0.0153008528164. 
+            Average Rp:  0.945494166098 +- 0.00750350117297.
+        
+    K = {'genes':20, 'samples':20}
+        alpha_n = [1., 1.]
+            Average MSE: 0.0044598741759 +- 0.000913800346634. 
+            Average R^2: 0.900547898049 +- 0.0208816560466. 
+            Average Rp:  0.949972805762 +- 0.0106506318386.
+        
+160 driver genes, F, S ~ N (kmeans, least)
 
-    10 folds, K = {'genes':5, 'samples':5}, alpha_n = [.5, 2.]
-    Average MSE: 0.576838850508 +- 1.08480878219. 
-    Average R^2: -9.85213183449 +- 20.6901951536. 
-    Average Rp:  0.336696472942 +- 0.210922239443.
-    
-    10 folds, K = {'genes':5, 'samples':5}, alpha_n = [.1, 10.]
-    Average MSE: 0.469655478443 +- 0.556869365353. 
-    Average R^2: -7.4685431054 +- 9.16749419379. 
-    Average Rp:  0.194421227735 +- 0.139253463727.
+    K = {'genes':1, 'samples':1}
+        alpha_n = [1., 1.]
+            Average MSE: 0.0173221463233 +- 0.00263170868037. 
+            Average R^2: 0.614101426396 +- 0.0560110815874. 
+            Average Rp:  0.821861319092 +- 0.0288131801361.
+            
+        alpha_n = [.9, .1]
+            Average MSE: 0.0778849517187 +- 0.00221018080142. 
+            Average R^2: -0.73603489696 +- 0.0163240539674. 
+            Average Rp:  0.184475194156 +- 0.00569522428729.
 
-
-    10 folds, K = {'genes':10, 'samples':10}, alpha_n = [1., 1.]
-    Average MSE: 0.59383818538 +- 0.510565168668. 
-    Average R^2: -11.2622246756 +- 12.0345050519. 
-    Average Rp:  0.180734688965 +- 0.11893042806.
-    
-    10 folds, K = {'genes':10, 'samples':10}, alpha_n = [.1, 10.]
-    Average MSE: 0.856961971739 +- 1.13255427032. 
-    Average R^2: -15.1533853109 +- 20.4762795124. 
-    Average Rp:  0.187463255485 +- 0.179042061954.
-
----
-
-F ~ Exp, S ~ N (kmeans, least)
-
----
-
-F, S ~ N (kmeans, least)
-
-
-
+        alpha_n = [.1, .9]
+            Average MSE: 0.0452501968297 +- 0.00512244782668. 
+            Average R^2: -0.00809190800206 +- 0.10741100805. 
+            Average Rp:  0.617592049041 +- 0.0672342318636.
+            
+    K = {'genes':5, 'samples':5}
+        alpha_n = [1., 1.]
+            Average MSE: 0.00408600479349 +- 0.000640348489736. 
+            Average R^2: 0.908986020211 +- 0.013976335171. 
+            Average Rp:  0.954707428468 +- 0.00757168211272.
+            
+        alpha_n = [.9, .1]
+            Average MSE: 0.0044063835313 +- 0.000733744428324. 
+            Average R^2: 0.901912241184 +- 0.0151746239543. 
+            Average Rp:  0.950893181887 +- 0.00770766583976.
 """

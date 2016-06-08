@@ -5,7 +5,7 @@ Script for using the gene average to predict the gene expression values.
 project_location = "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
-from HMF.methylation.load_methylation import load_ge_pm_top_n_genes
+from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes
 from HMF.code.statistics.statistics import all_statistics_matrix
 
 from sklearn.cross_validation import KFold
@@ -15,9 +15,10 @@ import numpy
 
 ''' Load in data '''
 no_genes = 100      #13966
-(R_ge_n, R_pm_n, genes, samples) = load_ge_pm_top_n_genes(no_genes)
+#(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
+R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
 
-Y = R_ge_n.T
+Y = R_ge.T
 
 ''' Compute the folds '''
 n = len(Y)
@@ -52,8 +53,15 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 
 """
-100 top genes, 10 folds:
-Average MSE: 3.50316093318 +- 0.305295867617. 
-Average R^2: 0.426320470391 +- 0.0310774856098. 
-Average Rp:  0.6537973285 +- 0.0238186947582.
+100 top genes
+    10 folds:
+    Average MSE: 3.50316093318 +- 0.305295867617. 
+    Average R^2: 0.426320470391 +- 0.0310774856098. 
+    Average Rp:  0.6537973285 +- 0.0238186947582.
+    
+160 driver genes
+    10 folds:
+    Average MSE: 0.538268717055 +- 0.0876634203262. 
+    Average R^2: 0.556647410274 +- 0.0486396843013. 
+    Average Rp:  0.746193257055 +- 0.0327644487998.
 """
