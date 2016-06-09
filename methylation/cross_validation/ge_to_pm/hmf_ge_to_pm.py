@@ -20,9 +20,9 @@ no_genes = 100 #13966
 iterations, burn_in, thinning = 100, 80, 2
 
 settings = {
-    'priorF'  : 'normal',
+    'priorF'  : 'exponential',
     'priorSn' : ['normal','exponential'], #GE,ME
-    'orderF'  : 'rows',
+    'orderF'  : 'columns',
     'orderSn' : ['rows','individual'],
     'ARD'     : True
 }
@@ -43,7 +43,7 @@ init = {
 
 E = ['genes','samples']
 #I = {'genes':no_genes, 'samples':254}
-K = {'genes':5, 'samples':5}
+K = {'genes':10, 'samples':10}
 alpha_n = [1., 1.] # GE, PM
 
 
@@ -95,12 +95,21 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
     K = {'genes':1, 'samples':1}
         alpha_n = [1., 1.]
-            
+            Average MSE: 0.017509413843 +- 0.00474386578188. 
+            Average R^2: 0.610447618989 +- 0.102762710141. 
+            Average Rp:  0.821033745449 +- 0.047097829043.
 
     K = {'genes':5, 'samples':5}
         alpha_n = [1., 1.]
-                    
+            Average MSE: 0.00437767141612 +- 0.000894667081691. 
+            Average R^2: 0.902476189408 +- 0.019750922672. 
+            Average Rp:  0.950983976206 +- 0.0104815329002.
         
+    K = {'genes':10, 'samples':10}
+        alpha_n = [1., 1.]
+            Average MSE: 0.00427123925447 +- 0.00122210799119. 
+            Average R^2: 0.904975232112 +- 0.0263593122673. 
+            Average Rp:  0.952835315512 +- 0.0126607987076.
 
 160 driver genes, F ~ Exp, S ~ N (kmeans, least)
 

@@ -31,11 +31,13 @@ We expect the following arguments:
     alpha  - positive real indicating how important this dataset is
 - K, a dictionary { entity1:K1, ..., entityT:KT } mapping an entity type to the number of clusters
 - settings, a dictionary defining the model settings
-    { 'priorF', 'priorG', priorS', 'orderFG', 'orderS', 'ARD' }
-    priorFG: defines prior over the Ft and Gl; 'exponential' or 'normal'
+    { 'priorF', 'priorG', priorSn', 'priorG', 'orderF', 'orderSn', 'orderSm', 'orderG', 'ARD' }
+    priorF:  defines prior over the Ft; 'exponential' or 'normal'
+    priorG:  defines prior over the Gl; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Dl.
     priorSn: defines prior over the Sn; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Rn.
     priorSm: defines prior over the Sm; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Cm.
-    orderFG: draw new values for F and G per column, or per row: 'columns' or 'rows'
+    orderF:  draw new values for F per column, or per row: 'columns' or 'rows'
+    orderG:  draw new values for G per column, or per row: 'columns' or 'rows'. Can be a string, or a list wth an entry per Dl.
     orderSn: draw new values for Sn per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Rn.
     orderSm: draw new values for Sm per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Cm.
     ARD:     True if we use Automatic Relevance Determination over F and G, else False
@@ -59,7 +61,7 @@ F         -> ['random','exp','kmeans']
 G, Sn, Sm -> ['random','exp','least']
 lambdat   -> ['random','exp']
 tau       -> ['random','exp']
-For Sn and Sm this can be a single string, or a list with elements per Rn and Cm.
+For G, Sn, and Sm, this can be a single string, or a list with elements per Dl, Rn, and Cm.
 
 ---
 
@@ -79,6 +81,9 @@ The expectation can be computed by specifying a burn-in and thinning rate, and u
     HMF.approx_expectation_taun(n,burn_in,thinning)
     HMF.approx_expectation_taum(m,burn_in,thinning)
     HMF.approx_expectation_taul(l,burn_in,thinning)
+Or all approximations can be computed and stored as HMF.exp_Ft, HMF.exp_Gl, etc:
+    HMF.approx_expectation_all(burn_in,thinning)
+
 
 We can test the performance of our model on a test dataset, specifying our test set with a mask M. 
     performance = HMF.predict_Rn(n,M_pred,burn_in,thinning)
@@ -317,6 +322,8 @@ class HMF_Gibbs:
         
         self.prior_F =  settings.get('priorF', DEFAULT_SETTINGS['priorF'])
         self.prior_G =  settings.get('priorG', DEFAULT_SETTINGS['priorG'])
+        self.prior_G =  self.prior_G if isinstance(self.prior_G,list) \
+                        else [self.prior_G for l in range(0,self.L)]
         self.prior_Sn = settings.get('priorSn', DEFAULT_SETTINGS['priorSn'])
         self.prior_Sn = self.prior_Sn if isinstance(self.prior_Sn,list) \
                         else [self.prior_Sn for n in range(0,self.N)]
@@ -325,7 +332,8 @@ class HMF_Gibbs:
                         else [self.prior_Sm for m in range(0,self.M)]
         
         assert self.prior_F  in OPTIONS_PRIOR_F, "Unexpected prior for F: %s."  % self.prior_F
-        assert self.prior_G  in OPTIONS_PRIOR_G, "Unexpected prior for G: %s."  % self.prior_G
+        for prior_G in self.prior_G:
+            assert prior_G  in OPTIONS_PRIOR_G, "Unexpected prior for G: %s."  % prior_G
         for prior_Sn in self.prior_Sn:
             assert prior_Sn in OPTIONS_PRIOR_S, "Unexpected prior for Sn: %s." % prior_Sn
         for prior_Sm in self.prior_Sm:
@@ -333,6 +341,8 @@ class HMF_Gibbs:
         
         self.order_F =  settings.get('orderF',  DEFAULT_SETTINGS['orderF'])
         self.order_G =  settings.get('orderG',  DEFAULT_SETTINGS['orderG'])
+        self.order_G =  self.order_G if isinstance(self.order_G,list) \
+                        else [self.order_G for l in range(0,self.L)]
         self.order_Sn = settings.get('orderSn', DEFAULT_SETTINGS['orderSn'])
         self.order_Sn = self.order_Sn if isinstance(self.order_Sn,list) \
                         else [self.order_Sn for n in range(0,self.N)]
@@ -341,7 +351,8 @@ class HMF_Gibbs:
                         else [self.order_Sm for m in range(0,self.M)]
         
         assert self.order_F in OPTIONS_ORDER_F,  "Unexpected order for F: %s." % self.prior_F
-        assert self.order_G in OPTIONS_ORDER_G,  "Unexpected order for G: %s." % self.order_G
+        for order_G in self.order_G:
+            assert order_G in OPTIONS_ORDER_G,  "Unexpected order for G: %s." % order_G
         for order_Sn in self.order_Sn:
             assert order_Sn in OPTIONS_ORDER_S, "Unexpected order for Sn: %s." % order_Sn
         for order_Sm in self.order_Sm:
@@ -349,12 +360,12 @@ class HMF_Gibbs:
         
         self.ARD =      settings.get('ARD',     DEFAULT_SETTINGS['ARD'])
         
-        self.rows_F =         True if self.order_F  == 'rows' else False
-        self.rows_G =         True if self.order_G  == 'rows' else False
+        self.rows_F =          True if self.order_F  == 'rows' else False
+        self.rows_G =         [True if order_G  == 'rows' else False for order_G  in self.order_G ]
         self.rows_Sn =        [True if order_Sn == 'rows' else False for order_Sn in self.order_Sn]
         self.rows_Sm =        [True if order_Sm == 'rows' else False for order_Sm in self.order_Sm]
-        self.nonnegative_F  = True if self.prior_F  == 'exponential' else False
-        self.nonnegative_G  = True if self.prior_G  == 'exponential' else False
+        self.nonnegative_F  =  True if self.prior_F  == 'exponential' else False
+        self.nonnegative_G  = [True if prior_G  == 'exponential' else False for prior_G  in self.prior_G ]
         self.nonnegative_Sn = [True if prior_Sn == 'exponential' else False for prior_Sn in self.prior_Sn]
         self.nonnegative_Sm = [True if prior_Sm == 'exponential' else False for prior_Sm in self.prior_Sm]
         
@@ -367,6 +378,7 @@ class HMF_Gibbs:
     def initialise(self,init={}):
         self.init_F =       init.get('F',      DEFAULT_INIT['F'])
         self.init_G =       init.get('G',      DEFAULT_INIT['G'])
+        self.init_G =       self.init_G  if isinstance(self.init_G, list) else [self.init_G  for l in range(0,self.L)]
         self.init_Sn =      init.get('Sn',     DEFAULT_INIT['Sn'])
         self.init_Sn =      self.init_Sn if isinstance(self.init_Sn,list) else [self.init_Sn for n in range(0,self.N)]
         self.init_Sm =      init.get('Sm',     DEFAULT_INIT['Sm'])
@@ -375,7 +387,8 @@ class HMF_Gibbs:
         self.init_tau =     init.get('tau',    DEFAULT_INIT['tau'])
         
         assert self.init_F in OPTIONS_INIT_F, "Unexpected init for F: %s." % self.init_F
-        assert self.init_G in OPTIONS_INIT_G, "Unexpected init for G: %s." % self.init_G
+        for init_G in self.init_G:
+            assert init_G in OPTIONS_INIT_G, "Unexpected init for G: %s." % init_G
         for init_Sn in self.init_Sn:
             assert init_Sn in OPTIONS_INIT_S, "Unexpected init for Sn: %s." % init_Sn
         for init_Sm in self.init_Sm:
@@ -414,8 +427,8 @@ class HMF_Gibbs:
             
             lambdaGl = self.all_lambdat[E] if self.ARD else self.lambdaG*numpy.ones(self.K[E])
             Gl = init_V(
-                prior=self.prior_G,
-                init=self.init_G,
+                prior=self.prior_G[l],
+                init=self.init_G[l],
                 I=self.J[l],
                 K=self.K[E],
                 lambdak=lambdaGl,
@@ -562,14 +575,14 @@ class HMF_Gibbs:
             ''' Draw new values for the Gl '''
             for l in range(0,self.L):
                 E = self.E_per_Dl[l]
-                D = [(self.all_Dl[l].T,self.all_Ml[l].T,self.all_Gl[l],
-                     self.all_Ft[E],self.all_taul[l],self.all_alphal[l])]
+                D = [(self.all_Dl[l].T, self.all_Ml[l].T, self.all_Gl[l],
+                      self.all_Ft[E],   self.all_taul[l], self.all_alphal[l])]
                 lambdaGl = self.all_lambdat[E] if self.ARD else self.lambdaG*numpy.ones(self.K[E])
                 self.all_Gl[l] = draw_F(
                     R=[],C=[],D=D,
                     lambdaF=lambdaGl,
-                    nonnegative=self.nonnegative_G,
-                    rows=self.rows_G) 
+                    nonnegative=self.nonnegative_G[l],
+                    rows=self.rows_G[l]) 
                 
             ''' Draw new values for the Sn '''
             for n in range(0,self.N):
@@ -721,6 +734,17 @@ class HMF_Gibbs:
         indices = range(burn_in,self.iterations,thinning)  
         return numpy.array([self.iterations_all_taul[l][i] for i in indices]).sum(axis=0) / float(len(indices))   
         
+    def approx_expectation_all(self,burn_in,thinning):
+        ''' Compute all expectations '''
+        self.exp_Ft =      { E:self.approx_expectation_Ft(E,burn_in,thinning)      for E in self.all_E }
+        self.exp_lambdat = { E:self.approx_expectation_lambdat(E,burn_in,thinning) for E in self.all_E }
+        self.exp_Sn =      [ self.approx_expectation_Sn(n,burn_in,thinning)        for n in range(0,self.N) ]
+        self.exp_Sm =      [ self.approx_expectation_Sm(m,burn_in,thinning)        for m in range(0,self.M) ]
+        self.exp_Gl =      [ self.approx_expectation_Gl(l,burn_in,thinning)        for l in range(0,self.L) ]
+        self.exp_taun =    [ self.approx_expectation_taun(n,burn_in,thinning)      for n in range(0,self.N) ]
+        self.exp_taum =    [ self.approx_expectation_taum(m,burn_in,thinning)      for m in range(0,self.M) ]
+        self.exp_taul =    [ self.approx_expectation_taul(l,burn_in,thinning)      for l in range(0,self.L) ]
+        
 
     """ Compute the expectation of F, S, and G, and use it to predict missing values """
     def predict_Rn(self,n,M_pred,burn_in,thinning):
@@ -868,7 +892,7 @@ class HMF_Gibbs:
                    [(self.all_Rn[n].T,self.all_Mn[n].T) for n in self.U2t[E]] + \
                    [(self.all_Cm[m],  self.all_Mm[m])   for m in self.Vt[E]] + \
                    [(self.all_Cm[m].T,self.all_Mm[m].T) for m in self.Vt[E]] + \
-                   [(self.all_Dl[l],  self.all_Ml[l].T) for l in self.Wt[E]]
+                   [(self.all_Dl[l],  self.all_Ml[l])   for l in self.Wt[E]]
         for (R,M) in datasets:
             if all([True if row.sum() > 0 else False for row in M]):   
                 return R,M
