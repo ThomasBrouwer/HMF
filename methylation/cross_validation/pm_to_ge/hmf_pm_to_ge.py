@@ -15,7 +15,7 @@ import numpy
 
 ''' Model settings '''
 no_genes = 100 #13966
-iterations, burn_in, thinning = 100, 80, 2
+iterations, burn_in, thinning = 1000, 900, 2
 
 settings = {
     'priorF'  : 'exponential',
@@ -34,15 +34,32 @@ hyperparameters = {
 }
 init = {
     'F'       : 'kmeans',
-    'Sn'      : ['random','random'],
+    'Sn'      : ['random','least'],
     'lambdat' : 'exp',
     'tau'     : 'exp'
 }
 
 E = ['genes','samples']
 #I = {'genes':no_genes, 'samples':254}
-K = {'genes':5, 'samples':5}
-alpha_n = [1., 1.] # GE, PM
+
+all_K_alpha = [ # alpha order: PM, GE
+    ({'genes':1,  'samples':1},  [1.0, 1.0]),
+    ({'genes':5,  'samples':5},  [1.0, 1.0]),
+    ({'genes':5,  'samples':5},  [1.5, 0.5]),
+    ({'genes':5,  'samples':5},  [1.8, 0.2]),
+    ({'genes':5,  'samples':5},  [0.5, 1.5]),
+    ({'genes':5,  'samples':5},  [0.2, 1.8]),
+    ({'genes':10, 'samples':10}, [1.0, 1.0]),
+    ({'genes':10, 'samples':10}, [1.5, 0.5]),
+    ({'genes':10, 'samples':10}, [1.8, 0.2]),
+    ({'genes':10, 'samples':10}, [0.5, 1.5]),
+    ({'genes':10, 'samples':10}, [0.2, 1.8]),
+    ({'genes':20, 'samples':20}, [1.0, 1.0]),
+    ({'genes':20, 'samples':20}, [1.5, 0.5]),
+    ({'genes':20, 'samples':20}, [1.8, 0.2]),
+    ({'genes':20, 'samples':20}, [0.5, 1.5]),
+    ({'genes':20, 'samples':20}, [0.2, 1.8]),
+]
 
 
 ''' Load in data '''
@@ -52,71 +69,52 @@ R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
 X, Y = R_pm.T, R_ge.T
 C, D = [], []
 
-''' Compute the folds '''
-n = len(R_ge)
-n_folds = 10
-shuffle = True
-folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle)
 
-''' Run HMF to predict Y from X '''
-all_MSE, all_R2, all_Rp = numpy.zeros(n_folds), numpy.zeros(n_folds), numpy.zeros(n_folds)
-for i, (train_index, test_index) in enumerate(folds):
-    print "Training fold %s for NMF." % (i+1)
+''' Use a method to run the cross-validation under different settings - varying K and alpham '''
+def run_all_settings(all_K_alpha):
+    fout = open('results_hmf_pm_to_ge.txt','w')
     
-    ''' Split into train and test '''
-    M_X, M_Y_train = numpy.ones(X.shape), numpy.ones(Y.shape)
-    M_Y_train[test_index] = 0.
-    M_Y_test = 1. - M_Y_train
-    
-    R = [
-        (X, M_X,       'samples', 'genes', alpha_n[0]),
-        (Y, M_Y_train, 'samples', 'genes', alpha_n[1])
-    ]
-    
-    ''' Train and predict '''
-    HMF = HMF_Gibbs(R,C,D,K,settings,hyperparameters)
-    HMF.initialise(init)
-    HMF.run(iterations)
-    
-    ''' Compute the performances '''
-    performances = HMF.predict_Rn(n=1,M_pred=M_Y_test,burn_in=burn_in,thinning=thinning)
-    
-    all_MSE[i], all_R2[i], all_Rp[i] = performances['MSE'], performances['R^2'], performances['Rp']
-    print "MSE: %s. R^2: %s. Rp: %s." % (performances['MSE'], performances['R^2'], performances['Rp'])
-
-print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s." % \
-    (all_MSE.mean(),all_MSE.std(),all_R2.mean(),all_R2.std(),all_Rp.mean(),all_Rp.std())
-
-HMF.approx_expectation_all(burn_in,thinning)
-
-"""
-160 driver genes, F ~ Exp, S_ge ~ N, S_me ~ Exp (kmeans, least/random)
-
-    K = {'genes':1, 'samples':1}
-        alpha_n = [1., 1.]
-            Average MSE: 1.17620468825 +- 0.051651796815. 
-            Average R^2: 0.0204762707974 +- 0.00317717354845. 
-            Average Rp:  0.146994404328 +- 0.0128291087514.
-
-    K = {'genes':5, 'samples':5}
-        alpha_n = [1., 1.]
-            Average MSE: 0.946154088695 +- 1.14013564889. 
-            Average R^2: 0.218351227634 +- 0.928542984156. 
-            Average Rp:  0.713602140403 +- 0.0866735227754.
+    for K, alpha in all_K_alpha:
+        ''' Compute the folds '''
+        n = len(X)
+        n_folds = 10
+        shuffle = True
+        folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle)
         
-    K = {'genes':10, 'samples':10}
-        alpha_n = [1., 1.]
+        ''' Run HMF to predict Y from X '''
+        all_MSE, all_R2, all_Rp = numpy.zeros(n_folds), numpy.zeros(n_folds), numpy.zeros(n_folds)
+        for i, (train_index, test_index) in enumerate(folds):
+            print "Training fold %s for NMF." % (i+1)
+            
+            ''' Split into train and test '''
+            M_X, M_Y_train = numpy.ones(X.shape), numpy.ones(Y.shape)
+            M_Y_train[test_index] = 0.
+            M_Y_test = 1. - M_Y_train
+            
+            R = [
+                (X, M_X,       'samples', 'genes', alpha[0]),
+                (Y, M_Y_train, 'samples', 'genes', alpha[1])
+            ]
+            
+            ''' Train and predict '''
+            HMF = HMF_Gibbs(R,C,D,K,settings,hyperparameters)
+            HMF.initialise(init)
+            HMF.run(iterations)
+            
+            ''' Compute the performances '''
+            performances = HMF.predict_Rn(n=1,M_pred=M_Y_test,burn_in=burn_in,thinning=thinning)
+            
+            all_MSE[i], all_R2[i], all_Rp[i] = performances['MSE'], performances['R^2'], performances['Rp']
+            print "MSE: %s. R^2: %s. Rp: %s." % (performances['MSE'], performances['R^2'], performances['Rp'])
         
-        
-        
-160 driver genes, F ~ Exp, S ~ N (kmeans, least)
+        print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s." % \
+            (all_MSE.mean(),all_MSE.std(),all_R2.mean(),all_R2.std(),all_Rp.mean(),all_Rp.std())
 
-    K = {'genes':1, 'samples':1}
-        alpha_n = [1., 1.]
-        
-        
-160 driver genes, F, S ~ N (kmeans, least)
+        fout.write('Tried MF on PM -> GE, with K = %s, alphan = %s.\n' % (K,alpha))
+        fout.write('Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s.\n' % \
+            (all_MSE.mean(),all_MSE.std(),all_R2.mean(),all_R2.std(),all_Rp.mean(),all_Rp.std()))
+        fout.write('All MSE: %s. \nAll R^2: %s. \nAll Rp: %s.\n\n' % (list(all_MSE),list(all_R2),list(all_Rp)))
+        fout.flush()
 
-    K = {'genes':1, 'samples':1}
-        alpha_n = [1., 1.]
-"""
+''' Run all the settings '''
+run_all_settings(all_K_alpha)

@@ -23,8 +23,8 @@ Y = R_ge.T
 ''' Compute the folds '''
 n = len(Y)
 n_folds = 10
-shuffle = True
-folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle)
+shuffle, random_state = True, 0
+folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle,random_state=random_state)
 
 ''' Do cross-validation to predict Y using the column (gene) average '''
 all_MSE, all_R2, all_Rp = numpy.zeros(n_folds), numpy.zeros(n_folds), numpy.zeros(n_folds)
@@ -37,7 +37,6 @@ for i, (train_index, test_index) in enumerate(folds):
     ''' Compute the column (gene) average '''
     _, no_samples = Y_train.shape
     gene_averages = numpy.average(Y_train,axis=0)
-    print gene_averages
     Y_pred = [gene_averages for row in range(0,len(Y_test))]
     
     ''' Measure performance '''
@@ -61,7 +60,7 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
     
 160 driver genes
     10 folds:
-    Average MSE: 0.538268717055 +- 0.0876634203262. 
-    Average R^2: 0.556647410274 +- 0.0486396843013. 
-    Average Rp:  0.746193257055 +- 0.0327644487998.
+    Average MSE: 0.537305318808 +- 0.0643405711714. 
+    Average R^2: 0.555886340269 +- 0.0427435939484. 
+    Average Rp:  0.746193706107 +- 0.0288870647559.
 """

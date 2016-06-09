@@ -29,8 +29,8 @@ X = R_pm.T
 ''' Compute the folds '''
 n = len(X)
 n_folds = 10
-shuffle = True
-folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle)
+shuffle, random_state = True, 0
+folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle,random_state=random_state)
 
 ''' Run the RF regression to predict Y from X '''
 all_MSE, all_R2, all_Rp = numpy.zeros(n_folds), numpy.zeros(n_folds), numpy.zeros(n_folds)
@@ -82,22 +82,22 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
     
 160 driver genes
     10 folds, 1 estimator:
-    Average MSE: 0.795970953741 +- 0.0768369693165. 
-    Average R^2: 0.3404355513 +- 0.0625050414068. 
-    Average Rp:  0.672859373517 +- 0.0286886342839.
+    Average MSE: 0.790687460111 +- 0.07667765625. 
+    Average R^2: 0.345455918463 +- 0.0565688133244. 
+    Average Rp:  0.674278776242 +- 0.0287225908945.
 
     10 folds, 10 estimators:
-    Average MSE: 0.410015632458 +- 0.0339477463786. 
-    Average R^2: 0.660683660383 +- 0.0252118225275. 
-    Average Rp:  0.813861487885 +- 0.0147419218431.
+    Average MSE: 0.404558945196 +- 0.046803743027. 
+    Average R^2: 0.665325773613 +- 0.0328109679366. 
+    Average Rp:  0.816350303954 +- 0.0200690699472.
 
     10 folds, 100 estimators:
-    Average MSE: 0.374325092472 +- 0.0278174076743. 
-    Average R^2: 0.690146579209 +- 0.0238359601365. 
-    Average Rp:  0.830914237051 +- 0.0144322054166.
+    Average MSE: 0.370693119479 +- 0.0435100001681. 
+    Average R^2: 0.693430706697 +- 0.0296732435931. 
+    Average Rp:  0.833251950968 +- 0.0182825379061.
 
     10 folds, 1000 estimators:
-    Average MSE: 0.371637074998 +- 0.0406966332475. 
-    Average R^2: 0.692282939685 +- 0.0316354139571. 
-    Average Rp:  0.832550657386 +- 0.019193002811.
+    Average MSE: 0.367032074255 +- 0.0447927399464. 
+    Average R^2: 0.696489183614 +- 0.0307290118114. 
+    Average Rp:  0.835104496433 +- 0.0188865032742.
 """

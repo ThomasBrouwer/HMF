@@ -1,6 +1,6 @@
 '''
 Script for using a random forest regressor to predict the promoter region
-methylation values, using gene expression as features.
+methylation values, using gene body methylation as features.
 '''
 
 project_location = "/home/tab43/Documents/Projects/libraries/"
@@ -23,7 +23,7 @@ max_depth = None    # until what depth of feature splits we go
 #(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
 R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
 
-X = R_ge.T
+X = R_gm.T
 Y = R_pm.T
 
 ''' Compute the folds '''
@@ -60,44 +60,26 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 """
 100 top genes
-    10 folds, 1 estimator:
-    Average MSE: 0.00534711085867 +- 0.000795111298234. 
-    Average R^2: 0.880812613237 +- 0.0188552606185. 
-    Average Rp:  0.940948181068 +- 0.0089296863681.
-    
-    10 folds, 10 estimators:
-    Average MSE: 0.028719183557 +- 0.00305707071341. 
-    Average R^2: 0.500430009301 +- 0.0667711584878. 
-    Average Rp:  0.709585840895 +- 0.0462748536733.
-    
-    10 folds, 100 estimators:
-    Average MSE: 0.0258352561042 +- 0.00413138224843. 
-    Average R^2: 0.550010514462 +- 0.077807455449. 
-    Average Rp:  0.743234096254 +- 0.0523117587712.
-    
-    10 folds, 1000 estimators:
-    Average MSE: 0.025430596927 +- 0.00384329435704. 
-    Average R^2: 0.556922385563 +- 0.0787808116692. 
-    Average Rp:  0.747544577824 +- 0.0546832029041.
+
     
 160 driver genes
     10 folds, 1 estimator:
-    Average MSE: 0.00501976727869 +- 0.000779891992678. 
-    Average R^2: 0.888191192909 +- 0.0176515453659. 
-    Average Rp:  0.944368177057 +- 0.00873581220305.
+    Average MSE: 0.00449925315503 +- 0.00058144348208. 
+    Average R^2: 0.899838032285 +- 0.0127687957201. 
+    Average Rp:  0.949988956134 +- 0.00636403719185.
 
     10 folds, 10 estimators:
-    Average MSE: 0.00275716103362 +- 0.000502043984722. 
-    Average R^2: 0.938585077828 +- 0.0113488416599. 
-    Average Rp:  0.968991540379 +- 0.00573993395794.
+    Average MSE: 0.00234521901746 +- 0.000425910193757. 
+    Average R^2: 0.947805042336 +- 0.00933415150274. 
+    Average Rp:  0.973632130605 +- 0.00474059433098.
     
     10 folds, 100 estimators:
-    Average MSE: 0.00252754907006 +- 0.000481777494941. 
-    Average R^2: 0.943694878894 +- 0.0109253096835. 
-    Average Rp:  0.971638919881 +- 0.00548327888793.
+    Average MSE: 0.0021360065684 +- 0.00044292484733. 
+    Average R^2: 0.952439531057 +- 0.00982668610762. 
+    Average Rp:  0.975990078977 +- 0.00501557743499.
 
     10 folds, 1000 estimators:
-    Average MSE: 0.002489958894 +- 0.000460998115048. 
-    Average R^2: 0.944537858178 +- 0.010415236763. 
-    Average Rp:  0.972051225882 +- 0.00524679384447.
+    Average MSE: 0.00210739093339 +- 0.000442502614183. 
+    Average R^2: 0.953082173031 +- 0.00979139932692. 
+    Average Rp:  0.976314652877 +- 0.00499973374292.
 """

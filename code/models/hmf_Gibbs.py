@@ -555,7 +555,7 @@ class HMF_Gibbs:
                 for E in self.all_E:
                     Fs = [(self.all_Ft[E],self.nonnegative_F)]
                     for l in self.Wt[E]:
-                        Fs.append((self.all_Gl[l],self.nonnegative_G))
+                        Fs.append((self.all_Gl[l],self.nonnegative_G[l]))
                     self.all_lambdat[E] = draw_lambda(
                         alpha0=self.alpha0,
                         beta0=self.beta0,

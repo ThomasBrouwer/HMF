@@ -1,0 +1,30 @@
+10 fold cross validation
+
+---
+
+GE -> PM
+
+Gene average		0.00321921791362 +- 0.000416757717902
+Random forest (1000)	0.002489958894 +- 0.000460998115048
+HMF - MF
+HMF - MTF
+
+---
+
+PM -> GE
+
+Gene average		0.537305318808 +- 0.0643405711714
+Random forest (1000)	0.367032074255 +- 0.0447927399464
+HMF - MF		
+HMF - MTF		
+
+---
+
+PM -> GM
+
+Gene average		0.00321921791362 +- 0.000416757717902
+Random forest (1000)	
+
+---
+
+GM -> PM
