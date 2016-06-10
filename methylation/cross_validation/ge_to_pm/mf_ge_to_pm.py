@@ -85,7 +85,7 @@ def run_all_settings(all_K_alpha):
         ''' Run HMF to predict Y from X '''
         all_MSE, all_R2, all_Rp = numpy.zeros(n_folds), numpy.zeros(n_folds), numpy.zeros(n_folds)
         for i, (train_index, test_index) in enumerate(folds):
-            print "Training fold %s for NMF." % (i+1)
+            print "Training fold %s for HMF-MF." % (i+1)
             
             ''' Split into train and test '''
             M_X, M_Y_train = numpy.ones(X.shape), numpy.ones(Y.shape)

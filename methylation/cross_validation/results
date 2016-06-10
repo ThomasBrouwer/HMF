@@ -1,8 +1,10 @@
+METHYLATION DATA
+
 10 fold cross validation
 
 ---
 
-GE -> PM
+GE -> PM (no standardisation)
 
 Gene average		0.00321921791362 +- 0.000416757717902
 Random forest (1000)	0.002489958894 +- 0.000460998115048
@@ -11,7 +13,15 @@ HMF - MTF
 
 ---
 
-PM -> GE
+GE -> PM (standardised)
+
+Gene average		
+Random forest (1000)	
+HMF - MF
+HMF - MTF
+---
+
+PM -> GE (no standardisation)
 
 Gene average		0.537305318808 +- 0.0643405711714
 Random forest (1000)	0.367032074255 +- 0.0447927399464
@@ -20,10 +30,19 @@ HMF - MTF
 
 ---
 
+PM -> GE (standardised)
+
+Gene average		
+Random forest (1000)	
+HMF - MF
+HMF - MTF
+
+---
+
 PM -> GM
 
 Gene average		0.00321921791362 +- 0.000416757717902
-Random forest (1000)	
+Random forest (1000)	0.00210739093339 +- 0.000442502614183
 
 ---
 
