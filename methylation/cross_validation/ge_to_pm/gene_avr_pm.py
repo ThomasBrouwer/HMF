@@ -5,7 +5,7 @@ Script for using the gene average to predict the promoter region methylation val
 project_location = "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
-from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes
+from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes, filter_driver_genes_std
 from HMF.code.statistics.statistics import all_statistics_matrix
 
 from sklearn.cross_validation import KFold
@@ -16,7 +16,8 @@ import numpy
 ''' Load in data '''
 no_genes = 100      #13966
 #(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
-R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
+#R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
+R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
 Y = R_pm.T
 
@@ -37,7 +38,6 @@ for i, (train_index, test_index) in enumerate(folds):
     ''' Compute the column (gene) average '''
     _, no_samples = Y_train.shape
     gene_averages = numpy.average(Y_train,axis=0)
-    print gene_averages
     Y_pred = [gene_averages for row in range(0,len(Y_test))]
     
     ''' Measure performance '''
@@ -64,4 +64,10 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
     Average MSE: 0.00321921791362 +- 0.000416757717902. 
     Average R^2: 0.928325838124 +- 0.00915920231339. 
     Average Rp:  0.96369963759 +- 0.00469073701137.
+    
+160 driver genes (std)
+    10 folds:
+    Average MSE: 1.00860374021 +- 0.101283114296. 
+    Average R^2: -0.0131046669992 +- 0.00766418858351. 
+    Average Rp:  -0.185748511257 +- 0.0184270656113.
 """

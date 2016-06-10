@@ -6,7 +6,7 @@ methylation values, using gene expression as features.
 project_location = "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
-from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes
+from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes, filter_driver_genes_std
 from HMF.code.statistics.statistics import all_statistics_matrix
 
 from sklearn.ensemble import RandomForestRegressor
@@ -16,12 +16,13 @@ import numpy
 
 ''' Model settings '''
 no_genes = 100      #13966
-n_estimators = 1000 # number of trees
+n_estimators = 100 # number of trees
 max_depth = None    # until what depth of feature splits we go
 
 ''' Load in data '''
 #(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
-R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
+#R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
+R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
 X = R_ge.T
 Y = R_pm.T
@@ -100,4 +101,21 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
     Average MSE: 0.002489958894 +- 0.000460998115048. 
     Average R^2: 0.944537858178 +- 0.010415236763. 
     Average Rp:  0.972051225882 +- 0.00524679384447.
+    
+160 driver genes (std)
+    10 folds, 1 estimator:
+    Average MSE: 1.72890916031 +- 0.150943782571. 
+    Average R^2: -0.744157811653 +- 0.130453191916. 
+    Average Rp:  0.123811188986 +- 0.0363299796438.
+
+    10 folds, 10 estimators:
+    Average MSE: 0.972983046646 +- 0.120269451496. 
+    Average R^2: 0.0245506862124 +- 0.0399945676361. 
+    Average Rp:  0.252602861549 +- 0.0535116459343.
+    
+    10 folds, 100 estimators:
+    
+
+    10 folds, 1000 estimators:
+    
 """

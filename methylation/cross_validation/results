@@ -8,14 +8,14 @@ GE -> PM (no standardisation)
 
 Gene average		0.00321921791362 +- 0.000416757717902
 Random forest (1000)	0.002489958894 +- 0.000460998115048
-HMF - MF
+HMF - MF		0.00320574817466 +- 0.000541530383446
 HMF - MTF
 
 ---
 
 GE -> PM (standardised)
 
-Gene average		
+Gene average		1.00860374021 +- 0.101283114296 
 Random forest (1000)	
 HMF - MF
 HMF - MTF
@@ -25,14 +25,14 @@ PM -> GE (no standardisation)
 
 Gene average		0.537305318808 +- 0.0643405711714
 Random forest (1000)	0.367032074255 +- 0.0447927399464
-HMF - MF		
+HMF - MF		0.408400057909 +- 0.0453786396548
 HMF - MTF		
 
 ---
 
 PM -> GE (standardised)
 
-Gene average		
+Gene average		1.00743713077 +- 0.0910666106409
 Random forest (1000)	
 HMF - MF
 HMF - MTF
