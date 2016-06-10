@@ -15,7 +15,7 @@ import numpy
 
 ''' Model settings '''
 no_genes = 100 #13966
-iterations, burn_in, thinning = 1000, 900, 2
+iterations, burn_in, thinning = 200, 180, 2
 
 settings = {
     'priorF'  : 'exponential',
