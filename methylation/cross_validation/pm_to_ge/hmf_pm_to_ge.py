@@ -6,7 +6,7 @@ gene expression as a second dataset.
 project_location = "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
-from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes
+from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes, filter_driver_genes_std
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs
 
 from sklearn.cross_validation import KFold
@@ -19,9 +19,9 @@ iterations, burn_in, thinning = 1000, 900, 2
 
 settings = {
     'priorF'  : 'exponential',
-    'priorSn' : ['exponential','normal'], #PM,GE
+    'priorSn' : ['normal','normal'], #PM,GE
     'orderF'  : 'columns',
-    'orderSn' : ['individual','rows'],
+    'orderSn' : ['rows','rows'],
     'ARD'     : True
 }
 hyperparameters = {
@@ -34,7 +34,7 @@ hyperparameters = {
 }
 init = {
     'F'       : 'kmeans',
-    'Sn'      : ['random','least'],
+    'Sn'      : ['least','least'],
     'lambdat' : 'exp',
     'tau'     : 'exp'
 }
@@ -46,25 +46,26 @@ all_K_alpha = [ # alpha order: PM, GE
     ({'genes':1,  'samples':1},  [1.0, 1.0]),
     ({'genes':5,  'samples':5},  [1.0, 1.0]),
     ({'genes':5,  'samples':5},  [1.5, 0.5]),
-    ({'genes':5,  'samples':5},  [1.8, 0.2]),
+    #({'genes':5,  'samples':5},  [1.8, 0.2]),
     ({'genes':5,  'samples':5},  [0.5, 1.5]),
-    ({'genes':5,  'samples':5},  [0.2, 1.8]),
+    #({'genes':5,  'samples':5},  [0.2, 1.8]),
     ({'genes':10, 'samples':10}, [1.0, 1.0]),
     ({'genes':10, 'samples':10}, [1.5, 0.5]),
-    ({'genes':10, 'samples':10}, [1.8, 0.2]),
+    #({'genes':10, 'samples':10}, [1.8, 0.2]),
     ({'genes':10, 'samples':10}, [0.5, 1.5]),
-    ({'genes':10, 'samples':10}, [0.2, 1.8]),
+    #({'genes':10, 'samples':10}, [0.2, 1.8]),
     ({'genes':20, 'samples':20}, [1.0, 1.0]),
     ({'genes':20, 'samples':20}, [1.5, 0.5]),
-    ({'genes':20, 'samples':20}, [1.8, 0.2]),
+    #({'genes':20, 'samples':20}, [1.8, 0.2]),
     ({'genes':20, 'samples':20}, [0.5, 1.5]),
-    ({'genes':20, 'samples':20}, [0.2, 1.8]),
+    #({'genes':20, 'samples':20}, [0.2, 1.8]),
 ]
 
 
 ''' Load in data '''
 #(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
-R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
+#R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
+R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
 X, Y = R_pm.T, R_ge.T
 C, D = [], []
@@ -72,7 +73,7 @@ C, D = [], []
 
 ''' Use a method to run the cross-validation under different settings - varying K and alpham '''
 def run_all_settings(all_K_alpha):
-    fout = open('results_hmf_pm_to_ge.txt','w')
+    fout = open('results_hmf_pm_to_ge_std.txt','w')
     
     for K, alpha in all_K_alpha:
         ''' Compute the folds '''

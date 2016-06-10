@@ -16,7 +16,7 @@ import numpy
 
 ''' Model settings '''
 no_genes = 100      #13966
-n_estimators = 100 # number of trees
+n_estimators = 1000 # number of trees
 max_depth = None    # until what depth of feature splits we go
 
 ''' Load in data '''
@@ -114,7 +114,9 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
     Average Rp:  0.340095645263 +- 0.0444182381533.
 
     10 folds, 100 estimators:
-    
+    Average MSE: 0.825743938467 +- 0.0748849644407. 
+    Average R^2: 0.171790265734 +- 0.0350726899469. 
+    Average Rp:  0.416561174842 +- 0.0418755075308.
 
     10 folds, 1000 estimators:
     
