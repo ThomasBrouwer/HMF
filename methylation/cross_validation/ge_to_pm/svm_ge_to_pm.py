@@ -16,7 +16,7 @@ import numpy
 
 ''' Model settings '''
 no_genes = 100      #13966
-kernel = 'linear' #'rbf' # kernel type
+kernel = 'rbf' # kernel type
 
 ''' Load in data '''
 #(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
@@ -74,4 +74,9 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
     Average MSE: 0.86247030115 +- 0.108768773829. 
     Average R^2: 0.135994087314 +- 0.0313651214782. 
     Average Rp:  0.377214919289 +- 0.0427727140672.
+    
+    10 folds, linear kernel
+    Average MSE: 2.33763699281 +- 0.351188291974. 
+    Average R^2: -1.3446488001 +- 0.234660743598. 
+    Average Rp:  0.208960161916 +- 0.0311181872698.
 """
