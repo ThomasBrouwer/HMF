@@ -21,9 +21,9 @@ iterations, burn_in, thinning = 1000, 900, 2
 
 settings = {
     'priorF'  : 'exponential',
-    'priorG'  : ['normal','normal'], #GE,ME
+    'priorG'  : ['normal','exponential'], #GE,ME
     'orderF'  : 'columns',
-    'orderG'  : ['rows','rows'],
+    'orderG'  : ['columns','columns'],
     'ARD'     : True
 }
 hyperparameters = {
@@ -36,7 +36,7 @@ hyperparameters = {
 }
 init = {
     'F'       : 'kmeans',
-    'G'       : ['least','least'],
+    'G'       : ['least','random'],
     'lambdat' : 'exp',
     'tau'     : 'exp'
 }
@@ -53,8 +53,8 @@ all_K_alpha = [ # alpha order: GE, PM
     #({'genes':5,  'samples':5},  [0.2, 1.8]),
     #({'genes':10, 'samples':10}, [1.0, 1.0]),
     ({'genes':10, 'samples':10}, [1.5, 0.5]),
-    ({'genes':10, 'samples':10}, [1.8, 0.2]),
-    ({'genes':10, 'samples':10}, [1.99, 0.01]),
+    #({'genes':10, 'samples':10}, [1.8, 0.2]),
+    #({'genes':10, 'samples':10}, [1.99, 0.01]),
     #({'genes':10, 'samples':10}, [0.5, 1.5]),
     #({'genes':10, 'samples':10}, [0.2, 1.8]),
     #({'genes':20, 'samples':20}, [1.0, 1.0]),
@@ -67,15 +67,15 @@ all_K_alpha = [ # alpha order: GE, PM
 
 ''' Load in data '''
 #(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
-#R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
-R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
+R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
+#R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
 X, Y = R_ge.T, R_pm.T
 R, C = [], []
 
 ''' Use a method to run the cross-validation under different settings - varying K and alpham '''
 def run_all_settings(all_K_alpha):
-    fout = open('results_mf_ge_to_pm_std_final.txt','w')
+    fout = open('results_mf_ge_to_pm_final.txt','w')
     
     for K, alpha in all_K_alpha:
         ''' Compute the folds '''

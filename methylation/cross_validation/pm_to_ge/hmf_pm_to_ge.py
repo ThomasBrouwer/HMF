@@ -15,7 +15,7 @@ import numpy
 
 ''' Model settings '''
 no_genes = 100 #13966
-iterations, burn_in, thinning = 200, 180, 2
+iterations, burn_in, thinning = 1000, 800, 2
 
 settings = {
     'priorF'  : 'exponential',
@@ -43,21 +43,21 @@ E = ['genes','samples']
 #I = {'genes':no_genes, 'samples':254}
 
 all_K_alpha = [ # alpha order: PM, GE
-    ({'genes':1,  'samples':1},  [1.0, 1.0]),
-    ({'genes':5,  'samples':5},  [1.0, 1.0]),
-    ({'genes':5,  'samples':5},  [1.5, 0.5]),
+    #({'genes':1,  'samples':1},  [1.0, 1.0]),
+    #({'genes':5,  'samples':5},  [1.0, 1.0]),
+    #({'genes':5,  'samples':5},  [1.5, 0.5]),
     #({'genes':5,  'samples':5},  [1.8, 0.2]),
-    ({'genes':5,  'samples':5},  [0.5, 1.5]),
+    #({'genes':5,  'samples':5},  [0.5, 1.5]),
     #({'genes':5,  'samples':5},  [0.2, 1.8]),
-    ({'genes':10, 'samples':10}, [1.0, 1.0]),
+    #({'genes':10, 'samples':10}, [1.0, 1.0]),
     ({'genes':10, 'samples':10}, [1.5, 0.5]),
-    #({'genes':10, 'samples':10}, [1.8, 0.2]),
-    ({'genes':10, 'samples':10}, [0.5, 1.5]),
+    ({'genes':10, 'samples':10}, [1.8, 0.2]),
+    #({'genes':10, 'samples':10}, [0.5, 1.5]),
     #({'genes':10, 'samples':10}, [0.2, 1.8]),
-    ({'genes':20, 'samples':20}, [1.0, 1.0]),
+    #({'genes':20, 'samples':20}, [1.0, 1.0]),
     ({'genes':20, 'samples':20}, [1.5, 0.5]),
-    #({'genes':20, 'samples':20}, [1.8, 0.2]),
-    ({'genes':20, 'samples':20}, [0.5, 1.5]),
+    ({'genes':20, 'samples':20}, [1.8, 0.2]),
+    #({'genes':20, 'samples':20}, [0.5, 1.5]),
     #({'genes':20, 'samples':20}, [0.2, 1.8]),
 ]
 
@@ -73,7 +73,7 @@ C, D = [], []
 
 ''' Use a method to run the cross-validation under different settings - varying K and alpham '''
 def run_all_settings(all_K_alpha):
-    fout = open('results_hmf_pm_to_ge_std.txt','w')
+    fout = open('results_hmf_pm_to_ge_std_final.txt','w')
     
     for K, alpha in all_K_alpha:
         ''' Compute the folds '''
