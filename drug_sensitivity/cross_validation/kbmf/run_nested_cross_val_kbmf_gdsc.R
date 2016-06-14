@@ -46,15 +46,15 @@ Kz[,, 3] <- kernel_targets
 # Run the cross-validation
 kbmf_nested_cross_validation(Kx, Kz, Y, R_values, K)
 
-# R_values <- c(2,3,4,5)
-# All performances nested cross-validation: MSE=0.0918, R^2=0.5358, Rp=0.7387.
-# All performances nested cross-validation: MSE=0.0964, R^2=0.5116, Rp=0.7230.
-# All performances nested cross-validation: MSE=0.0889, R^2=0.5520, Rp=0.7571.
-# All performances nested cross-validation: MSE=0.0929, R^2=0.5411, Rp=0.7480.
-# All performances nested cross-validation: MSE=0.0933, R^2=0.5331, Rp=0.7408.
-# All performances nested cross-validation: MSE=0.0971, R^2=0.5139, Rp=0.7316.
-# All performances nested cross-validation: MSE=0.0896, R^2=0.5465, Rp=0.7461.
-# All performances nested cross-validation: MSE=0.0948, R^2=0.5281, Rp=0.7354.
-# All performances nested cross-validation: MSE=0.0970, R^2=0.5147, Rp=0.7256.
-# All performances nested cross-validation: MSE=0.0947, R^2=0.5267, Rp=0.7370.
-# Performances nested cross-validation: MSE=0.0936, R^2=0.5304, Rp=0.7383.
+# R_values <- c(2,3,4)
+# "All performances nested cross-validation: MSE=0.0821, R^2=0.5921, Rp=0.7719."
+# "All performances nested cross-validation: MSE=0.0766, R^2=0.6192, Rp=0.7897."
+# "All performances nested cross-validation: MSE=0.0855, R^2=0.5625, Rp=0.7518."
+# "All performances nested cross-validation: MSE=0.0786, R^2=0.6042, Rp=0.7823."
+# "All performances nested cross-validation: MSE=0.0774, R^2=0.6105, Rp=0.7823."
+# "All performances nested cross-validation: MSE=0.0822, R^2=0.5780, Rp=0.7618."
+# "All performances nested cross-validation: MSE=0.0761, R^2=0.6263, Rp=0.7951."
+# "All performances nested cross-validation: MSE=0.0790, R^2=0.6065, Rp=0.7821."
+# "All performances nested cross-validation: MSE=0.0826, R^2=0.5847, Rp=0.7659."
+# "All performances nested cross-validation: MSE=0.0822, R^2=0.5892, Rp=0.7713."
+# "Performances nested cross-validation: MSE=0.0802, R^2=0.5973, Rp=0.7754."

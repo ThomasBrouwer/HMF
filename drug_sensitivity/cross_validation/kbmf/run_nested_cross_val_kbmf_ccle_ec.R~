@@ -1,8 +1,8 @@
 # Run the nested cross-validation for KBMF 
 
 source("nested_cross_val_kbmf.R")
-K <- 5
-R_values <- c(2,3,4,5)
+K <- 10
+R_values <- c(2,3,4)
 
 # Load in the drug sensitivity values
 folder_data <- '../../../drug_sensitivity/data/overlap/'
@@ -57,3 +57,17 @@ kbmf_nested_cross_validation(Kx, Kz, Y, R_values, K)
 # KBMF is sensitive to the parameters$sigma_y value: for 5 fold cross-validation
 # 	0.4 	0.5	0.6	0.7	0.8	0.9
 # 	0.1245	0.1220	0.1262	0.1314	0.2630	0.2630
+
+# Using sigma_y = 0.5, and 10 fold cross-validation:
+# R_values <- c(2,3,4)
+# "All performances nested cross-validation: MSE=0.1227, R^2=0.2041, Rp=0.4605."
+# "All performances nested cross-validation: MSE=0.1121, R^2=0.1776, Rp=0.4376."
+# "All performances nested cross-validation: MSE=0.1406, R^2=0.1409, Rp=0.4175."
+# "All performances nested cross-validation: MSE=0.1338, R^2=0.1268, Rp=0.3861."
+# "All performances nested cross-validation: MSE=0.1217, R^2=0.2512, Rp=0.5209."
+# "All performances nested cross-validation: MSE=0.1273, R^2=0.1626, Rp=0.4293."
+# "All performances nested cross-validation: MSE=0.1209, R^2=0.2139, Rp=0.4759."
+# "All performances nested cross-validation: MSE=0.1298, R^2=0.1241, Rp=0.3707."
+# "All performances nested cross-validation: MSE=0.1180, R^2=0.2323, Rp=0.4908."
+# "All performances nested cross-validation: MSE=0.1004, R^2=0.3360, Rp=0.5869."
+[1] "Performances nested cross-validation: MSE=0.1227, R^2=0.1969, Rp=0.4576."

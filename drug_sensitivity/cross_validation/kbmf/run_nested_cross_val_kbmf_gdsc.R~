@@ -5,7 +5,7 @@ K <- 10
 R_values <- c(2,3,4)
 
 # Load in the drug sensitivity values
-folder_data <- '../../../data/datasets_drug_sensitivity/overlap/'
+folder_data <- '../../../drug_sensitivity/data/overlap/'
 folder_drug_sensitivity <- paste(folder_data,'data_row_01/',sep='')
 name_gdsc <- 'gdsc_ic50_row_01.txt'
 Y <- as.matrix(read.table(paste(folder_drug_sensitivity,name_gdsc,sep='')))
@@ -46,15 +46,5 @@ Kz[,, 3] <- kernel_targets
 # Run the cross-validation
 kbmf_nested_cross_validation(Kx, Kz, Y, R_values, K)
 
-# R_values <- c(2,3,4,5)
-# All performances nested cross-validation: MSE=0.0918, R^2=0.5358, Rp=0.7387.
-# All performances nested cross-validation: MSE=0.0964, R^2=0.5116, Rp=0.7230.
-# All performances nested cross-validation: MSE=0.0889, R^2=0.5520, Rp=0.7571.
-# All performances nested cross-validation: MSE=0.0929, R^2=0.5411, Rp=0.7480.
-# All performances nested cross-validation: MSE=0.0933, R^2=0.5331, Rp=0.7408.
-# All performances nested cross-validation: MSE=0.0971, R^2=0.5139, Rp=0.7316.
-# All performances nested cross-validation: MSE=0.0896, R^2=0.5465, Rp=0.7461.
-# All performances nested cross-validation: MSE=0.0948, R^2=0.5281, Rp=0.7354.
-# All performances nested cross-validation: MSE=0.0970, R^2=0.5147, Rp=0.7256.
-# All performances nested cross-validation: MSE=0.0947, R^2=0.5267, Rp=0.7370.
-# Performances nested cross-validation: MSE=0.0936, R^2=0.5304, Rp=0.7383.
+# R_values <- c(2,3,4)
+
