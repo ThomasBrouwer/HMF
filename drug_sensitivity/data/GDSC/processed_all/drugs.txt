@@ -1,0 +1,139 @@
+17aag	17-AAG
+681640	681640
+a443654	A-443654
+a770041	A-770041
+abt263	ABT-263
+abt888	ABT-888
+ag014699	AG-014699
+aicar	AICAR
+aktinhibitorviii	AKT inhibitor VIII
+amg706	AMG-706
+ap24534	AP-24534
+as601245	AS601245
+atra	ATRA
+auy922	AUY922
+axitinib	Axitinib
+az628	AZ628
+azd0530	AZD-0530
+azd2281	AZD-2281
+azd6244	AZD6244
+azd6482	AZD6482
+azd7762	AZD7762
+azd8055	AZD8055
+bay613606	BAY 61-3606
+bexarotene	Bexarotene
+bi2536	BI-2536
+bibw2992	BIBW2992
+bicalutamide	Bicalutamide
+birb0796	BIRB 0796
+bleomycin	Bleomycin
+bms509744	BMS-509744
+bms536924	BMS-536924
+bms708163	BMS-708163
+bms754807	BMS-754807
+bortezomib	Bortezomib
+bosutinib	Bosutinib
+bryostatin1	Bryostatin 1
+bx795	BX-795
+camptothecin	Camptothecin
+cct007093	CCT007093
+cct018159	CCT018159
+cep701	CEP-701
+cgp082996	CGP-082996
+cgp60474	CGP-60474
+chir99021	CHIR-99021
+ci1040	CI-1040
+cisplatin	Cisplatin
+cmk	CMK
+cyclopamine	Cyclopamine
+cytarabine	Cytarabine
+dasatinib	Dasatinib
+dmog	DMOG
+docetaxel	Docetaxel
+doxorubicin	Doxorubicin
+eht1864	EHT 1864
+elesclomol	Elesclomol
+embelin	Embelin
+epothiloneb	Epothilone B
+erlotinib	Erlotinib
+etoposide	Etoposide
+fh535	FH535
+fti277	FTI-277
+gdc0449	GDC-0449
+gdc0941	GDC0941
+gefitinib	Gefitinib
+gemcitabine	Gemcitabine
+gnf2	GNF-2
+gsk1904529a	GSK-1904529A
+gsk269962a	GSK269962A
+gsk650394	GSK-650394
+gw441756	GW 441756
+gw843682x	GW843682X
+imatinib	Imatinib
+ipa3	IPA-3
+jnj26854165	JNJ-26854165
+jnk9l	JNK-9L
+jnkinhibitorviii	JNK Inhibitor VIII
+jw7521	JW-7-52-1
+kin001135	KIN001-135
+ku55933	KU-55933
+lapatinib	Lapatinib
+laq824	LAQ824
+lenalidomide	Lenalidomide
+lfma13	LFM-A13
+methotrexate	Methotrexate
+mg132	MG-132
+midostaurin	Midostaurin
+mitomycinc	Mitomycin C
+mk2206	MK-2206
+ms275	MS-275
+nilotinib	Nilotinib
+nsc87877	NSC-87877
+nu7441	NU-7441
+nutlin3a	Nutlin-3a
+nvpbez235	NVP-BEZ235
+nvptae684	NVP-TAE684
+obatoclaxmesylate	Obatoclax Mesylate
+osi906	OSI-906
+osu03012	OSU-03012
+pac1	PAC-1
+paclitaxel	Paclitaxel
+parthenolide	Parthenolide
+pazopanib	Pazopanib
+pd0325901	PD-0325901
+pd0332991	PD-0332991
+pd173074	PD-173074
+pf02341066	PF-02341066
+pf4708671	PF-4708671
+pf562271	PF-562271
+pha665752	PHA-665752
+plx4720	PLX4720
+pyrimethamine	Pyrimethamine
+qs11	QS11
+rapamycin	Rapamycin
+rdea119	RDEA119
+ro3306	RO-3306
+roscovitine	Roscovitine
+salubrinal	Salubrinal
+sb216763	SB 216763
+sb590885	SB590885
+shikonin	Shikonin
+sl01011	SL 0101-1
+sorafenib	Sorafenib
+strityllcysteine	S-Trityl-L-cysteine
+sunitinib	Sunitinib
+temsirolimus	Temsirolimus
+tgx221	TGX221
+thapsigargin	Thapsigargin
+tipifarnib	Tipifarnib
+tw37	TW 37
+vinblastine	Vinblastine
+vinorelbine	Vinorelbine
+vorinostat	Vorinostat
+vx680	VX-680
+vx702	VX-702
+wh4023	WH-4-023
+wz184	WZ-1-84
+xmd885	XMD8-85
+zllnlecho	Z-LLNle-CHO
+zm447439	ZM-447439

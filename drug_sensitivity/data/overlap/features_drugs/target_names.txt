@@ -1,0 +1,53 @@
+ABL
+ALK
+ARFGAP
+ATM
+ATPase
+BRAF
+CASP3 activator
+CDK1/2/5/7/9
+CHK1/2
+Ca++ transporting
+DNA crosslinker
+DNA intercalating
+DNAPK
+Dihydrofolate reductase (DHFR)
+EGFR
+FAK
+FLT3
+HSP90
+ITK
+JNK2
+KDR
+KIT
+MDM2
+MET
+MTOR
+Microtubules
+NFKB1
+NTRK1
+PAK
+PARP1/2
+PDGFRA
+PDGFRB
+PI3K (Class 1) and mTORC1/2
+PI3K (class 1)
+PI3K beta
+PI3Kb
+PI3Kb (P3C2B)
+PLK1
+PRKC
+Prolyl-4-Hydroxylase
+Proteasome
+ROCK
+Retinioic acid X family agonist
+SRC
+TEC
+TNF alpha
+TOP2
+cardiac muscle
+gamma-secretase
+mTORC1/2
+p38
+p70 S6KA
+slow twitch 2

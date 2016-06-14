@@ -52,9 +52,9 @@ all_K_alpha = [ # alpha order: PM, GE
     #({'genes':5,  'samples':5},  [0.5, 1.5]),
     #({'genes':5,  'samples':5},  [0.2, 1.8]),
     #({'genes':10, 'samples':10}, [1.0, 1.0]),
-    ({'genes':10, 'samples':10}, [1.5, 0.5]),
-    ({'genes':10, 'samples':10}, [1.8, 0.2]),
-    ({'genes':10, 'samples':10}, [1.99, 0.01]),
+    #({'genes':10, 'samples':10}, [1.5, 0.5]),
+    #({'genes':10, 'samples':10}, [1.8, 0.2]),
+    #({'genes':10, 'samples':10}, [1.99, 0.01]),
     #({'genes':10, 'samples':10}, [0.5, 1.5]),
     #({'genes':10, 'samples':10}, [0.2, 1.8]),
     #({'genes':20, 'samples':20}, [1.0, 1.0]),
@@ -62,6 +62,21 @@ all_K_alpha = [ # alpha order: PM, GE
     #({'genes':20, 'samples':20}, [1.8, 0.2]),
     #({'genes':20, 'samples':20}, [0.5, 1.5]),
     #({'genes':20, 'samples':20}, [0.2, 1.8]),
+    ({'genes':10, 'samples':10}, [1.0, 1.0]),
+    ({'genes':10, 'samples':10}, [2.0, 1.0]),
+    ({'genes':10, 'samples':10}, [3.0, 1.0]),
+    ({'genes':10, 'samples':10}, [5.0, 1.0]),
+    ({'genes':10, 'samples':10}, [10.0, 1.0]),
+    ({'genes':10, 'samples':10}, [20.0, 1.0]),
+    ({'genes':10, 'samples':10}, [1.33, 0.67]),
+    ({'genes':10, 'samples':10}, [1.5, 0.5]),
+    ({'genes':10, 'samples':10}, [1.67, 0.33]),
+    ({'genes':10, 'samples':10}, [1.8, 0.2]),
+    ({'genes':10, 'samples':10}, [1.9, 0.1]),
+    ({'genes':10, 'samples':10}, [1.0, 2.0]),
+    ({'genes':10, 'samples':10}, [1.0, 3.0]),
+    ({'genes':10, 'samples':10}, [1.0, 5.0]),
+    ({'genes':10, 'samples':10}, [1.0, 10.0])
 ]
 
 ''' Load in data '''
@@ -74,7 +89,7 @@ R, C = [], []
 
 ''' Use a method to run the cross-validation under different settings - varying K and alpham '''
 def run_all_settings(all_K_alpha):
-    fout = open('results_mf_pm_to_ge_std_final.txt','w')
+    fout = open('results_mf_pm_to_ge_std_varying_alpha.txt','w')
     for K, alpha in all_K_alpha:
         ''' Compute the folds '''
         n = len(X)
