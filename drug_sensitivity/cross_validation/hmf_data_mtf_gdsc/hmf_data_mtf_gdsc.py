@@ -19,9 +19,9 @@ location_features_drugs =       location+"features_drugs/"
 location_features_cell_lines =  location+"features_cell_lines/"
 location_kernels =              location+"kernels_features/"
 
-R_ccle_ec,  M_ccle_ec, cell_lines, drugs  = load_data_without_empty(location_data+"ccle_ec50_row_01.txt")
+R_gdsc,     M_gdsc,   cell_lines, drugs   = load_data_without_empty(location_data+"gdsc_ic50_row_01.txt")
+R_ccle_ec,  M_ccle_ec                     = load_data_filter(location_data+"ccle_ec50_row_01.txt",cell_lines,drugs)
 R_ctrp,     M_ctrp                        = load_data_filter(location_data+"ctrp_ec50_row_01.txt",cell_lines,drugs)
-R_gdsc,     M_gdsc                        = load_data_filter(location_data+"gdsc_ic50_row_01.txt",cell_lines,drugs)
 R_ccle_ic,  M_ccle_ic                     = load_data_filter(location_data+"ccle_ic50_row_01.txt",cell_lines,drugs)
 
 
@@ -72,8 +72,8 @@ R = [(R_gdsc,    M_gdsc,    'Cell_lines', 'Drugs', alpha_n[0]),
 C, D = [], []
 
 main_dataset = 'R'
-index_main = 3 # CCLE EC
-file_performance = 'results_1010_1111.txt'
+index_main = 0 # GDSC
+file_performance = 'results.txt'
 
 
 ''' Run the cross-validation framework '''
@@ -100,15 +100,15 @@ iterations, burn_in, thinning = 200, 180, 2
 K = {'Cell_lines':10, 'Drugs':10}
 alpha_n = [1., 1., 1., 1.]
 
-Performance fold 1: {'R^2': 0.3560353165280301, 'MSE': 0.085004750905313259, 'Rp': 0.6024340820372972}.
-Performance fold 2: {'R^2': 0.30387959187257285, 'MSE': 0.11033793337982849, 'Rp': 0.56327706717299408}.
-Performance fold 3: {'R^2': 0.21811818645073444, 'MSE': 0.12601913614962504, 'Rp': 0.51028629608486309}.
-Performance fold 4: {'R^2': 0.25639547924786954, 'MSE': 0.12104501417910252, 'Rp': 0.52653559252884563}.
-Performance fold 5: {'R^2': 0.29016142980477766, 'MSE': 0.096466082197146238, 'Rp': 0.57540839717725345}.
-Performance fold 6: {'R^2': 0.32734780811439956, 'MSE': 0.10362616208738566, 'Rp': 0.57922155109525908}.
-Performance fold 7: {'R^2': 0.3616271313886389, 'MSE': 0.10138377051648338, 'Rp': 0.6038136794286274}.
-Performance fold 8: {'R^2': 0.30534232270502537, 'MSE': 0.11320670378577408, 'Rp': 0.56654076807280718}.
-Performance fold 9: {'R^2': 0.2969546421044683, 'MSE': 0.11347339993326638, 'Rp': 0.54971831306965913}.
-Performance fold 10: {'R^2': 0.24444090590144008, 'MSE': 0.10237872909481779, 'Rp': 0.51516642241145527}.
-Average performance: {'R^2': 0.2960302814117957, 'MSE': 0.10729416822287427, 'Rp': 0.55924021690790604}.
+Performance fold 1: {'R^2': 0.6181263464635397, 'MSE': 0.075523959966777354, 'Rp': 0.78642346279208186}.
+Performance fold 2: {'R^2': 0.6101908013003439, 'MSE': 0.078776168653464915, 'Rp': 0.78210723275350602}.
+Performance fold 3: {'R^2': 0.6302263959802499, 'MSE': 0.073037864951243536, 'Rp': 0.79424525646462441}.
+Performance fold 4: {'R^2': 0.634564652831846, 'MSE': 0.073005247628195435, 'Rp': 0.79762266955156425}.
+Performance fold 5: {'R^2': 0.5999605048893351, 'MSE': 0.081237881933016717, 'Rp': 0.77591661778199317}.
+Performance fold 6: {'R^2': 0.6067077024447547, 'MSE': 0.078432418668761536, 'Rp': 0.78034874397011533}.
+Performance fold 7: {'R^2': 0.611905173659589, 'MSE': 0.07672978550225841, 'Rp': 0.78304778132185593}.
+Performance fold 8: {'R^2': 0.5955037907817349, 'MSE': 0.079873883897180378, 'Rp': 0.7727316117207943}.
+Performance fold 9: {'R^2': 0.6188688109832338, 'MSE': 0.075790604378772913, 'Rp': 0.78698673867817115}.
+Performance fold 10: {'R^2': 0.6204423212188201, 'MSE': 0.07600311466409955, 'Rp': 0.78805231335084358}.
+Average performance: {'R^2': 0.6146496500553447, 'MSE': 0.076841093024377097, 'Rp': 0.78474824283855482}.
 """
