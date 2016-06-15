@@ -31,13 +31,13 @@ no_folds = 10
 
 settings = {
     'priorF'  : 'exponential',
-    'orderG'  : 'normal',
-    'priorSn' : 'normal',
-    'priorSm' : 'normal',
+    'orderG'  : 'exponential', #'normal',
+    'priorSn' : 'exponential', #'normal',
+    'priorSm' : 'exponential', #'normal',
     'orderF'  : 'columns',
-    'orderG'  : 'rows',
-    'orderSn' : 'rows',
-    'orderSm' : 'rows',
+    'orderG'  : 'columns', #'rows',
+    'orderSn' : 'individual', #'rows',
+    'orderSm' : 'individual', #'rows',
     'ARD'     : True
 }
 hyperparameters = {
@@ -52,15 +52,15 @@ hyperparameters = {
 }
 init = {
     'F'       : 'kmeans',
-    'Sn'      : 'least',
-    'Sm'      : 'least',
-    'G'       : 'least',
+    'Sn'      : 'random', #'least',
+    'Sm'      : 'random', #'least',
+    'G'       : 'random', #'least',
     'lambdat' : 'exp',
     'tau'     : 'exp'
 }
 
-K = {'Cell_lines':20, 'Drugs':20}
-alpha_n = [1., 1., 1., 0.5] # GDSC, CTRP, CCLE IC, CCLE EC
+K = {'Cell_lines':10, 'Drugs':10}
+alpha_n = [1., 1., 1., 1.] # GDSC, CTRP, CCLE IC, CCLE EC
 alpha_m = []
 
 
@@ -73,7 +73,7 @@ C, D = [], []
 
 main_dataset = 'R'
 index_main = 3 # CCLE EC
-file_performance = 'results_2020_11105.txt'
+file_performance = 'results_1010_1111_NN.txt'
 
 
 ''' Run the cross-validation framework '''
