@@ -53,7 +53,7 @@ class CrossValidation:
             (self.main_R,self.main_M,_,_,_) = self.R[self.index_main]
             self.I,self.J = self.main_R.shape
         else:
-            (self.main_D,self.main_M,_,_,_) = self.D[self.index_main]
+            (self.main_D,self.main_M,_,_) = self.D[self.index_main]
             self.I,self.J = self.main_D.shape
         
         
