@@ -18,7 +18,7 @@ location_features_drugs =       location+"features_drugs/"
 location_features_cell_lines =  location+"features_cell_lines/"
 location_kernels =              location+"kernels_features/"
 
-R_ccle_ec, M_ccle_ec, cell_lines, drugs = load_data_without_empty(location_data+"ccle_ec50_row_01.txt")
+R_gdsc, M_gdsc, cell_lines, drugs = load_data_without_empty(location_data+"gdsc_ic50_row_01.txt")
 
 R_cnv,      M_cnv =      load_data_filter(location_features_cell_lines+"cnv.txt",                 cell_lines)
 R_cnv_std,  M_cnv_std =  load_data_filter(location_features_cell_lines+"cnv_std.txt",             cell_lines)
@@ -67,22 +67,22 @@ init = {
 }
 
 K = {'Cell_lines':10, 'Drugs':10}
-alpha_n = [4.] # main dataset
-alpha_l = [1., 1., 1., 1., 1.]
+alpha_n = [1.] # main dataset
+alpha_l = [1., 1.]#, 1., 1., 1.]
 
 
 ''' Assemble R, C, D. '''
-R = [(R_ccle_ec, M_ccle_ec, 'Cell_lines', 'Drugs', alpha_n[0])]
+R = [(R_gdsc,     M_gdsc,     'Cell_lines', 'Drugs', alpha_n[0])]
 C = []
-D = [(R_cnv_std,  M_cnv_std,  'Cell_lines', alpha_l[0]),     
-     (R_mutation, M_mutation, 'Cell_lines', alpha_l[1]),
-     (R_fp,       M_fp,       'Drugs',      alpha_l[2]),
-     (R_targets,  M_targets,  'Drugs',      alpha_l[3]),
-     (R_1d2d_std, M_1d2d_std, 'Drugs',      alpha_l[4])]
+D = [#(R_cnv_std,  M_cnv_std,  'Cell_lines', alpha_l[0]),     
+     (R_mutation, M_mutation, 'Cell_lines', alpha_l[0]),
+     #(R_fp,       M_fp,       'Drugs',      alpha_l[1]),]
+     #(R_targets,  M_targets,  'Drugs',      alpha_l[1]),]
+     (R_1d2d_std, M_1d2d_std, 'Drugs',      alpha_l[1])]
 
 main_dataset = 'R'
-index_main = 0 # CCLE EC
-file_performance = 'results_1010_411111.txt'
+index_main = 0 # CTRP
+file_performance = 'results_mut_1d2d.txt'
 
 
 ''' Run the cross-validation framework '''
