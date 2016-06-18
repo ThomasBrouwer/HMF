@@ -67,22 +67,22 @@ init = {
 }
 
 K = {'Cell_lines':10, 'Drugs':10}
-alpha_n = [7.] # main dataset
-alpha_l = [1., 1., 1., 1., 1.]
+alpha_n = [2.] # main dataset
+alpha_l = [1., 1.]#, 1., 1., 1.]
 
 
 ''' Assemble R, C, D. '''
 R = [(R_ctrp,     M_ctrp,     'Cell_lines', 'Drugs', alpha_n[0])]
 C = []
-D = [(R_cnv_std,  M_cnv_std,  'Cell_lines', alpha_l[0]),     
-     (R_mutation, M_mutation, 'Cell_lines', alpha_l[1]),
-     (R_fp,       M_fp,       'Drugs',      alpha_l[2]),
-     (R_targets,  M_targets,  'Drugs',      alpha_l[3]),
-     (R_1d2d_std, M_1d2d_std, 'Drugs',      alpha_l[4])]
+D = [#(R_cnv_std,  M_cnv_std,  'Cell_lines', alpha_l[0]),     
+     (R_mutation, M_mutation, 'Cell_lines', alpha_l[0]),
+     #(R_fp,       M_fp,       'Drugs',      alpha_l[1]),]
+     (R_targets,  M_targets,  'Drugs',      alpha_l[1]),]
+     #(R_1d2d_std, M_1d2d_std, 'Drugs',      alpha_l[1])]
 
 main_dataset = 'R'
 index_main = 0 # CTRP
-file_performance = 'results_1010_711111.txt'
+file_performance = 'results_mut_target_211.txt'
 
 
 ''' Run the cross-validation framework '''

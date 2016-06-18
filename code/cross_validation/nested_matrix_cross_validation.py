@@ -53,13 +53,14 @@ import numpy
 attempts_generate_M = 1000
 
 class MatrixNestedCrossValidation:
-    def __init__(self,method,X,M,K,P,parameter_search,train_config,file_performance,files_nested_performances):
+    def __init__(self,method,X,M,K,P,parameter_search,train_config,predict_config,file_performance,files_nested_performances):
         self.method = method
         self.X = numpy.array(X,dtype=float)
         self.M = numpy.array(M)
         self.K = K
         self.P = P
         self.train_config = train_config
+        self.predict_config = predict_config
         self.parameter_search = parameter_search
         self.files_nested_performances = files_nested_performances        
         
@@ -88,6 +89,7 @@ class MatrixNestedCrossValidation:
                 K=self.K,
                 parameter_search=self.parameter_search,
                 train_config=self.train_config,
+                predict_config=self.predict_config,
                 file_performance=self.files_nested_performances[i],
                 P=self.P
             )
@@ -112,7 +114,7 @@ class MatrixNestedCrossValidation:
     def run_model(self,train,test,parameters):  
         model = self.method(self.X,train,**parameters)
         model.train(**self.train_config)
-        return model.predict(test)
+        return model.predict(test,**self.predict_config)
         
     # Store the performances we get back in a dictionary from criterion name to a list of performances
     def store_performances(self,performance_dict):

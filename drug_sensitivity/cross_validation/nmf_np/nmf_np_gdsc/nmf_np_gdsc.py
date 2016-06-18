@@ -49,6 +49,7 @@ nested_crossval = MatrixNestedCrossValidation(
     P=no_threads,
     parameter_search=parameter_search,
     train_config=train_config,
+    predict_config={},
     file_performance=output_file,
     files_nested_performances=files_nested_performances
 )

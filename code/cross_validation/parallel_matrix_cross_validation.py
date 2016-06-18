@@ -18,21 +18,21 @@ attempts_generate_M = 1000
 # We try the parameters in parallel. This function either raises an Exception,
 # or returns a tuple (parameters,all_performances,average_performances)
 def run_fold(params):
-    (parameters,X,train,test,method,train_config) = \
-        (params['parameters'],params['X'],params['train'],params['test'],params['method'],params['train_config'])    
-    performance_dict = run_model(method,X,train,test,parameters,train_config)
+    (parameters,X,train,test,method,train_config,predict_config) = \
+        (params['parameters'],params['X'],params['train'],params['test'],params['method'],params['train_config'],params['predict_config'])    
+    performance_dict = run_model(method,X,train,test,parameters,train_config,predict_config)
     return performance_dict           
     
 # Method for running the model with the given parameters
-def run_model(method,X,train,test,parameters,train_config):
+def run_model(method,X,train,test,parameters,train_config,predict_config):
     model = method(X,train,**parameters)
     model.train(**train_config)
-    return model.predict(test)
+    return model.predict(test,**predict_config)
 
 # Class, redefining the run function
 class ParallelMatrixCrossValidation(MatrixCrossValidation):
-    def __init__(self,method,X,M,K,parameter_search,train_config,file_performance,P):
-        MatrixCrossValidation.__init__(self,method,X,M,K,parameter_search,train_config,file_performance)
+    def __init__(self,method,X,M,K,parameter_search,train_config,predict_config,file_performance,P):
+        MatrixCrossValidation.__init__(self,method,X,M,K,parameter_search,train_config,predict_config,file_performance)
         self.P = P        
         
     # Run the cross-validation
@@ -56,7 +56,8 @@ class ParallelMatrixCrossValidation(MatrixCrossValidation):
                         'train' : train,
                         'test' : test,
                         'method' : self.method,
-                        'train_config' : self.train_config                
+                        'train_config' : self.train_config,
+                        'predict_config' : self.predict_config
                     }
                     for (train,test) in zip(folds_training,folds_test)
                 ]

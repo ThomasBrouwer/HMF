@@ -47,12 +47,13 @@ import numpy, json
 attempts_generate_M = 1000
 
 class MatrixCrossValidation:
-    def __init__(self,method,X,M,K,parameter_search,train_config,file_performance):
+    def __init__(self,method,X,M,K,parameter_search,train_config,predict_config,file_performance):
         self.method = method
         self.X = numpy.array(X,dtype=float)
         self.M = numpy.array(M)
         self.K = K
         self.train_config = train_config
+        self.predict_config = predict_config
         self.parameter_search = parameter_search
         
         self.fout = open(file_performance,'w')
@@ -91,7 +92,8 @@ class MatrixCrossValidation:
     def run_model(self,train,test,parameters):
         model = self.method(self.X,train,**parameters)
         model.train(**self.train_config)
-        return model.predict(test)
+        print self.predict_config
+        return model.predict(test,**self.predict_config)
         
     # Returns the sorted json of the dictionary given
     def JSON(self,d):
