@@ -44,16 +44,16 @@ def all_statistics_matrix(R,R_pred,M):
         
         
 ''' Same methods but if we have a list of predictions. '''
-def MSE(R,R_pred):
+def MSE_list(R,R_pred):
     (R,R_pred) = (numpy.array(R),numpy.array(R_pred))
     return ((R-R_pred)**2).sum()/float(len(R))
     
-def R2(R,R_pred):
+def R2_list(R,R_pred):
     (R,R_pred) = (numpy.array(R),numpy.array(R_pred))
     mean = R.sum()/float(len(R))
     return 1. - ((R_pred-R)**2).sum() / ((R-mean)**2).sum()
 
-def Rp(R,R_pred):
+def Rp_list(R,R_pred):
     (R,R_pred) = (numpy.array(R),numpy.array(R_pred))
     mean_real = R.sum()/float(len(R))
     mean_pred = R_pred.sum()/float(len(R_pred))
@@ -62,3 +62,8 @@ def Rp(R,R_pred):
     variance_pred = ((R_pred-mean_pred)**2).sum()
     return covariance / (math.sqrt(variance_real)*math.sqrt(variance_pred)) \
         if math.sqrt(variance_real)*math.sqrt(variance_pred) != 0.0 else 0.0
+        
+def all_statistics_list(R,R_pred):
+    ''' Return tuple (MSE,R2,Rp), for all 1 entries in M. '''
+    return (MSE_list(R,R_pred), R2_list(R,R_pred), Rp_list(R,R_pred))
+        
