@@ -1,11 +1,12 @@
 """
-Run the nested cross validation using BNMF on the drug sensitivity datasets
+Run the cross validation with line search for model selection using BNMF on
+the drug sensitivity datasets
 """
 
 project_location = "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
-from HMF.code.models.bnmf_gibbs import bnmf_gibbs
+from HMF.code.models.bnmtf_gibbs import bnmtf_gibbs
 from HMF.code.cross_validation.nested_matrix_cross_validation import MatrixNestedCrossValidation
 from HMF.drug_sensitivity.load_dataset import load_data_without_empty
 
@@ -23,28 +24,31 @@ R_ctrp,     M_ctrp,     _, _ = load_data_without_empty(location_data+"ctrp_ec50_
 R_ccle_ec,  M_ccle_ec,  _, _ = load_data_without_empty(location_data+"ccle_ec50_row_01.txt")
 R_ccle_ic,  M_ccle_ic,  _, _ = load_data_without_empty(location_data+"ccle_ic50_row_01.txt")
 
-R, M = R_gdsc, M_gdsc
-
+R, M = R_ccle_ec, M_ccle_ec
 
 ''' Settings BNMF '''
 no_folds, no_threads = 10, 5
-iterations, burn_in, thinning = 1000, 900, 2
-init_UV = 'random'
+iterations, burn_in, thinning = 500, 400, 2
 
-K_range = range(1,5+1)
+init_S = 'random'
+init_FG = 'kmeans'
+
+KL_range = [(1,1),(2,2),(3,3),(4,4),(5,5)]
 
 output_file = "results_nested.txt"
 files_nested_performances = ["./results_nested_fold_%s.txt" % fold for fold in range(1,no_folds+1)]
 
 alpha, beta = 1., 1.
-lambdaU = 1.
-lambdaV = 1.
-priors = { 'alpha':alpha, 'beta':beta, 'lambdaU':lambdaU, 'lambdaV':lambdaV }
+lambdaF = 1.
+lambdaS = 1.
+lambdaG = 1.
+priors = { 'alpha':alpha, 'beta':beta, 'lambdaF':lambdaF, 'lambdaS':lambdaS, 'lambdaG':lambdaG }
 
-parameter_search = [ {'K':K, 'priors':priors} for K in K_range ]
+parameter_search = [ {'K':K, 'L':L, 'priors':priors} for K,L in KL_range ]
 train_config = {
     'iterations' : iterations,
-    'init' : init_UV
+    'init_S' : init_S,
+    'init_FG' : init_FG
 }
 predict_config = {
     'burn_in' : burn_in,
@@ -56,7 +60,7 @@ predict_config = {
 random.seed(0)
 numpy.random.seed(0)
 nested_crossval = MatrixNestedCrossValidation(
-    method=bnmf_gibbs,
+    method=bnmtf_gibbs,
     X=R,
     M=M,
     K=no_folds,
@@ -70,6 +74,6 @@ nested_crossval = MatrixNestedCrossValidation(
 nested_crossval.run()
 
 """
-Average performances: {'R^2': 0.5964646844068926, 'MSE': 0.080469632602836308, 'Rp': 0.77268356736825905}. 
-All performances: {'R^2': [0.6066435271851296, 0.5941194023183445, 0.6077812489605965, 0.6199820865830092, 0.5775396987585044, 0.5881627362481963, 0.5991150207706128, 0.5849868306509036, 0.5836810332210771, 0.6026352593725519], 'MSE': [0.077794941416943264, 0.082024022323738552, 0.077471241479506209, 0.075918495808210765, 0.085790979373547196, 0.08213075337291928, 0.079258512043053425, 0.081950616467962048, 0.082787940257318574, 0.079568823485163545], 'Rp': [0.77894235158091407, 0.7711192765136311, 0.77986690333384712, 0.78764781891445834, 0.76085761710966726, 0.76710208745995712, 0.77453605847564777, 0.7650600507992642, 0.76460981006494388, 0.77709369943025963]}. 
+Average performances: {'R^2': 0.15318151485364193, 'MSE': 0.12922058450231275, 'Rp': 0.4395563145297392}. 
+All performances: {'R^2': [0.220409745193052, 0.13937687942353383, 0.08376061762028364, 0.14065397899274823, 0.11862831457022516, 0.08638591641023052, 0.2544626384534714, 0.20631083468281697, 0.06421300226051385, 0.2176132209295436], 'MSE': [0.10290762384791373, 0.13641228648754625, 0.14767410300749062, 0.13988558218065419, 0.11977719586232516, 0.14074780734155884, 0.11840319739608772, 0.12934562903835428, 0.15103852269887555, 0.10601389716232122], 'Rp': [0.51441793565088567, 0.41903218477244536, 0.37292092723770803, 0.42995918834537278, 0.44040861984606655, 0.35656488404536307, 0.51858070819700375, 0.48202012222758434, 0.37297963897877517, 0.48867893599618734]}. 
 """

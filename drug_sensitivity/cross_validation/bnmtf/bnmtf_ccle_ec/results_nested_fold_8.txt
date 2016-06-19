@@ -1,0 +1,5 @@
+Tried parameters {'priors': {'alpha': 1.0, 'beta': 1.0, 'lambdaG': 1.0, 'lambdaF': 1.0, 'lambdaS': 1.0}, 'K': 1, 'L': 1} but got exception: Failed to generate folds for training and test data, 1000 attempts.. 
+Tried parameters {'priors': {'alpha': 1.0, 'beta': 1.0, 'lambdaG': 1.0, 'lambdaF': 1.0, 'lambdaS': 1.0}, 'K': 2, 'L': 2} but got exception: Failed to generate folds for training and test data, 1000 attempts.. 
+Tried parameters {'priors': {'alpha': 1.0, 'beta': 1.0, 'lambdaG': 1.0, 'lambdaF': 1.0, 'lambdaS': 1.0}, 'K': 3, 'L': 3} but got exception: Failed to generate folds for training and test data, 1000 attempts.. 
+Tried parameters {'priors': {'alpha': 1.0, 'beta': 1.0, 'lambdaG': 1.0, 'lambdaF': 1.0, 'lambdaS': 1.0}, 'K': 4, 'L': 4} but got exception: Failed to generate folds for training and test data, 1000 attempts.. 
+Tried parameters {'priors': {'alpha': 1.0, 'beta': 1.0, 'lambdaG': 1.0, 'lambdaF': 1.0, 'lambdaS': 1.0}, 'K': 5, 'L': 5} but got exception: Failed to generate folds for training and test data, 1000 attempts.. 
