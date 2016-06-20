@@ -97,5 +97,7 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 """
 10 folds, rbf kernel
-
+Average MSE: 0.109080916786 +- 0.00382717610691. 
+Average R^2: 0.313950648446 +- 0.0200465833787. 
+Average Rp:  0.56613514505 +- 0.020094456097.
 """

@@ -1,5 +1,5 @@
 """
-Run the cross validation for Support Vector Regression on the drug sensitivity datasets.
+Run the cross validation for Ordinary Linear Regression on the drug sensitivity datasets.
 """
 
 project_location = "/home/tab43/Documents/Projects/libraries/"
@@ -9,13 +9,14 @@ from HMF.drug_sensitivity.load_dataset import load_data_without_empty, load_data
 import HMF.code.generate_mask.mask as mask
 from HMF.code.statistics.statistics import all_statistics_list
 
-from sklearn.svm import SVR
+from sklearn.linear_model import LinearRegression
 
 import numpy, random, itertools
 
 
 ''' Model settings '''
-kernel = 'rbf' # kernel type
+fit_intercept = False # whether to calculate the intercept for this model. If set to false, no intercept will be used in calculations (e.g. data is expected to be already centered).
+normalize = False # If True, the regressors X will be normalized before regression.
 
 
 ''' Load datasets '''
@@ -74,17 +75,17 @@ def assemble_y(R,M):
 ''' For each train, test fold, construct the labels y and features X '''
 all_MSE, all_R2, all_Rp = numpy.zeros(no_folds), numpy.zeros(no_folds), numpy.zeros(no_folds)
 for i, (M_train, M_test) in enumerate(zip(folds_training, folds_test)):
-    print "Training fold %s for the Support Vector Regressor." % (i+1)
+    print "Training fold %s for the Linear Regression." % (i+1)
     
     ''' Assemble training and test matrices '''
     y_train, y_test = assemble_y(R_main,M_train), assemble_y(R_main,M_test)
     X_train = assemble_X(Rs_rows=features_cell_lines,Rs_cols=features_drugs,M=M_train)
     X_test = assemble_X(Rs_rows=features_cell_lines,Rs_cols=features_drugs,M=M_test)
     
-    ''' Train the SVR and predict '''
-    svr = SVR(kernel=kernel)
-    svr.fit(X=X_train,y=y_train)
-    y_pred = svr.predict(X=X_test)
+    ''' Train the LR and predict '''
+    lr = LinearRegression(fit_intercept=fit_intercept,normalize=normalize)
+    lr.fit(X=X_train,y=y_train)
+    y_pred = lr.predict(X=X_test)
     
     ''' Measure and store performance '''
     MSE, R2, Rp = all_statistics_list(R=y_test, R_pred=y_pred)
@@ -96,8 +97,8 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 
 """
-10 folds, rbf kernel
-Average MSE: 0.109080848122 +- 0.00263184403446. 
-Average R^2: 0.452903800367 +- 0.0135038866263. 
-Average Rp:  0.67995880615 +- 0.0115362904254.
+10 folds, fit_intercept = False, normalize = False
+Average MSE: 0.0886180161232 +- 0.00266548821928. 
+Average R^2: 0.555557673827 +- 0.0128330278947. 
+Average Rp:  0.746386219663 +- 0.00812225877519.
 """
