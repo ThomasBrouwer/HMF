@@ -6,8 +6,8 @@ project_location = "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
 
-from DI_MMTF.code.kernels.jaccard_kernel import JaccardKernel
-from DI_MMTF.code.kernels.gaussian_kernel import GaussianKernel
+from HMF.code.kernels.jaccard_kernel import JaccardKernel
+from HMF.code.kernels.gaussian_kernel import GaussianKernel
 
 import numpy, matplotlib.pyplot as plt
 
@@ -33,13 +33,13 @@ kernel_drug_1d2d = GaussianKernel()
 kernel_drug_1d2d.load_features_construct_store_kernel(
     location_features=  location_drugs+     name_drug_1d2d,
     location_output=    location_kernels+   name_drug_1d2d,
-    sigma_2=            no_features_1d2d
+    sigma_2=            no_features_1d2d/4.
 )
 kernel_drug_1d2d_std = GaussianKernel()
 kernel_drug_1d2d_std.load_features_construct_store_kernel(
     location_features=  location_drugs+     name_drug_1d2d_std,
     location_output=    location_kernels+   name_drug_1d2d_std,
-    sigma_2=            no_features_1d2d
+    sigma_2=            no_features_1d2d/4.
 )
 
 kernel_drug_fps = JaccardKernel()
@@ -61,26 +61,26 @@ kernel_cl_ge = GaussianKernel()
 kernel_cl_ge.load_features_construct_store_kernel(
     location_features=  location_cell_lines+name_cl_ge,
     location_output=    location_kernels+name_cl_ge,
-    sigma_2=            no_features_ge
+    sigma_2=            no_features_ge/4.
 )
 kernel_cl_ge_std = GaussianKernel()
 kernel_cl_ge_std.load_features_construct_store_kernel(
     location_features=  location_cell_lines+name_cl_ge_std,
     location_output=    location_kernels+   name_cl_ge_std,
-    sigma_2=            no_features_ge
+    sigma_2=            no_features_ge/4.
 )
 
 kernel_cl_cnv = GaussianKernel()
 kernel_cl_cnv.load_features_construct_store_kernel(
     location_features=  location_cell_lines+name_cl_cnv,
     location_output=    location_kernels+   name_cl_cnv,
-    sigma_2=            no_features_cnv
+    sigma_2=            no_features_cnv/4.
 )
 kernel_cl_cnv_std = GaussianKernel()
 kernel_cl_cnv_std.load_features_construct_store_kernel(
     location_features=  location_cell_lines+name_cl_cnv_std,
     location_output=    location_kernels+   name_cl_cnv_std,
-    sigma_2=            no_features_cnv
+    sigma_2=            no_features_cnv/4.
 )
 
 kernel_cl_mutation = JaccardKernel()
