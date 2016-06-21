@@ -54,5 +54,20 @@ Kz[,, 2] <- kernel_fingerprints
 # Run the cross-validation
 kbmf_nested_cross_validation(Kx, Kz, Y, R_values, K)
 
+# Using sigma_y = 0.5, 10 fold cross-validation, and kernels with sigma^2 = no. features
+# R_values <- c(2,3,4)
+# "All performances nested cross-validation: MSE=0.0993, R^2=0.3996, Rp=0.6370."
+# "All performances nested cross-validation: MSE=0.0934, R^2=0.3939, Rp=0.6280."
+# "All performances nested cross-validation: MSE=0.0902, R^2=0.4300, Rp=0.6564."
+# "All performances nested cross-validation: MSE=0.0982, R^2=0.3908, Rp=0.6312."
+# "All performances nested cross-validation: MSE=0.0853, R^2=0.4640, Rp=0.6835."
+# "All performances nested cross-validation: MSE=0.0932, R^2=0.3981, Rp=0.6309."
+# "All performances nested cross-validation: MSE=0.0942, R^2=0.4274, Rp=0.6592."
+# "All performances nested cross-validation: MSE=0.0929, R^2=0.4260, Rp=0.6552."
+# "All performances nested cross-validation: MSE=0.0944, R^2=0.4037, Rp=0.6365."
+# "All performances nested cross-validation: MSE=0.0875, R^2=0.4196, Rp=0.6493."
+# "Performances nested cross-validation: MSE=0.0929, R^2=0.4153, Rp=0.6467."
+
+# Using sigma_y = 0.5, 10 fold cross-validation, and kernels with sigma^2 = no. features / 4.
 # R_values <- c(2,3,4)
 

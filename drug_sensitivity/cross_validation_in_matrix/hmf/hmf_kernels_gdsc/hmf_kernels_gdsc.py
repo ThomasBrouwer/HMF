@@ -30,7 +30,7 @@ C_targets,  M_targets =  load_data_filter(location_kernels+"drug_targets.txt",  
 
 
 ''' Settings HMF '''
-iterations, burn_in, thinning = 200, 180, 2
+iterations, burn_in, thinning = 100, 80, 2
 no_folds = 10
 
 settings = {
@@ -51,8 +51,8 @@ hyperparameters = {
     'beta0'    : 0.001,
     'lambdaF'  : 0.1,
     'lambdaG'  : 0.1,
-    'lambdaSn' : 0.1,
-    'lambdaSm' : 0.1,
+    'lambdaSn' : 0.01,
+    'lambdaSm' : 0.01,
 }
 init = {
     'F'       : 'kmeans',
@@ -64,8 +64,8 @@ init = {
 }
 
 K = {'Cell_lines':10, 'Drugs':10}
-alpha_n = [12.] # main dataset
-alpha_m = [1., 1., 1., 1., 1., 1.]
+alpha_n = [1.] # main dataset
+alpha_m = [.1, .1, .1, .1, .1, .1]
 
 
 ''' Assemble R, C, D. '''
@@ -80,7 +80,7 @@ D = []
 
 main_dataset = 'R'
 index_main = 0 # CTRP
-file_performance = 'results_all_12_div4.txt'
+file_performance = 'results_all_1_01_div4.txt'
 
 
 ''' Run the cross-validation framework '''
