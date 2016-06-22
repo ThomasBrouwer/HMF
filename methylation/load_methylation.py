@@ -107,3 +107,5 @@ def standardise_data(R):
     for j in range(0,J):
         R_std[:,j] = (R_std[:,j] - mean) / std
     return R_std
+    
+(R_ge, R_pm, R_gm, genes, samples) = load_all()

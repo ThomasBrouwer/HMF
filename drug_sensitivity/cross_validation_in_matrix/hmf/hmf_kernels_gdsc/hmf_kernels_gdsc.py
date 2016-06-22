@@ -64,7 +64,7 @@ init = {
 }
 
 K = {'Cell_lines':10, 'Drugs':10}
-alpha_n = [1.] # main dataset
+alpha_n = [3.] # main dataset
 alpha_m = [.1, .1, .1, .1, .1, .1]
 
 
@@ -80,7 +80,7 @@ D = []
 
 main_dataset = 'R'
 index_main = 0 # CTRP
-file_performance = 'results_all_1_01_div4.txt'
+file_performance = 'results_all_3_01_div4.txt'
 
 
 ''' Run the cross-validation framework '''
