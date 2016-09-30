@@ -19,7 +19,7 @@ no_genes = 100      #13966
 #R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
 R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
-Y = R_pm.T
+Y = R_gm.T
 
 ''' Compute the folds '''
 n = len(Y)
@@ -55,7 +55,7 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 """
 160 driver genes (std)
     10 folds:
-    Average MSE: 1.00860374021 +- 0.101283114296. 
-    Average R^2: -0.0131046669992 +- 0.00766418858351. 
-    Average Rp:  -0.185748511257 +- 0.0184270656113.
+    Average MSE: 1.01001936534 +- 0.220836878918. 
+    Average R^2: -0.0189303037886 +- 0.0154254873082. 
+    Average Rp:  -0.178779819111 +- 0.0160973025102.
 """

@@ -63,12 +63,6 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 
 """ 
-160 driver genes
-    10 folds, rbf kernel
-    Average MSE: 0.51741852599 +- 0.069557062242. 
-    Average R^2: 0.572341391956 +- 0.0484508422558. 
-    Average Rp:  0.757597717642 +- 0.0313327183794.
-    
 160 driver genes (std)
     10 folds, rbf kernel
     Average MSE: 0.793243516847 +- 0.0802600910548. 

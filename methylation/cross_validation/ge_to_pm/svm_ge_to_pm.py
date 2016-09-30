@@ -19,8 +19,6 @@ no_genes = 100      #13966
 kernel = 'rbf' # kernel type
 
 ''' Load in data '''
-#(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
-#R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
 R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
 Y = R_pm.T
@@ -63,12 +61,6 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 
 """ 
-160 driver genes
-    10 folds, rbf kernel
-    Average MSE: 0.00353847576284 +- 0.000397659490145. 
-    Average R^2: 0.921171488375 +- 0.00921918368168. 
-    Average Rp:  0.962651486587 +- 0.00456028666333.
-    
 160 driver genes (std)
     10 folds, rbf kernel
     Average MSE: 0.86247030115 +- 0.108768773829. 

@@ -59,17 +59,6 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 
 """
-160 driver genes
-    10 folds, fit_intercept = True, normalize = True
-        Average MSE: 1.29633809393 +- 0.367329650754. 
-        Average R^2: -0.0663462051036 +- 0.264683700056. 
-        Average Rp:  0.613013392625 +- 0.0548107799898.
-    
-    10 folds, fit_intercept = False, normalize = False
-        Average MSE: 1.2653466962 +- 0.348804187599. 
-        Average R^2: -0.0409205848253 +- 0.24874410622. 
-        Average Rp:  0.61643844203 +- 0.0523957195147.
-    
 160 driver genes (std)
     10 folds, fit_intercept = True, normalize = True
         Average MSE: 2.80711591728 +- 0.708927344999. 

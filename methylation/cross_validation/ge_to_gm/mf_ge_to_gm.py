@@ -70,12 +70,12 @@ all_K_alpha = [ # alpha order: GE, PM
 #R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
 R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
-X, Y = R_ge.T, R_pm.T
+X, Y = R_ge.T, R_gm.T
 R, C = [], []
 
 ''' Use a method to run the cross-validation under different settings - varying K and alpham '''
 def run_all_settings(all_K_alpha):
-    fout = open('results_mf_ge_to_pm_final.txt','w')
+    fout = open('results_mf_ge_to_gm_final.txt','w')
     
     for K, alpha in all_K_alpha:
         ''' Compute the folds '''
