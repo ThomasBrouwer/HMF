@@ -77,5 +77,7 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
     Average Rp:  0.557806917777 +- 0.0501215721854.
 
     10 folds, 1000 estimators:
-    
+    Average MSE: 0.706366611983 +- 0.184294051505. 
+    Average R^2: 0.293027643402 +- 0.0498891984416. 
+    Average Rp:  0.572417165454 +- 0.0481939634741.
 """

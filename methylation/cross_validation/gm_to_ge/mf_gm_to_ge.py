@@ -70,18 +70,18 @@ all_K_alpha = [ # alpha order: GE, PM
 #R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
 R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
-X, Y = R_gm.T, R_pm.T
+X, Y = R_gm.T, R_ge.T
 R, C = [], []
 
 ''' Use a method to run the cross-validation under different settings - varying K and alpham '''
 def run_all_settings(all_K_alpha):
-    fout = open('results_mf_gm_to_pm_final.txt','w')
+    fout = open('results_mf_gm_to_ge_final.txt','w')
     
     for K, alpha in all_K_alpha:
         ''' Compute the folds '''
         n = len(X)
         n_folds = 10
-        shuffle, random_state = True, 3
+        shuffle, random_state = True, 0
         folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle,random_state=random_state)
         
         ''' Run HMF to predict Y from X '''

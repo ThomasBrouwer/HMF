@@ -24,8 +24,8 @@ max_depth = None    # until what depth of feature splits we go
 #R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
 R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
-X = R_ge.T
-Y = R_gm.T
+X = R_gm.T
+Y = R_ge.T
 
 ''' Compute the folds '''
 n = len(X)
@@ -62,22 +62,22 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 """
 160 driver genes (std)
     10 folds, 1 estimator:
-    Average MSE: 1.60682311362 +- 0.397251739717. 
-    Average R^2: -0.621430227939 +- 0.157579725505. 
-    Average Rp:  0.175839462776 +- 0.0749816835976.
+    Average MSE: 1.72045960849 +- 0.0970324082147. 
+    Average R^2: -0.733827316493 +- 0.141559609388. 
+    Average Rp:  0.153253973435 +- 0.0410164993776.
 
     10 folds, 10 estimators:
-    Average MSE: 0.901140105411 +- 0.234705329722. 
-    Average R^2: 0.0955815502491 +- 0.064434887301. 
-    Average Rp:  0.352672664102 +- 0.0670601857234.
+    Average MSE: 0.891336371606 +- 0.089921187122. 
+    Average R^2: 0.10695710122 +- 0.0368714349521. 
+    Average Rp:  0.353164624601 +- 0.0452165813287.
     
     10 folds, 100 estimators:
-    Average MSE: 0.835318862119 +- 0.236899420411. 
-    Average R^2: 0.16432701263 +- 0.0690924147076. 
-    Average Rp:  0.416865625008 +- 0.0792342447326.
+    Average MSE: 0.815575844119 +- 0.078010863646. 
+    Average R^2: 0.182621792578 +- 0.0294428886982. 
+    Average Rp:  0.430486656132 +- 0.0354654071343.
 
     10 folds, 1000 estimators:
-    Average MSE: 0.825776659062 +- 0.234190853828. 
-    Average R^2: 0.174024055151 +- 0.0671362827193. 
-    Average Rp:  0.428881071643 +- 0.0761411305892.
+    Average MSE: 0.806086136176 +- 0.0776691051079. 
+    Average R^2: 0.192176172965 +- 0.0291540190585. 
+    Average Rp:  0.443935327617 +- 0.034858649328.
 """

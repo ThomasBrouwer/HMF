@@ -81,7 +81,7 @@ def run_all_settings(all_K_alpha):
         ''' Compute the folds '''
         n = len(X)
         n_folds = 10
-        shuffle, random_state = True, 0
+        shuffle, random_state = True, 11
         folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle,random_state=random_state)
         
         ''' Run HMF to predict Y from X '''
