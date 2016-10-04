@@ -24,7 +24,7 @@ Y = R_gm.T
 ''' Compute the folds '''
 n = len(Y)
 n_folds = 10
-shuffle, random_state = True, 0
+shuffle, random_state = True, None
 folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle,random_state=random_state)
 
 ''' Do cross-validation to predict Y using the column (gene) average '''
@@ -55,7 +55,7 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 """
 160 driver genes (std)
     10 folds:
-    Average MSE: 1.01001936534 +- 0.220836878918. 
-    Average R^2: -0.0189303037886 +- 0.0154254873082. 
-    Average Rp:  -0.178779819111 +- 0.0160973025102.
+    Average MSE: 1.00925190125 +- 0.187938365275. 
+    Average R^2: -0.0155240778986 +- 0.0138102043909. 
+    Average Rp:  -0.17012575818 +- 0.0128000454015.
 """

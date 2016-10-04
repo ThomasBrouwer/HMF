@@ -14,8 +14,8 @@ from sklearn.cross_validation import KFold
 import numpy
 
 ''' Model settings '''
-fit_intercept = True # whether to calculate the intercept for this model. If set to false, no intercept will be used in calculations (e.g. data is expected to be already centered).
-normalize = True # If True, the regressors X will be normalized before regression.
+fit_intercept = False # whether to calculate the intercept for this model. If set to false, no intercept will be used in calculations (e.g. data is expected to be already centered).
+normalize = False # If True, the regressors X will be normalized before regression.
 
 ''' Load in data '''
 #(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
@@ -30,7 +30,7 @@ Y = R_gm.T
 ''' Compute the folds '''
 n = len(X)
 n_folds = 10
-shuffle, random_state = True, 0
+shuffle, random_state = True, None
 folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle,random_state=random_state)
 
 ''' Run the RF regression to predict Y from X '''
@@ -62,12 +62,12 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 """
 160 driver genes (std)
     10 folds, fit_intercept = True, normalize = True
-    Average MSE: 1.59596266753 +- 0.305270122965. 
-    Average R^2: -0.618500514456 +- 0.123537565405. 
-    Average Rp:  0.42186937282 +- 0.0371676631547.
+    Average MSE: 1.60299217708 +- 0.318040350666. 
+    Average R^2: -0.607166944871 +- 0.1083635016. 
+    Average Rp:  0.428273973515 +- 0.0406225310075.
     
     10 folds, fit_intercept = False, normalize = False
-    Average MSE: 1.46311480266 +- 0.22234225071. 
-    Average R^2: -0.491747089763 +- 0.102359337447. 
-    Average Rp:  0.453241618429 +- 0.0289103431543.
+    Average MSE: 1.47778836156 +- 0.103981718915. 
+    Average R^2: -0.494656131836 +- 0.118490788927. 
+    Average Rp:  0.448483656844 +- 0.0148054941304.
 """

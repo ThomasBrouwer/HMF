@@ -16,7 +16,7 @@ import numpy
 
 ''' Model settings '''
 no_genes = 100      #13966
-n_estimators = 1000 # number of trees
+n_estimators = 100  # number of trees
 max_depth = None    # until what depth of feature splits we go
 
 ''' Load in data '''
@@ -32,7 +32,7 @@ Y = R_pm.T
 ''' Compute the folds '''
 n = len(X)
 n_folds = 10
-shuffle, random_state = True, 0
+shuffle, random_state = True, None
 folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle,random_state=random_state)
 
 ''' Run the RF regression to predict Y from X '''
@@ -64,22 +64,17 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 """
 160 driver genes (std)
     10 folds, 1 estimator:
-    Average MSE: 1.61915180348 +- 0.184378728712. 
-    Average R^2: -0.629176526284 +- 0.122146351276. 
-    Average Rp:  0.170038089713 +- 0.0570619842994.
+    Average MSE: 1.70526058676 +- 0.225370874722. 
+    Average R^2: -0.715351468335 +- 0.143980024423. 
+    Average Rp:  0.146456949116 +- 0.0464053321983.
 
     10 folds, 10 estimators:
-    Average MSE: 0.871648898258 +- 0.106034951233. 
-    Average R^2: 0.125779044718 +- 0.04244430013. 
-    Average Rp:  0.370351850559 +- 0.0518006874682.
+    Average MSE: 0.875009502646 +- 0.0878432619294. 
+    Average R^2: 0.12487126966 +- 0.0271511968064. 
+    Average Rp:  0.365365453638 +- 0.032944313548.
     
     10 folds, 100 estimators:
-    Average MSE: 0.801004634905 +- 0.103589596414. 
-    Average R^2: 0.197625626984 +- 0.0357994822557. 
-    Average Rp:  0.456323060949 +- 0.0446437492127.
-
-    10 folds, 1000 estimators:
-    Average MSE: 0.793396134931 +- 0.101296631492. 
-    Average R^2: 0.205098735456 +- 0.0339840430998. 
-    Average Rp:  0.469871257628 +- 0.0436123968646.
+    Average MSE: 0.798621286955 +- 0.0781204458101. 
+    Average R^2: 0.199495870083 +- 0.0269573616394. 
+    Average Rp:  0.458072305143 +- 0.0310931891769.
 """

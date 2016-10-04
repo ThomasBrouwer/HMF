@@ -28,7 +28,7 @@ Y = R_gm.T
 ''' Compute the folds '''
 n = len(X)
 n_folds = 10
-shuffle, random_state = True, 0
+shuffle, random_state = True, None
 folds = KFold(n=n,n_folds=n_folds,shuffle=shuffle,random_state=random_state)
 
 ''' Run the RF regression to predict Y from X '''
@@ -64,7 +64,7 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 """ 
 160 driver genes (std)
     10 folds, rbf kernel
-    Average MSE: 0.656107300198 +- 0.212220267336. 
-    Average R^2: 0.350207668436 +- 0.0745529043108. 
-    Average Rp:  0.614826504432 +- 0.0576797451834.
+    Average MSE: 0.656561466926 +- 0.160123481219. 
+    Average R^2: 0.343679016903 +- 0.0605566396606. 
+    Average Rp:  0.611211960132 +- 0.0545461807573.
 """
