@@ -47,31 +47,36 @@ E = ['genes','samples']
 #I = {'genes':no_genes, 'samples':254}
 
 all_K_alpha = [ # alpha order: PM, GM, GE
-    ({'genes':10, 'samples':10}, [0.25, 0.25, 0.25]),
-    ({'genes':10, 'samples':10}, [0.5,  0.5,  0.25]),
-    ({'genes':10, 'samples':10}, [1.0,  1.0,  0.25]),
-    ({'genes':10, 'samples':10}, [1.5,  1.5,  0.25]),
-    ({'genes':10, 'samples':10}, [2.0,  2.0,  0.25]),
-    ({'genes':10, 'samples':10}, [0.25, 0.25, 0.5]),
-    ({'genes':10, 'samples':10}, [0.5,  0.5,  0.5]),
-    ({'genes':10, 'samples':10}, [1.0,  1.0,  0.5]),
-    ({'genes':10, 'samples':10}, [1.5,  1.5,  0.5]),
-    ({'genes':10, 'samples':10}, [2.0,  2.0,  0.5]),
-    ({'genes':10, 'samples':10}, [0.25, 0.25, 1.0]),
-    ({'genes':10, 'samples':10}, [0.5,  0.5,  1.0]),
+    #({'genes':10, 'samples':10}, [0.25, 0.25, 0.25]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  0.25]),
+    #({'genes':10, 'samples':10}, [1.0,  1.0,  0.25]),
+    #({'genes':10, 'samples':10}, [1.5,  1.5,  0.25]),
+    #({'genes':10, 'samples':10}, [2.0,  2.0,  0.25]),
+    #({'genes':10, 'samples':10}, [0.25, 0.25, 0.5]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  0.5]),
+    #({'genes':10, 'samples':10}, [1.0,  1.0,  0.5]),
+    #({'genes':10, 'samples':10}, [1.5,  1.5,  0.5]),
+    #({'genes':10, 'samples':10}, [2.0,  2.0,  0.5]),
+    #({'genes':10, 'samples':10}, [0.25, 0.25, 1.0]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  1.0]),
+    #({'genes':10, 'samples':10}, [1.0,  1.0,  1.0]),
+    #({'genes':10, 'samples':10}, [1.5,  1.5,  1.0]),
+    #({'genes':10, 'samples':10}, [2.0,  2.0,  1.0]),
+    #({'genes':10, 'samples':10}, [0.25, 0.25, 1.5]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  1.5]),
+    #({'genes':10, 'samples':10}, [1.0,  1.0,  1.5]),
+    #({'genes':10, 'samples':10}, [1.5,  1.5,  1.5]),
+    #({'genes':10, 'samples':10}, [2.0,  2.0,  1.5]),
+    #({'genes':10, 'samples':10}, [0.25, 0.25, 2.0]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  2.0]),
+    #({'genes':10, 'samples':10}, [1.0,  1.0,  2.0]),
+    #({'genes':10, 'samples':10}, [1.5,  1.5,  2.0]),
+    #({'genes':10, 'samples':10}, [2.0,  2.0,  2.0]),
+    ({'genes':5,  'samples':5 }, [1.0,  1.0,  1.0]),
     ({'genes':10, 'samples':10}, [1.0,  1.0,  1.0]),
-    ({'genes':10, 'samples':10}, [1.5,  1.5,  1.0]),
-    ({'genes':10, 'samples':10}, [2.0,  2.0,  1.0]),
-    ({'genes':10, 'samples':10}, [0.25, 0.25, 1.5]),
-    ({'genes':10, 'samples':10}, [0.5,  0.5,  1.5]),
-    ({'genes':10, 'samples':10}, [1.0,  1.0,  1.5]),
-    ({'genes':10, 'samples':10}, [1.5,  1.5,  1.5]),
-    ({'genes':10, 'samples':10}, [2.0,  2.0,  1.5]),
-    ({'genes':10, 'samples':10}, [0.25, 0.25, 2.0]),
-    ({'genes':10, 'samples':10}, [0.5,  0.5,  2.0]),
-    ({'genes':10, 'samples':10}, [1.0,  1.0,  2.0]),
-    ({'genes':10, 'samples':10}, [1.5,  1.5,  2.0]),
-    ({'genes':10, 'samples':10}, [2.0,  2.0,  2.0]),
+    ({'genes':20, 'samples':20}, [1.0,  1.0,  1.0]),
+    ({'genes':30, 'samples':30}, [1.0,  1.0,  1.0]),
+    ({'genes':40, 'samples':40}, [1.0,  1.0,  1.0]),
 ]
 
 
@@ -86,7 +91,7 @@ R = []
 
 ''' Use a method to run the cross-validation under different settings - varying K and alpham '''
 def run_all_settings(all_K_alpha):
-    fout = open('results_smf_pm_gm_to_ge_std_varying_importance.txt','w')
+    fout = open('results_smf_pm_gm_to_ge_std_final.txt','w')
     
     for K, alpha in all_K_alpha:
         ''' Compute the folds '''
@@ -127,7 +132,7 @@ def run_all_settings(all_K_alpha):
         print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s." % \
             (all_MSE.mean(),all_MSE.std(),all_R2.mean(),all_R2.std(),all_Rp.mean(),all_Rp.std())
             
-        fout.write('Tried S-MF on PM -> GE, with K = %s, alpham = %s.\n' % (K,alpha))
+        fout.write('Tried S-MF on PM,GM -> GE, with K = %s, alpham = %s.\n' % (K,alpha))
         fout.write('Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s.\n' % \
             (all_MSE.mean(),all_MSE.std(),all_R2.mean(),all_R2.std(),all_Rp.mean(),all_Rp.std()))
         fout.write('All MSE: %s. \nAll R^2: %s. \nAll Rp: %s.\n\n' % (list(all_MSE),list(all_R2),list(all_Rp)))
