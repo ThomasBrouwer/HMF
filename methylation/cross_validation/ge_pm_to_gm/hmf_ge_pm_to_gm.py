@@ -10,7 +10,7 @@ import numpy
 
 ''' Model settings '''
 no_genes = 100 #13966
-iterations, burn_in, thinning = 200, 180, 2
+iterations, burn_in, thinning = 100, 80, 2
 
 settings = {
     'priorF'  : 'exponential',
@@ -37,32 +37,37 @@ init = {
 E = ['genes','samples']
 #I = {'genes':no_genes, 'samples':254}
 
-all_K_alpha = [ # alpha order: PM, GE
-    ({'genes':10, 'samples':10}, [0.25, 0.25, 0.25]),
-    ({'genes':10, 'samples':10}, [0.5,  0.5,  0.25]),
-    ({'genes':10, 'samples':10}, [1.0,  1.0,  0.25]),
-    ({'genes':10, 'samples':10}, [1.5,  1.5,  0.25]),
-    ({'genes':10, 'samples':10}, [2.0,  2.0,  0.25]),
-    ({'genes':10, 'samples':10}, [0.25, 0.25, 0.5]),
-    ({'genes':10, 'samples':10}, [0.5,  0.5,  0.5]),
-    ({'genes':10, 'samples':10}, [1.0,  1.0,  0.5]),
-    ({'genes':10, 'samples':10}, [1.5,  1.5,  0.5]),
-    ({'genes':10, 'samples':10}, [2.0,  2.0,  0.5]),
-    ({'genes':10, 'samples':10}, [0.25, 0.25, 1.0]),
-    ({'genes':10, 'samples':10}, [0.5,  0.5,  1.0]),
-    ({'genes':10, 'samples':10}, [1.0,  1.0,  1.0]),
-    ({'genes':10, 'samples':10}, [1.5,  1.5,  1.0]),
-    ({'genes':10, 'samples':10}, [2.0,  2.0,  1.0]),
-    ({'genes':10, 'samples':10}, [0.25, 0.25, 1.5]),
-    ({'genes':10, 'samples':10}, [0.5,  0.5,  1.5]),
-    ({'genes':10, 'samples':10}, [1.0,  1.0,  1.5]),
-    ({'genes':10, 'samples':10}, [1.5,  1.5,  1.5]),
-    ({'genes':10, 'samples':10}, [2.0,  2.0,  1.5]),
-    ({'genes':10, 'samples':10}, [0.25, 0.25, 2.0]),
-    ({'genes':10, 'samples':10}, [0.5,  0.5,  2.0]),
-    ({'genes':10, 'samples':10}, [1.0,  1.0,  2.0]),
-    ({'genes':10, 'samples':10}, [1.5,  1.5,  2.0]),
-    ({'genes':10, 'samples':10}, [2.0,  2.0,  2.0]),
+all_K_alpha = [ # alpha order: GE, PM, GM
+    #({'genes':10, 'samples':10}, [0.25, 0.25, 0.25]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  0.25]),
+    #({'genes':10, 'samples':10}, [1.0,  1.0,  0.25]),
+    #({'genes':10, 'samples':10}, [1.5,  1.5,  0.25]),
+    #({'genes':10, 'samples':10}, [2.0,  2.0,  0.25]),
+    #({'genes':10, 'samples':10}, [0.25, 0.25, 0.5]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  0.5]),
+    #({'genes':10, 'samples':10}, [1.0,  1.0,  0.5]),
+    #({'genes':10, 'samples':10}, [1.5,  1.5,  0.5]),
+    #({'genes':10, 'samples':10}, [2.0,  2.0,  0.5]),
+    #({'genes':10, 'samples':10}, [0.25, 0.25, 1.0]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  1.0]),
+    #({'genes':10, 'samples':10}, [1.0,  1.0,  1.0]),
+    #({'genes':10, 'samples':10}, [1.5,  1.5,  1.0]),
+    #({'genes':10, 'samples':10}, [2.0,  2.0,  1.0]),
+    #({'genes':10, 'samples':10}, [0.25, 0.25, 1.5]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  1.5]),
+    #({'genes':10, 'samples':10}, [1.0,  1.0,  1.5]),
+    #({'genes':10, 'samples':10}, [1.5,  1.5,  1.5]),
+    #({'genes':10, 'samples':10}, [2.0,  2.0,  1.5]),
+    #({'genes':10, 'samples':10}, [0.25, 0.25, 2.0]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  2.0]),
+    #({'genes':10, 'samples':10}, [1.0,  1.0,  2.0]),
+    #({'genes':10, 'samples':10}, [1.5,  1.5,  2.0]),
+    #({'genes':10, 'samples':10}, [2.0,  2.0,  2.0]),
+    #({'genes':5,  'samples':5 }, [0.5,  0.5,  0.5]),
+    #({'genes':10, 'samples':10}, [0.5,  0.5,  0.5]),
+    #({'genes':20, 'samples':20}, [0.5,  0.5,  0.5]),
+    #({'genes':30, 'samples':30}, [0.5,  0.5,  0.5]),
+    ({'genes':40, 'samples':40}, [0.5,  0.5,  0.5]),
 ]
 
 
@@ -76,7 +81,7 @@ C, D = [], []
 
 ''' Use a method to run the cross-validation under different settings - varying K and alpham '''
 def run_all_settings(all_K_alpha):
-    fout = open('results_hmf_ge_pm_to_gm_std_varying_importance.txt','w')
+    fout = open('results_hmf_ge_pm_to_gm_std_final_more.txt','w')
         
     for K, alpha in all_K_alpha:
         ''' Compute the folds '''

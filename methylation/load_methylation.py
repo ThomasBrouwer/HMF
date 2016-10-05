@@ -3,6 +3,11 @@ Methods for loading methylation and gene expression datasets, and for filtering
 out the top n genes with the most variation.
 '''
 
+project_location = "/home/tab43/Documents/Projects/libraries/"
+import sys
+sys.path.append(project_location)
+
+from HMF.code.kernels.gaussian_kernel import GaussianKernel
 import numpy
 
 location_methylation = '/home/tab43/Documents/Projects/libraries/HMF/methylation/data/'
@@ -108,4 +113,13 @@ def standardise_data(R):
         R_std[:,j] = (R_std[:,j] - mean) / std
     return R_std
     
-(R_ge, R_pm, R_gm, genes, samples) = load_all()
+def load_kernels():
+    kernel_folder = project_location+"HMF/methylation/data/"
+    K_ge, K_pm, K_gm = GaussianKernel(), GaussianKernel(), GaussianKernel()
+    K_ge.load_kernel(location_input=kernel_folder+"kernel_ge_std")
+    K_pm.load_kernel(location_input=kernel_folder+"kernel_pm_std")
+    K_gm.load_kernel(location_input=kernel_folder+"kernel_gm_std")
+    return (K_ge.kernel, K_pm.kernel, K_gm.kernel)
+    
+#(R_ge, R_pm, R_gm, genes, samples) = load_all()
+#K_ge, K_pm, K_gm = load_kernels()
