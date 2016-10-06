@@ -53,18 +53,6 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 
 """
-100 top genes
-    10 folds:
-    Average MSE: 3.50316093318 +- 0.305295867617. 
-    Average R^2: 0.426320470391 +- 0.0310774856098. 
-    Average Rp:  0.6537973285 +- 0.0238186947582.
-    
-160 driver genes
-    10 folds:
-    Average MSE: 0.537305318808 +- 0.0643405711714. 
-    Average R^2: 0.555886340269 +- 0.0427435939484. 
-    Average Rp:  0.746193706107 +- 0.0288870647559.
-    
 160 driver genes (std)
     10 folds:
     Average MSE: 1.00743713077 +- 0.0910666106409. 

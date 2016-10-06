@@ -44,7 +44,7 @@ def check_dimensions_RCD(R,C,D):
             "C[%s] or M[%s] has wrong dimensions: %s and %s; should be %s rows." % (m,m,dataset.shape,mask.shape,I)
         assert J_dataset == I_dataset and I_mask == J_mask, \
             "Matrix C[%s] and M[%s] should be square; are %s and %s instead." % (m,m,(I_dataset,J_dataset),(I_mask,J_mask))
-        assert (F is None) or (numpy.array_equal(F,F_n)), "F_%s is not equal to the other F's!" % m
+        assert (F is None) or (numpy.array_equal(F,F_m)), "F_%s is not equal to the other F's!" % m
         I, F = F_m.shape[0], F_m
     
     for l in range(0,len(D)):

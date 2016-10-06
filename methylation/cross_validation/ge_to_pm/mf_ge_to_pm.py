@@ -21,9 +21,9 @@ iterations, burn_in, thinning = 1000, 900, 2
 
 settings = {
     'priorF'  : 'exponential',
-    'priorG'  : ['normal','exponential'], #GE,ME
+    'priorG'  : ['normal','normal'], #GE,ME
     'orderF'  : 'columns',
-    'orderG'  : ['columns','columns'],
+    'orderG'  : ['rows','rows'],
     'ARD'     : True
 }
 hyperparameters = {
@@ -36,7 +36,7 @@ hyperparameters = {
 }
 init = {
     'F'       : 'kmeans',
-    'G'       : ['least','random'],
+    'G'       : ['least','least'],
     'lambdat' : 'exp',
     'tau'     : 'exp'
 }
@@ -67,8 +67,8 @@ all_K_alpha = [ # alpha order: GE, PM
 
 ''' Load in data '''
 #(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
-R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
-#R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
+#R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
+R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
 X, Y = R_ge.T, R_pm.T
 R, C = [], []

@@ -20,8 +20,8 @@ normalize = False # If True, the regressors X will be normalized before regressi
 
 ''' Load in data '''
 #(R_ge, R_pm, genes, samples) = load_ge_pm_top_n_genes(no_genes)
-R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
-#R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
+#R_ge, R_pm, R_gm, genes, samples = filter_driver_genes()
+R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
 
 X = R_ge.T
 Y = R_pm.T
@@ -59,17 +59,6 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 
 """
-160 driver genes
-    10 folds, fit_intercept = True, normalize = True
-        Average MSE: 0.00679385737148 +- 0.00101458776145. 
-        Average R^2: 0.848403503596 +- 0.0250460823301. 
-        Average Rp:  0.927800928125 +- 0.0100427719465.
-    
-    10 folds, fit_intercept = False, normalize = False
-        Average MSE: 0.00739365964153 +- 0.00117038739136. 
-        Average R^2: 0.835019274523 +- 0.0285800491438. 
-        Average Rp:  0.922005170566 +- 0.0116821207476.
-    
 160 driver genes (std)
     10 folds, fit_intercept = True, normalize = True
         Average MSE: 2.70058755602 +- 0.477170167387. 

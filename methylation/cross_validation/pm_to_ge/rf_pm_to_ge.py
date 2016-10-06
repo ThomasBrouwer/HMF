@@ -60,48 +60,6 @@ print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s."
 
 
 """
-100 top genes
-    10 folds, 1 estimator:
-    Average MSE: 4.59619664101 +- 0.391542612006. 
-    Average R^2: 0.245268284771 +- 0.0618955608979. 
-    Average Rp:  0.624323630501 +- 0.0311250012654.
-
-    10 folds, 10 estimators:
-    Average MSE: 2.44648211214 +- 0.177148708446. 
-    Average R^2: 0.598882261217 +- 0.0197071411403. 
-    Average Rp:  0.775234934427 +- 0.0122348032184.
-
-    10 folds, 100 estimators:
-    Average MSE: 2.21053647099 +- 0.179784131312. 
-    Average R^2: 0.638012016481 +- 0.0235131342244. 
-    Average Rp:  0.799459653049 +- 0.0145718211889.
-
-    10 folds, 1000 estimators:
-    Average MSE: 2.17811147119 +- 0.185525207994. 
-    Average R^2: 0.642477537706 +- 0.0317788162907. 
-    Average Rp:  0.802426441531 +- 0.020128752759.
-    
-160 driver genes
-    10 folds, 1 estimator:
-    Average MSE: 0.790687460111 +- 0.07667765625. 
-    Average R^2: 0.345455918463 +- 0.0565688133244. 
-    Average Rp:  0.674278776242 +- 0.0287225908945.
-
-    10 folds, 10 estimators:
-    Average MSE: 0.404558945196 +- 0.046803743027. 
-    Average R^2: 0.665325773613 +- 0.0328109679366. 
-    Average Rp:  0.816350303954 +- 0.0200690699472.
-
-    10 folds, 100 estimators:
-    Average MSE: 0.370693119479 +- 0.0435100001681. 
-    Average R^2: 0.693430706697 +- 0.0296732435931. 
-    Average Rp:  0.833251950968 +- 0.0182825379061.
-
-    10 folds, 1000 estimators:
-    Average MSE: 0.367032074255 +- 0.0447927399464. 
-    Average R^2: 0.696489183614 +- 0.0307290118114. 
-    Average Rp:  0.835104496433 +- 0.0188865032742.
-    
 160 driver genes (std)
     10 folds, 1 estimator:
     Average MSE: 1.64112377437 +- 0.125490166349. 
