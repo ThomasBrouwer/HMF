@@ -16,6 +16,7 @@ Arguments:
 - init              - the initialisation options for HMF. This should be a dictionary of the form:
                         { 'F', 'G', 'Sn', 'Sm', 'lambdat', 'tau' }
 - file_performance  - the file in which we store the performances
+- append            - whether we should append the logging to the specified file, or overwrite what is already there
 
 We start the search using run(iterations,burn_in,thinning).
 """
@@ -31,7 +32,7 @@ MEASURES = ['R^2','MSE','Rp']
 ATTEMPTS_GENERATE_M = 100
 
 class CrossValidation:
-    def __init__(self,folds,main_dataset,index_main,R,C,D,K,settings,hyperparameters,init,file_performance):
+    def __init__(self,folds,main_dataset,index_main,R,C,D,K,settings,hyperparameters,init,file_performance,append=False):
         self.folds = folds
         self.R = R
         self.C = C
@@ -42,7 +43,7 @@ class CrossValidation:
         self.init = init
         self.hyperparameters = hyperparameters
         
-        self.fout = open(file_performance,'w') 
+        self.fout = open(file_performance, 'w' if not append else 'a') 
         self.performances = {} # Performances across folds
         
         # Extract the main dataset from R or D
@@ -59,6 +60,7 @@ class CrossValidation:
         
     def run(self,iterations,burn_in,thinning):
         ''' Run the cross-validation. '''
+        self.log("Running HMF cross-validation, for K = %s.\n" % self.K)
         folds_test = mask.compute_folds_attempts(I=self.I,J=self.J,no_folds=self.folds,attempts=ATTEMPTS_GENERATE_M,M=self.main_M)
         folds_training = mask.compute_Ms(folds_test)
 
@@ -88,21 +90,19 @@ class CrossValidation:
                 performance = HMF.predict_Dl(l=self.index_main,M_pred=test,burn_in=burn_in,thinning=thinning)
             
             ''' Store the performance for this fold '''
-            message = "Performance fold %s: %s.\n" % (i+1,performance)
-            print message
-            self.fout.write(message)
-            self.fout.flush()
+            self.log("Performance fold %s: %s.\n" % (i+1,performance))
             
             for measure in MEASURES:
                 fold_performances[measure].append(performance[measure])
         
         ''' Store the final performances and average '''
-        average_performance = self.compute_average_performance(fold_performances)
-        message = "Average performance: %s." % average_performance
+        self.average_performance = self.compute_average_performance(fold_performances)
+        self.log("Average performance: %s.\n\n" % self.average_performance)
+        
+    def log(self, message):
         print message
         self.fout.write(message)        
         self.fout.flush()
-        
         
     def compute_average_performance(self,performances):
         ''' Compute the average performance of the given dictionary of performances (MSE, R^2, Rp) '''

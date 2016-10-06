@@ -1,0 +1,33 @@
+'''
+Plot the performances of HMF D-MF and D-MTF, with varying values for Kt, on
+the GDSC dataset.
+'''
+
+import matplotlib.pyplot as plt
+
+MSE_max, MSE_min = 0.14, 0.10
+fraction_min, fraction_max = 0.25, 0.95
+
+values_K = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 25, 30]
+
+perf_hmf_mf_ccle_ec = {'R^2': [0.25509182283203824, 0.27467220596281444, 0.28272765073797185, 0.28094958077098975, 0.30174518714127907, 0.3034467392428315, 0.3082742440419226, 0.3007785173717338, 0.28363089246112894, 0.28248729665977257, 0.29609316347695913, 0.3109570466965005, 0.29769154684482796, 0.26578517147055075, 0.27194882176697954, 0.16484352467687335, 0.09962742853469989], 'MSE': [0.11359247654578122, 0.11063934263594347, 0.1095591967468779, 0.1096023011459903, 0.10653084493403842, 0.10636807319637409, 0.10562032316624659, 0.10635686929594852, 0.10929225610121121, 0.10972399290107955, 0.10738318269230016, 0.10512259286671644, 0.10736657436285242, 0.11217905190606056, 0.11101883629643547, 0.12786265314410566, 0.13736070220627677], 'Rp': [0.50892634225894839, 0.52754537694652859, 0.53550311958875862, 0.53926371951085628, 0.55763465896803377, 0.5600068412305157, 0.56240224193314192, 0.55847065624565784, 0.54711894409704054, 0.54747329229558239, 0.55640705901053822, 0.56512937206073199, 0.55797870395089844, 0.54097320445109409, 0.54798363116243698, 0.48915320545845553, 0.4689156576197745]}
+perf_hmf_mtf_ccle_ec = {'R^2': [], 'MSE': [], 'Rp': []}
+
+
+''' Plot '''
+fig = plt.figure(figsize=(3.8,3.0))
+fig.subplots_adjust(left=0.15, right=0.965, bottom=0.12, top=0.97)
+plt.xlabel("Kt", fontsize=12, labelpad=1) #fontsize=8
+plt.ylabel("MSE", fontsize=12, labelpad=2) #fontsize=8, labelpad=-1
+plt.yticks(fontsize=8) #fontsize=6
+plt.xticks(fontsize=8) #fontsize=6
+
+plt.plot(values_K, perf_hmf_mf_ccle_ec['MSE'], linestyle='-', linewidth=1.2, marker='o', label='HMF D-MF', c='red', markersize=5)
+#plt.plot(x=values_K, y=perf_hmf_mtf_ccle_ec, linestyle='-', linewidth=1.2, marker='o', label='HMF D-MTF', c='blue', markersize=5)
+ 
+plt.xlim(0,values_K[-1])
+plt.ylim(MSE_min,MSE_max)
+
+plt.legend(loc='upper left',fontsize=10)
+    
+plt.savefig("./varying_K_ccle_ec.png", dpi=600)
