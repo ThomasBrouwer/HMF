@@ -75,8 +75,8 @@ values_K = [
     {'Cell_lines':16, 'Drugs':16},
     {'Cell_lines':18, 'Drugs':18},
     {'Cell_lines':20, 'Drugs':20},
-    #{'Cell_lines':25, 'Drugs':25},
-    #{'Cell_lines':30, 'Drugs':30},
+    {'Cell_lines':25, 'Drugs':25},
+    {'Cell_lines':30, 'Drugs':30},
 ]
 
 
