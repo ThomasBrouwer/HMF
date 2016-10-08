@@ -36,7 +36,7 @@ settings = {
     'orderG'  : 'rows',
     'orderSn' : 'rows',
     'orderSm' : 'rows',
-    'ARD'     : True
+    'ARD'     : False#True
 }
 hyperparameters = {
     'alphatau' : 1.,
@@ -89,7 +89,7 @@ C, D = [], []
 
 main_dataset = 'R'
 index_main = 1 # CTRP
-file_performance = 'results.txt'
+file_performance = 'results_no_ARD.txt'
 
 
 ''' Run the cross-validation framework for each value of K '''

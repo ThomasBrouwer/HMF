@@ -72,6 +72,10 @@ USAGE
 Or:
     HMF = hmf_gibbs(R,C,D,K,settings,priors)
     HMF.train(init,iterations)
+Or:
+    HMF = hmf_gibbs(R,C,D,K,settings,priors)
+    HMF.train(init,iterations,M_test={'M':M_test, 'dataset':'R' or 'D', 'index': index})
+(In this last case, we measure the performance on the test set while running)
     
 The expectation can be computed by specifying a burn-in and thinning rate, and using:
     HMF.approx_expectation_Ft(E,burn_in,thinning)
@@ -93,15 +97,19 @@ This gives a dictionary of performances,
     performance = { 'MSE', 'R^2', 'Rp' }
     
 We also store information about each iteration, namely:
-- iterations_all_performances - dictionary from 'MSE', 'R^2', or 'Rp' to a list of performances
-- iterations_all_times        - list of timesteps at which the iteration was completed
-- iterations_all_Ft           - dictionary from entity type name to list of numpy arrays of Ft at each iteration
-- iterations_all_Sn           - list of length N of lists of numpy arrays of Sn at each iteration (so N x It x size Sn)
-- iterations_all_Sm           - list of length M of lists of numpy arrays of Sn at each iteration (so M x It x size Sm)
-- iterations_all_Gl           - list of length L of lists of numpy arrays of Gl at each iteration (so L x It x size Gl)
-- iterations_all_lambdat      - dictionary from entity type name to list of numpy vectors of lambdat at each iterations
-- iterations_all_taun         - list of length N of lists of taun values at each iteration
-- iterations_all_taum         - list of length M of lists of taum values at each iteration
+- iterations_all_times   - list of timesteps at which the iteration was completed
+- iterations_all_Ft      - dictionary from entity type name to list of numpy arrays of Ft at each iteration
+- iterations_all_Sn      - list of length N of lists of numpy arrays of Sn at each iteration (so N x It x size Sn)
+- iterations_all_Sm      - list of length M of lists of numpy arrays of Sn at each iteration (so M x It x size Sm)
+- iterations_all_Gl      - list of length L of lists of numpy arrays of Gl at each iteration (so L x It x size Gl)
+- iterations_all_lambdat - dictionary from entity type name to list of numpy vectors of lambdat at each iterations
+- iterations_all_taun    - list of length N of lists of taun values at each iteration
+- iterations_all_taum    - list of length M of lists of taum values at each iteration
+
+- all_performances_Rn    - dictionary from 'MSE', 'R^2', or 'Rp', to a list of lists of performances for each Rn
+- all_performances_Dl    - dictionary from 'MSE', 'R^2', or 'Rp', to a list of lists of performances for each Dl
+- all_performances_Cm    - dictionary from 'MSE', 'R^2', or 'Rp', to a list of lists of performances for each Cm
+- all_performances_test  - (if M_test is specified, store performances on test set as well)
 
 Finally, we can return the goodness of fit of the data using the 
 quality(metric,thinning,burn_in) function:
@@ -507,7 +515,12 @@ class HMF_Gibbs:
             (self.init_F,self.init_G,self.init_Sn,self.init_Sm,self.init_lambdat,self.init_tau)
       
       
-    def run(self,iterations):
+    def run(self, iterations, M_test={}):
+        """ If M_test is set, make sure we have the required parameters. """
+        if M_test:
+            assert 'M' in M_test and 'dataset' in M_test and M_test['dataset'] in ['R', 'D'] and 'index' in M_test, \
+                "M_test was given to run() but the values in the dictionary were incorrect."
+                
         """ Run the Gibbs sampler """
         self.iterations = iterations
         self.iterations_all_Ft =      {E:[] for E in self.all_E}
@@ -524,10 +537,12 @@ class HMF_Gibbs:
         self.all_performances_Rn = {}
         self.all_performances_Cm = {}
         self.all_performances_Dl = {}
+        self.all_performances_test = {}
         for metric in metrics:
             self.all_performances_Rn[metric] = [[] for n in range(0,self.N)]
             self.all_performances_Cm[metric] = [[] for m in range(0,self.M)]
             self.all_performances_Dl[metric] = [[] for l in range(0,self.L)]
+            self.all_performances_test[metric] = []
         
         ''' Print the initial statistics. '''
         print "Initial statistics. Performances (MSE, R^2, Rp):"
@@ -680,9 +695,18 @@ class HMF_Gibbs:
                 print "D%s (%s). %s. %s. %s." % (l,self.E_per_Dl[l],perf['MSE'],perf['R^2'],perf['Rp'])
                 for metric in metrics:
                     self.all_performances_Dl[metric][l].append(perf[metric])
+            
+            ''' If we have an M_test, measure the performance on it. '''
+            if M_test:
+                if M_test['dataset'] == 'R':
+                    perf = self.predict_while_running_Rn_test(n=M_test['index'], M_test=M_test['M'])
+                else:
+                    perf = self.predict_while_running_Dl_test(l=M_test['index'], M_test=M_test['M'])
+                for metric in metrics:
+                    self.all_performances_test[metric].append(perf[metric])
         
             time_iteration = time.time()
-            self.all_times.append(time_iteration-time_start)       
+            self.all_times.append(time_iteration-time_start)   
       
 
     """ Return the average value for the Fs, Ss,, Gs taus - i.e. our approximation to the expectations. """
@@ -774,6 +798,11 @@ class HMF_Gibbs:
         R_pred = self.triple_dot(self.all_Ft[E1],self.all_Sn[n],self.all_Ft[E2].T)
         return self.compute_statistics(self.all_Mn[n],self.all_Rn[n],R_pred)    
         
+    def predict_while_running_Rn_test(self,n,M_test):
+        E1,E2 = self.E_per_Rn[n]
+        R_pred = self.triple_dot(self.all_Ft[E1],self.all_Sn[n],self.all_Ft[E2].T)
+        return self.compute_statistics(M_test,self.all_Rn[n],R_pred)  
+        
     def predict_while_running_Cm(self,m):
         E = self.E_per_Cm[m]
         C_pred = self.triple_dot(self.all_Ft[E],self.all_Sm[m],self.all_Ft[E].T)
@@ -783,6 +812,11 @@ class HMF_Gibbs:
         E = self.E_per_Dl[l]
         D_pred = numpy.dot(self.all_Ft[E],self.all_Gl[l].T)
         return self.compute_statistics(self.all_Ml[l],self.all_Dl[l],D_pred)      
+        
+    def predict_while_running_Dl_test(self,l,M_test):
+        E = self.E_per_Dl[l]
+        D_pred = numpy.dot(self.all_Ft[E],self.all_Gl[l].T)
+        return self.compute_statistics(M_test,self.all_Dl[l],D_pred)      
         
     
     """ Functions for computing MSE, R^2 (coefficient of determination), Rp (Pearson correlation) """

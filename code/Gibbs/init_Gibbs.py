@@ -137,10 +137,14 @@ def init_U(prior,init,I,K,lambdak,R=None,M=None):
 
 def init_V(prior,init,I,K,lambdak,R=None,M=None,U=None):
     ''' Initialise U. Prior in ['normal','exponential']. Init in ['random','exp','least']. '''
-    assert init != 'least' or (init == 'least' and prior == 'normal'), "Cannot do least squares init for V if V is nonnegative!"    
     
     V = init_V_leastsquares(R=R,M=M,U=U) if init == 'least' \
         else init_matrix_random_exp(prior=prior,init=init,I=I,K=K,lambdak=lambdak)
+          
+    ''' If V is nonnegative, set all negative elements to ~0 (bit more for smoothing). '''
+    if prior == 'exponential':
+        V = V.clip(min=0.01)    
+      
     return V
 
 ###############################################################################
@@ -168,10 +172,14 @@ def init_S_leastsquares(R,M,F,G):
     
 def init_S(prior,init,K,L,lambdaS,R=None,M=None,F=None,G=None):
     ''' Initialise S. Prior in ['normal','exponential']. Init in ['random','exp','least']. '''
-    assert lambdaS.shape == (K,L), "lambdaS should be shape %s, rather than %s." % ((K,L),lambdaS.shape)
-    assert init != 'least' or (init == 'least' and prior == 'normal'), "Cannot do least squares init for S if S is nonnegative!"    
+    assert lambdaS.shape == (K,L), "lambdaS should be shape %s, rather than %s." % ((K,L),lambdaS.shape)  
     
     lambdaS0 = lambdaS[0,:]
     S = init_S_leastsquares(R=R,M=M,F=F,G=G) if init == 'least' \
         else init_matrix_random_exp(prior=prior,init=init,I=K,K=L,lambdak=lambdaS0)
+        
+    ''' If S is nonnegative, set all negative elements to 0. '''
+    if prior == 'exponential':
+        S = S.clip(min=0.01)    
+        
     return S

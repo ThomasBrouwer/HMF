@@ -1,6 +1,6 @@
 """
 Run the cross validation for HMF (datasets, using MTF) on the drug sensitivity
-datasets, where we vary the values for K.
+datasets, where we vary the negativity constraints.
 """
 
 project_location = "/home/tab43/Documents/Projects/libraries/"
@@ -17,8 +17,8 @@ location_features_drugs =       location+"features_drugs/"
 location_features_cell_lines =  location+"features_cell_lines/"
 location_kernels =              location+"kernels_features/"
 
-R_ccle_ec,  M_ccle_ec, cell_lines, drugs  = load_data_without_empty(location_data+"ccle_ec50_row_01.txt")
-R_ctrp,     M_ctrp                        = load_data_filter(location_data+"ctrp_ec50_row_01.txt",cell_lines,drugs)
+R_ctrp,     M_ctrp,   cell_lines, drugs   = load_data_without_empty(location_data+"ctrp_ec50_row_01.txt")
+R_ccle_ec,  M_ccle_ec                     = load_data_filter(location_data+"ccle_ec50_row_01.txt",cell_lines,drugs)
 R_gdsc,     M_gdsc                        = load_data_filter(location_data+"gdsc_ic50_row_01.txt",cell_lines,drugs)
 R_ccle_ic,  M_ccle_ic                     = load_data_filter(location_data+"ccle_ic50_row_01.txt",cell_lines,drugs)
 
@@ -27,17 +27,6 @@ R_ccle_ic,  M_ccle_ic                     = load_data_filter(location_data+"ccle
 iterations, burn_in, thinning = 200, 180, 2
 no_folds = 10
 
-settings = {
-    'priorF'  : 'exponential',
-    'orderG'  : 'normal',
-    'priorSn' : 'normal',
-    'priorSm' : 'normal',
-    'orderF'  : 'columns',
-    'orderG'  : 'rows',
-    'orderSn' : 'rows',
-    'orderSm' : 'rows',
-    'ARD'     : False#True
-}
 hyperparameters = {
     'alphatau' : 1.,
     'betatau'  : 1.,
@@ -59,24 +48,69 @@ init = {
 
 alpha_n = [1., 1., 1., 1.] # GDSC, CTRP, CCLE IC, CCLE EC
 alpha_m = []
-values_K = [
-    {'Cell_lines':1,  'Drugs':1},
-    {'Cell_lines':2,  'Drugs':2},
-    {'Cell_lines':3,  'Drugs':3},
-    {'Cell_lines':4,  'Drugs':4},
-    {'Cell_lines':5,  'Drugs':5},
-    {'Cell_lines':6,  'Drugs':6},
-    {'Cell_lines':7,  'Drugs':7},
-    {'Cell_lines':8,  'Drugs':8},
-    {'Cell_lines':9,  'Drugs':9},
-    {'Cell_lines':10, 'Drugs':10},
-    {'Cell_lines':12, 'Drugs':12},
-    {'Cell_lines':14, 'Drugs':14},
-    {'Cell_lines':16, 'Drugs':16},
-    {'Cell_lines':18, 'Drugs':18},
-    {'Cell_lines':20, 'Drugs':20},
-    {'Cell_lines':25, 'Drugs':25},
-    {'Cell_lines':30, 'Drugs':30},
+K = {'Cell_lines':10, 'Drugs':10}
+
+values_settings = [
+    # Nonnegative
+    {
+        'priorF'  : 'exponential',
+        'priorG'  : 'exponential',
+        'priorSn' : 'exponential',
+        'priorSm' : 'exponential',
+        'orderF'  : 'columns',
+        'orderG'  : 'columns',
+        'orderSn' : 'individual',
+        'orderSm' : 'individual',
+        'ARD'     : True
+    },
+    # Semi-nonnegative
+    {
+        'priorF'  : 'exponential',
+        'priorG'  : 'normal',
+        'priorSn' : 'normal',
+        'priorSm' : 'normal',
+        'orderF'  : 'columns',
+        'orderG'  : 'rows',
+        'orderSn' : 'rows',
+        'orderSm' : 'rows',
+        'ARD'     : True
+    },
+    # Semi-nonnegative, with column draws
+    {
+        'priorF'  : 'exponential',
+        'priorG'  : 'normal',
+        'priorSn' : 'normal',
+        'priorSm' : 'normal',
+        'orderF'  : 'columns',
+        'orderG'  : 'columns',
+        'orderSn' : 'individual',
+        'orderSm' : 'individual',
+        'ARD'     : True
+    },
+    # Real-valued
+    {
+        'priorF'  : 'normal',
+        'priorG'  : 'normal',
+        'priorSn' : 'normal',
+        'priorSm' : 'normal',
+        'orderF'  : 'rows',
+        'orderG'  : 'rows',
+        'orderSn' : 'rows',
+        'orderSm' : 'rows',
+        'ARD'     : True
+    },
+    # Real-valued, with column draws
+    {
+        'priorF'  : 'normal',
+        'priorG'  : 'normal',
+        'priorSn' : 'normal',
+        'priorSm' : 'normal',
+        'orderF'  : 'columns',
+        'orderG'  : 'columns',
+        'orderSn' : 'individual',
+        'orderSm' : 'individual',
+        'ARD'     : True
+    },
 ]
 
 
@@ -88,13 +122,12 @@ R = [(R_gdsc,    M_gdsc,    'Cell_lines', 'Drugs', alpha_n[0]),
 C, D = [], []
 
 main_dataset = 'R'
-index_main = 3 # CCLE EC
-file_performance = 'results_no_ARD.txt'
+index_main = 1 # CTRP
+file_performance = 'results.txt'
 
 
-''' Run the cross-validation framework for each value of K '''
-all_performances = []
-for K in values_K:
+''' Run the cross-validation framework for each negativity setting '''
+for settings in values_settings:
     crossval = CrossValidation(
         folds=no_folds,
         main_dataset=main_dataset,
@@ -110,12 +143,4 @@ for K in values_K:
         append=True,
     )
     crossval.run(iterations=iterations,burn_in=burn_in,thinning=thinning)
-    all_performances.append(crossval.average_performance)
     
-''' Combine all average performances into a list for MSE, one for R^2, one for Rp. '''
-measures = ['MSE', 'R^2', 'Rp']
-performances = {measure: [] for measure in measures}
-for performance in all_performances:
-    for measure in measures:
-        performances[measure].append(performance[measure])
-print "perf_hmf_mtf_ccle_ec = %s" % performances
