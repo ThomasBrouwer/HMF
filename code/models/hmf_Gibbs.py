@@ -666,7 +666,8 @@ class HMF_Gibbs:
                 
             ''' Store the draws - have to make a deep copy for the dicts and lists '''
             for E in self.all_E:
-                self.iterations_all_lambdat[E].append(numpy.copy(self.all_lambdat[E]))
+                if self.ARD:
+                    self.iterations_all_lambdat[E].append(numpy.copy(self.all_lambdat[E]))
                 self.iterations_all_Ft[E].append(numpy.copy(self.all_Ft[E]))
             for n in range(0,self.N):
                 self.iterations_all_Sn[n].append(numpy.copy(self.all_Sn[n]))

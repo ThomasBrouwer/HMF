@@ -36,7 +36,7 @@ settings = {
     'orderG'  : 'rows',
     'orderSn' : 'rows',
     'orderSm' : 'rows',
-    'ARD'     : True
+    'ARD'     : False#True
 }
 hyperparameters = {
     'alphatau' : 1.,
@@ -88,7 +88,7 @@ R, C = [], []
 
 main_dataset = 'D'
 index_main = 2 # CCLE IC
-file_performance = 'results.txt'
+file_performance = 'results_no_ARD.txt'
 
 
 ''' Run the cross-validation framework for each value of K '''
