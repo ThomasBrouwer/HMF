@@ -319,14 +319,14 @@ class HMF_Gibbs:
             self.check_observed_entry(E)      
       
         ''' Extract the hyperparameters and model settings '''
-        self.alphatau = hyperparameters.get('alphatau',DEFAULT_PRIORS['alphatau'])
-        self.betatau =  hyperparameters.get('betatau', DEFAULT_PRIORS['betatau'])
-        self.alpha0 =   hyperparameters.get('alpha0',  DEFAULT_PRIORS['alpha0'])
-        self.beta0 =    hyperparameters.get('beta0',   DEFAULT_PRIORS['beta0'])
-        self.lambdaF =  hyperparameters.get('lambdaF', DEFAULT_PRIORS['lambdaF'])
+        self.alphatau = hyperparameters.get('alphatau', DEFAULT_PRIORS['alphatau'])
+        self.betatau =  hyperparameters.get('betatau',  DEFAULT_PRIORS['betatau'])
+        self.alpha0 =   hyperparameters.get('alpha0',   DEFAULT_PRIORS['alpha0'])
+        self.beta0 =    hyperparameters.get('beta0',    DEFAULT_PRIORS['beta0'])
+        self.lambdaF =  hyperparameters.get('lambdaF',  DEFAULT_PRIORS['lambdaF'])
         self.lambdaSn = hyperparameters.get('lambdaSn', DEFAULT_PRIORS['lambdaSn'])
         self.lambdaSm = hyperparameters.get('lambdaSm', DEFAULT_PRIORS['lambdaSm'])
-        self.lambdaG =  hyperparameters.get('lambdaG', DEFAULT_PRIORS['lambdaG'])
+        self.lambdaG =  hyperparameters.get('lambdaG',  DEFAULT_PRIORS['lambdaG'])
         
         self.prior_F =  settings.get('priorF', DEFAULT_SETTINGS['priorF'])
         self.prior_G =  settings.get('priorG', DEFAULT_SETTINGS['priorG'])
