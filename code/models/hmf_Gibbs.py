@@ -415,8 +415,8 @@ class HMF_Gibbs:
                 for E in self.all_E            
             }      
         
-        ''' Initialise the Ft - for KMeans use first dataset with 1+ observed 
-            entry for each entity instance. '''
+        ''' Initialise the Ft - for KMeans use first dataset we can find with 
+            at least one observed entry for each entity instance. '''
         for E in self.all_E:
             lambdaFt = self.all_lambdat[E] if self.ARD else self.lambdaF*numpy.ones(self.K[E])
             (R, M) = self.find_dataset(E) if self.init_F == 'kmeans' else (None, None)

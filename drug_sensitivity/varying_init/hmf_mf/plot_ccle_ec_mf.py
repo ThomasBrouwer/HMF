@@ -1,5 +1,5 @@
 '''
-Plot the convergence of HMF D-MF on the CTRP dataset, for different init methods.
+Plot the convergence of HMF D-MF on the CCLE EC dataset, for different init methods.
 '''
 
 import matplotlib.pyplot as plt

@@ -87,7 +87,8 @@ def init_matrix_random_exp(prior,init,I,K,lambdak):
         if init == 'random':
             matrix[i,k] = normal_draw(mu=0,tau=lambdak[k]) if prior == 'normal' else exponential_draw(lambdax=lambdak[k])
         elif init == 'exp':
-            matrix[i,k] = 0. if prior == 'normal' else 1. / lambdak[k]
+            # Set it to a small value, to avoid division by 0 in the model
+            matrix[i,k] = 0.01 if prior == 'normal' else 1. / lambdak[k]
     return matrix
 
 def init_matrix_kmeans(R,M,K):
