@@ -121,5 +121,8 @@ def load_kernels():
     K_gm.load_kernel(location_input=kernel_folder+"kernel_gm_std")
     return (K_ge.kernel, K_pm.kernel, K_gm.kernel)
     
-#(R_ge, R_pm, R_gm, genes, samples) = load_all()
-#K_ge, K_pm, K_gm = load_kernels()
+
+#(R_ge, R_pm, R_gm, genes, samples) = filter_driver_genes()
+(R_ge_std, R_pm_std, R_gm_std, genes_std, samples_std) = filter_driver_genes_std()
+K_ge, K_pm, K_gm = load_kernels()
+
