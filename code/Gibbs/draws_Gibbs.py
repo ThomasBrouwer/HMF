@@ -19,7 +19,7 @@ from HMF.code.distributions.truncated_normal import TN_draw
 from HMF.code.distributions.truncated_normal_vector import TN_vector_draw
 from HMF.code.distributions.multivariate_truncated_normal import MTN_draw
 
-import numpy, itertools
+import numpy
 
 ###############################################################################
 ###################### Helpers for dimensionality checks ######################

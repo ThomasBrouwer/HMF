@@ -40,7 +40,7 @@ Usage for single dataset matrix tri-factorisation:
     G: column_tau_F([(R.T,M.T,G,S.T,F,tau,1)],[],[]),   column_mu_F(TODO)
 """
 
-import numpy, itertools
+import numpy
 
 ###############################################################################
 ################################### Helpers ###################################
