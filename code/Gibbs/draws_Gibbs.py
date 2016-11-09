@@ -19,6 +19,7 @@ from HMF.code.distributions.truncated_normal import TN_draw
 from HMF.code.distributions.truncated_normal_vector import TN_vector_draw
 from HMF.code.distributions.multivariate_truncated_normal import MTN_draw
 
+import itertools
 import numpy
 
 ###############################################################################
@@ -72,12 +73,25 @@ def draw_tau(alphatau,betatau,dataset,mask,F,G,S=None):
 ################# Draw new values for lambda (ARD) parameters #################
 ###############################################################################
 
-def draw_lambda(alpha0,beta0,Fs,K):
+def draw_lambdat(alpha0,beta0,Fs,K):
     new_lambdas = numpy.empty(K)
     for k in range(0,K):
-        alpha, beta = updates.alpha_beta_lambda(alpha0=alpha0,beta0=beta0,Fs=Fs,k=k)
+        alpha, beta = updates.alpha_beta_lambdat(alpha0=alpha0,beta0=beta0,Fs=Fs,k=k)
         new_lambdas[k] = gamma_draw(alpha,beta)
     return new_lambdas
+
+
+###############################################################################
+################# Draw new values for lambda (ARD) parameters #################
+###############################################################################
+
+def draw_lambdaS(alphaS,betaS,S,nonnegative):
+    (K,L) = S.shape
+    new_lambdaS = numpy.empty((K,L))
+    alpha, beta = updates.alpha_beta_lambdaS(alphaS=alphaS,betaS=betaS,S=S,nonnegative=nonnegative)
+    for k,l in itertools.product(range(0,K),range(0,L)):
+        new_lambdaS[k,l] = gamma_draw(alpha[k,l],beta[k,l])
+    return new_lambdaS
 
 
 ###############################################################################

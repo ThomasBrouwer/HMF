@@ -5,12 +5,25 @@ Return (R,M) where M is the mask, and R is the dataset (missing values set to 0)
 
 import numpy
 
+data_folder = "/home/tab43/Documents/Projects/libraries/HMF/drug_sensitivity/data/overlap/"
+location_cell_line_names = data_folder+"features_cell_lines/cell_lines_features_full.txt"
+location_drug_names = data_folder+"features_drugs/drugs_full.txt"
+
+
 ''' Load the datasets and return the mask and values (missing = NaN) '''
 def load_data(file_name):
     dataset = numpy.genfromtxt(file_name,dtype=float,usemask=True,missing_values=numpy.nan)
     R, M = dataset.data, ~dataset.mask
     R[numpy.isnan(R)] = 0.
     return (R,M)
+    
+''' Return a list of drug names, and a list of cell line names. '''
+def load_names(cell_lines_file=location_cell_line_names, drugs_file=location_drug_names):
+    def extract_names(fin):
+        return [row.split("\n")[0] for row in fin.readlines()]
+    fin_cell_lines, fin_drugs = open(cell_lines_file, 'r'), open(drugs_file, 'r')
+    cell_line_names, drug_names = extract_names(fin_cell_lines), extract_names(fin_drugs)
+    return cell_line_names, drug_names
     
 ''' Same as load_data but remove entirely missing rows and columns, and return indices or rows and cols with observations '''
 def load_data_without_empty(file_name):

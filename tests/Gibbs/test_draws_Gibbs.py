@@ -4,7 +4,7 @@ Unit tests for the methods in draws_Gibbs.py.
 
 import sys
 sys.path.append("/home/tab43/Documents/Projects/libraries/")
-import bmf_models.code.Gibbs.draws_Gibbs as draws_Gibbs
+import HMF.code.Gibbs.draws_Gibbs as draws_Gibbs
 
 import numpy, itertools
 
@@ -55,6 +55,7 @@ tau = 3.
 alpha = 2.
 alphatau, betatau = 3, 1
 alpha0, beta0 = 6, 7
+alphaS, betaS = 4., 5.
 
 R_F, C_F, D_F = [(R,M,F,S,G,tau,alpha)], [(Cs,Ms,F,Ss,tau,alpha)], [(R,M,F,V,tau,alpha)]
 
@@ -85,12 +86,24 @@ F_list = [
     (3*numpy.ones((J,K)),False)
 ]        
 
-def test_draw_lambda():
+def test_draw_lambdat():
     for i in range(0,100):
-        lambdat = draws_Gibbs.draw_lambda(alpha0,beta0,F_list,K)
+        lambdat = draws_Gibbs.draw_lambdat(alpha0,beta0,F_list,K)
         assert lambdat.shape == (K,)
         for k in range(0,K):
             assert lambdat[k] > 0.
+            
+        
+###############################################################################
+######################## Draws for lambdan and lambdam ########################
+############################################################################### 
+
+def test_draw_lambdaS():
+    for i in range(0,100):
+        lambdan = draws_Gibbs.draw_lambdaS(alphaS,betaS,S,False)
+        assert lambdan.shape == (K,L)
+        for k,l in itertools.product(range(0,K),range(0,L)):
+            assert lambdan[k,l] > 0.
             
             
 ###############################################################################

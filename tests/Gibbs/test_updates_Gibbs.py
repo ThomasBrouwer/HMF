@@ -4,7 +4,7 @@ Unit tests for the methods in updates_Gibbs.py.
 
 import sys
 sys.path.append("/home/tab43/Documents/Projects/libraries/")
-import bmf_models.code.Gibbs.updates_Gibbs as updates_Gibbs
+import HMF.code.Gibbs.updates_Gibbs as updates_Gibbs
 
 import numpy, itertools
 
@@ -87,24 +87,67 @@ F_list = [
 ]        
 alpha0, beta0 = 4., 5.
         
-def test_alpha_lambda():
+def test_alpha_lambdat():
     expected_alphalambda = alpha0 + (I + I + J/2.)
-    alphalambda = updates_Gibbs.alpha_lambda(alpha0,F_list)
+    alphalambda = updates_Gibbs.alpha_lambdat(alpha0,F_list)
     assert alphalambda == expected_alphalambda
           
-def test_beta_lambda():
+def test_beta_lambdat():
     expected_betalambda = beta0 + (I + 2*I + 3**2*J/2.)
     for k in range(0,K):
-        betalambda = updates_Gibbs.beta_lambda(beta0,F_list,k)
+        betalambda = updates_Gibbs.beta_lambdat(beta0,F_list,k)
         assert betalambda == expected_betalambda
 
-def test_alpha_beta_lambda():
+def test_alpha_beta_lambdat():
     expected_alphalambda = alpha0 + (I + I + J/2.)
     expected_betalambda = beta0 + (I + 2*I + 3**2*J/2.)
     for k in range(0,K):
-        alphalambda, betalambda = updates_Gibbs.alpha_beta_lambda(alpha0,beta0,F_list,k)
+        alphalambda, betalambda = updates_Gibbs.alpha_beta_lambdat(alpha0,beta0,F_list,k)
         assert alphalambda == expected_alphalambda
         assert betalambda == expected_betalambda
+
+       
+###############################################################################
+##### Updates for the parameters of the posterior of lambdan and lambdam ######
+############################################################################### 
+        
+alphaS, betaS = 4., 5.
+def test_alpha_lambdaS():
+    # Real-valued
+    expected_alpha1 = numpy.ones((K,L)) * (alphaS + .5)
+    alpha1 = updates_Gibbs.alpha_lambdaS(alphaS,S,False)
+    assert numpy.array_equal(alpha1, expected_alpha1)
+    
+    # Nonnegative
+    expected_alpha2 = numpy.ones((K,L)) * (alphaS + 1.)
+    alpha2 = updates_Gibbs.alpha_lambdaS(alphaS,S,True)
+    assert numpy.array_equal(alpha2, expected_alpha2)
+          
+def test_beta_lambdaS():
+    # Real-valued
+    expected_beta1 = numpy.ones((K,L)) * (betaS + S[0,0]**2/2.)
+    beta1 = updates_Gibbs.beta_lambdaS(betaS,S,False)
+    assert numpy.array_equal(beta1, expected_beta1)
+    
+    # Nonnegative
+    expected_beta2 = numpy.ones((K,L)) * (betaS + S[0,0])
+    beta2 = updates_Gibbs.beta_lambdaS(betaS,S,True)
+    assert numpy.array_equal(beta2, expected_beta2)
+
+def test_alpha_beta_lambdaS():
+    # Real-valued
+    expected_alpha1 = numpy.ones((K,L)) * (alphaS + .5)
+    expected_beta1 = numpy.ones((K,L)) * (betaS + S[0,0]**2/2.)
+    alpha1, beta1 = updates_Gibbs.alpha_beta_lambdaS(alphaS,betaS,S,False)
+    assert numpy.array_equal(alpha1, expected_alpha1)
+    assert numpy.array_equal(beta1, expected_beta1)
+        
+    # Nonnegative
+    expected_alpha2 = numpy.ones((K,L)) * (alphaS + 1.)
+    expected_beta2 = numpy.ones((K,L)) * (betaS + S[0,0])
+    alpha2, beta2 = updates_Gibbs.alpha_beta_lambdaS(alphaS,betaS,S,True)
+    assert numpy.array_equal(alpha2, expected_alpha2)
+    assert numpy.array_equal(beta2, expected_beta2)
 
         
 ###############################################################################

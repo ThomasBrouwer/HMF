@@ -76,7 +76,8 @@ def test_init():
     priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
                'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
     settings = { 'priorF' : 'normal', 'priorG' : 'exponential', 'priorSn' : 'normal', 'priorSm' : 'exponential',
-                 'orderF' : 'rows', 'orderG' : 'columns', 'orderSn' : 'individual', 'orderSm' : 'rows', 'ARD' : True }
+                 'orderF' : 'rows', 'orderG' : 'columns', 'orderSn' : 'individual', 'orderSm' : 'rows', 
+                 'ARD' : True, 'element_sparsity' : True, }
     
     ''' 1. Dataset R relates same two entity types '''
     R = [(R0,Mn0,E0,E1,alphan[0]),(R1,Mn1,E1,E1,alphan[1]),(R2,Mn2,E1,E2,alphan[2])]
@@ -252,6 +253,7 @@ def test_init():
     assert HMF.order_Sn == ['individual','individual','individual']
     assert HMF.order_Sm == ['rows','rows']
     assert HMF.ARD == True
+    assert HMF.element_sparsity == True
     
     assert HMF.rows_F == True
     assert HMF.rows_G == [False]
@@ -304,16 +306,17 @@ def test_initialise():
     #U1t = {'entity0':[0,1], 'entity1':[2], 1337:[] }
     #U2t = {'entity0':[], 'entity1':[0,1], 1337:[2] }
     #Vt = {'entity0':[0], 'entity1':[], 1337:[1] }
-    Wt = {'entity0':[], 'entity1':[], 1337:[0]}
+    #Wt = {'entity0':[], 'entity1':[], 1337:[0]}
     E_per_Rn = [(E0,E1),(E0,E1),(E1,E2)]
     E_per_Cm = [E0,E2]
     E_per_Dl = [E2]
     
     alphatau, betatau = 1., 2.
     alpha0, beta0 = 6., 7.
+    alphaS, betaS = 9., 10.
     lambdaF, lambdaG = 3., 8.
     lambdaSn, lambdaSm = 4., 5.
-    priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
+    priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphaS':alphaS, 'betaS':betaS, 'alphatau':alphatau, 'betatau':betatau, 
                'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
                
     """
@@ -329,10 +332,11 @@ def test_initialise():
     - tau init random, exp
     """
     
-    ''' F Exp, G Exp, S Exp, ARD. F exp, G exp, S exp, lambdat exp, tau exp. '''
+    ''' F Exp, G Exp, S Exp, ARD, no element-wise sparsity. F exp, G exp, S exp, lambdat exp, tau exp. '''
     settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorSn' : 'exponential', 'priorSm' : 'exponential',
-                 'ARD' : True, 'orderF' : 'rows', 'orderG' : 'columns', 'orderSn' : 'individual', 'orderSm' : 'individual' }    
-    init = { 'F' : 'exp', 'G' : 'exp', 'Sn' : 'exp', 'Sm' : 'exp', 'lambdat' : 'exp', 'tau' : 'exp'}
+                 'orderF' : 'rows', 'orderG' : 'columns', 'orderSn' : 'individual', 'orderSm' : 'individual',
+                 'ARD' : True, 'element_sparsity': True }    
+    init = { 'F' : 'exp', 'G' : 'exp', 'Sn' : 'exp', 'Sm' : 'exp', 'lambdat' : 'exp', 'lambdaS': 'exp', 'tau' : 'exp'}
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
     
@@ -342,18 +346,22 @@ def test_initialise():
         for i,k in itertools.product(xrange(0,I[E1]),xrange(0,K[E1])):
             assert HMF.all_Ft[E1][i,k] == 1./HMF.all_lambdat[E1][k]
             
-    expected_all_taun = [0.90501075929910901,0.90501075929910901,6.5214198286413811]
+    expected_all_taun = [0.015669815208888795,0.015669815208888795,0.247363401258231]
     for n in range(0,N):
         E1,E2 = E_per_Rn[n]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
-            assert HMF.all_Sn[n][k,l] == 1./lambdaSn
+            expected_lambdan_kl = alphaS / float(betaS)
+            assert HMF.all_lambdan[n][k,l] == expected_lambdan_kl
+            assert HMF.all_Sn[n][k,l] == 1./expected_lambdan_kl
         assert HMF.all_taun[n] == expected_all_taun[n]
             
-    expected_all_taum = [0.47612886531245974,1.7230629295737439]
+    expected_all_taum = [0.0064256529448969129,3.1016219740810165]
     for m in range(0,M):
         E1 = E_per_Cm[m]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
-            assert HMF.all_Sm[m][k,l] == 1./lambdaSm
+            expected_lambdam_kl = alphaS / float(betaS)
+            assert HMF.all_lambdam[m][k,l] == expected_lambdam_kl
+            assert HMF.all_Sm[m][k,l] == 1./expected_lambdam_kl
         assert HMF.all_taum[m] == expected_all_taum[m]
             
     expected_all_taul = [4.1601208459214458]
@@ -363,10 +371,11 @@ def test_initialise():
             assert HMF.all_Gl[l][j,k] == 1./HMF.all_lambdat[E1][k]
         assert HMF.all_taul[l] == expected_all_taul[l]
             
-    ''' F Exp, G Exp, S N, no ARD. F random, G exp, Sn exp, Sm random, tau random. '''
+    ''' F Exp, G Exp, S N, no ARD, element-wise sparsity. F random, G exp, Sn exp, Sm random, tau random. '''
     settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorSn' : 'normal', 'priorSm' : 'normal',
-                 'ARD' : False, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
-    init = { 'F' : 'random', 'G' : 'exp', 'Sn' : 'exp', 'Sm' : 'random', 'tau' : 'random' }
+                 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows',
+                 'ARD' : False, 'element_sparsity' : False }    
+    init = { 'F' : 'random', 'G' : 'exp', 'Sn' : 'exp', 'Sm' : 'random', 'lambdaS': 'exp', 'tau' : 'random' }
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
     
@@ -377,7 +386,7 @@ def test_initialise():
     for n in range(0,N):
         E1,E2 = E_per_Rn[n]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
-            assert HMF.all_Sn[n][k,l] == 0.
+            assert HMF.all_Sn[n][k,l] == 0.01
         assert HMF.all_taun[n] >= 0.
             
     for m in range(0,M):
@@ -392,7 +401,7 @@ def test_initialise():
             assert HMF.all_Gl[l][j,k] == 1./lambdaG
         assert HMF.all_taul[l] >= 0.
             
-    ''' F N, G N, Sn Exp, Sm N, ARD. F kmeans, G exp, S random, lambdat random, tau random. '''
+    ''' F N, G N, Sn Exp, Sm N, ARD, no element-wise sparsity. F kmeans, G exp, S random, lambdat random, tau random. '''
     settings = { 'priorF' : 'normal', 'priorG' : 'normal', 'priorSn' : 'exponential', 'priorSm' : 'normal',
                  'ARD' : True, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
     init = { 'F' : 'kmeans', 'G' : 'exp', 'Sn' : 'random', 'Sm' : 'random', 'lambdat' : 'random', 'tau' : 'random' }
@@ -422,13 +431,14 @@ def test_initialise():
     for l in range(0,L):
         E1 = E_per_Dl[l]
         for j,k in itertools.product(xrange(0,J[l]),xrange(0,K[E1])):
-            assert HMF.all_Gl[l][j,k] == 0.
+            assert HMF.all_Gl[l][j,k] == 0.01
         assert HMF.all_taul[l] >= 0.
             
-    ''' F Exp, G N, S N, no ARD. F kmeans, G least, S least, lambdat random, tau random. '''
+    ''' F Exp, G N, S N, no ARD, no element-wise sparsity. F kmeans, G least, S least, lambdat random, tau random. '''
     settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorSn' : 'normal', 'priorSm' : 'normal', 
-                 'ARD' : False, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
-    init = { 'F' : 'kmeans', 'G' : 'least', 'Sn' : 'least', 'Sm' : 'least', 'lambdat' : 'random', 'tau' : 'random' }
+                 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows',
+                 'ARD' : False, 'element_sparsity' : False }    
+    init = { 'F': 'kmeans', 'G': 'least', 'Sn': 'least', 'Sm': 'least', 'lambdat': 'random', 'lambdaS': 'exp', 'tau': 'random' }
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.initialise(init)
     
@@ -512,8 +522,9 @@ def test_run():
     priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
                'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
     settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorSn' : 'normal', 'priorSm' : 'normal',
-                 'ARD' : True, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
-    init = { 'F' : 'kmeans', 'G' : 'least', 'Sn' : 'least', 'Sm' : 'least', 'lambdat' : 'random', 'tau' : 'random' }
+                 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows',
+                 'ARD' : True, 'element_sparsity': True }    
+    init = { 'F': 'kmeans', 'G': 'least', 'Sn': 'least', 'Sm': 'least', 'lambdat': 'random', 'lambdaS': 'random', 'tau': 'random' }
     iterations = 10
     
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
@@ -525,9 +536,11 @@ def test_run():
         assert len(HMF.iterations_all_Ft[E0]) == iterations
         assert len(HMF.iterations_all_lambdat[E0]) == iterations
     for n in range(0,N):
+        assert len(HMF.iterations_all_lambdan[n]) == iterations
         assert len(HMF.iterations_all_Sn[n]) == iterations
         assert len(HMF.iterations_all_taun[n]) == iterations
     for m in range(0,M):
+        assert len(HMF.iterations_all_lambdam[m]) == iterations
         assert len(HMF.iterations_all_Sm[m]) == iterations
         assert len(HMF.iterations_all_taum[m]) == iterations
     for l in range(0,L):
@@ -544,11 +557,13 @@ def test_run():
         for n in range(0,N):
             E0,E1 = E_per_Rn[n]
             for k,l in itertools.product(xrange(0,K[E0]),xrange(0,K[E1])):
+                assert HMF.iterations_all_lambdan[n][iteration][k,l] != HMF.iterations_all_lambdan[n][iteration-1][k,l]
                 assert HMF.iterations_all_Sn[n][iteration][k,l] != HMF.iterations_all_Sn[n][iteration-1][k,l]
             assert HMF.iterations_all_taun[n][iteration] != HMF.iterations_all_taun[n][iteration-1]
         for m in range(0,M):
             E0 = E_per_Cm[m]
             for k,l in itertools.product(xrange(0,K[E0]),xrange(0,K[E0])):
+                assert HMF.iterations_all_lambdam[m][iteration][k,l] != HMF.iterations_all_lambdam[m][iteration-1][k,l]
                 assert HMF.iterations_all_Sm[m][iteration][k,l] != HMF.iterations_all_Sm[m][iteration-1][k,l]
             assert HMF.iterations_all_taum[m][iteration] != HMF.iterations_all_taum[m][iteration-1]
         for l in range(0,l):
@@ -578,8 +593,10 @@ def test_approx_expectation():
         E[1] : [numpy.ones(K[E[1]]) * 1*m**2 for m in range(1,10+1)]
     }
     iterations_all_Sn = [[numpy.ones((K[E[0]],K[E[1]])) * 2*m**2 for m in range(1,10+1)]]
+    iterations_all_lambdan = [[numpy.ones((K[E[0]],K[E[1]])) * 2*m**2 for m in range(1,10+1)]]
     iterations_all_taun = [[m**2 for m in range(1,10+1)]]
     iterations_all_Sm = [[numpy.ones((K[E[1]],K[E[1]])) * 2*m**2 * 2 for m in range(1,10+1)]]
+    iterations_all_lambdam = [[numpy.ones((K[E[1]],K[E[1]])) * 2*m**2 * 2 for m in range(1,10+1)]]
     iterations_all_taum = [[m**2*2 for m in range(1,10+1)]]
     iterations_all_Gl = [[numpy.ones((J[0],K[E[1]])) * 2*m**2 * 3 for m in range(1,10+1)]]
     iterations_all_taul = [[m**2*3 for m in range(1,10+1)]]
@@ -589,8 +606,10 @@ def test_approx_expectation():
     expected_exp_lambda0 = numpy.array([9.+36.+81. for k in range(0,2)])
     expected_exp_lambda1 = numpy.array([(9.+36.+81.)*(1./3.) for k in range(0,4)])
     expected_exp_Sn = numpy.array([[(9.+36.+81.)*(2./3.) for l in range(0,4)] for k in range(0,2)])
+    expected_exp_lambdan = numpy.array([[(9.+36.+81.)*(2./3.) for l in range(0,4)] for k in range(0,2)])
     expected_exp_taun = (9.+36.+81.)/3.
     expected_exp_Sm = numpy.array([[(18.+72.+162.)*(2./3.) for l in range(0,4)] for k in range(0,4)])
+    expected_exp_lambdam = numpy.array([[(18.+72.+162.)*(2./3.) for l in range(0,4)] for k in range(0,4)])
     expected_exp_taum = (18.+72.+162.)/3.
     expected_exp_Gl = numpy.array([[(27.+108.+243.)*(2./3.) for k in range(0,4)] for j in range(0,6)])
     expected_exp_taul = (27.+108.+243.)/3.
@@ -607,15 +626,18 @@ def test_approx_expectation():
     priors = { 'alpha0':alpha0, 'beta0':beta0, 'alphatau':alphatau, 'betatau':betatau, 
                'lambdaF':lambdaF, 'lambdaG':lambdaG, 'lambdaSn':lambdaSn, 'lambdaSm':lambdaSm }
     settings = { 'priorF' : 'exponential', 'priorG' : 'normal', 'priorSn' : 'normal', 'priorSm' : 'normal', 
-                 'ARD' : True, 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows' }    
+                 'orderF' : 'columns', 'orderG' : 'rows', 'orderSn' : 'rows', 'orderSm' : 'rows',
+                 'ARD' : True, 'element_sparsity': True }    
     
     HMF = HMF_Gibbs(R,C,D,K,settings,priors)
     HMF.iterations = iterations
     HMF.iterations_all_Ft = iterations_all_Ft
     HMF.iterations_all_lambdat = iterations_all_lambdat
     HMF.iterations_all_Sn = iterations_all_Sn
+    HMF.iterations_all_lambdan = iterations_all_lambdan
     HMF.iterations_all_taun = iterations_all_taun
     HMF.iterations_all_Sm = iterations_all_Sm
+    HMF.iterations_all_lambdam = iterations_all_lambdam
     HMF.iterations_all_taum = iterations_all_taum
     HMF.iterations_all_Gl = iterations_all_Gl
     HMF.iterations_all_taul = iterations_all_taul
@@ -625,8 +647,10 @@ def test_approx_expectation():
     exp_lambda0 = HMF.approx_expectation_lambdat(E[0],burn_in,thinning)
     exp_lambda1 = HMF.approx_expectation_lambdat(E[1],burn_in,thinning)
     exp_Sn = HMF.approx_expectation_Sn(0,burn_in,thinning)
+    exp_lambdan = HMF.approx_expectation_lambdan(0,burn_in,thinning)
     exp_taun = HMF.approx_expectation_taun(0,burn_in,thinning)
     exp_Sm = HMF.approx_expectation_Sm(0,burn_in,thinning)
+    exp_lambdam = HMF.approx_expectation_lambdam(0,burn_in,thinning)
     exp_taum = HMF.approx_expectation_taum(0,burn_in,thinning)
     exp_Gl = HMF.approx_expectation_Gl(0,burn_in,thinning)
     exp_taul = HMF.approx_expectation_taul(0,burn_in,thinning)
@@ -636,8 +660,10 @@ def test_approx_expectation():
     assert numpy.array_equal(expected_exp_lambda0,exp_lambda0)
     assert numpy.array_equal(expected_exp_lambda1,exp_lambda1)
     assert numpy.array_equal(expected_exp_Sn,exp_Sn)
+    assert numpy.array_equal(expected_exp_lambdan,exp_lambdan)
     assert expected_exp_taun == exp_taun
     assert numpy.array_equal(expected_exp_Sm,exp_Sm)
+    assert numpy.array_equal(expected_exp_lambdam,exp_lambdam)
     assert expected_exp_taum == exp_taum
     assert numpy.array_equal(expected_exp_Gl,exp_Gl)
     assert expected_exp_taul == exp_taul

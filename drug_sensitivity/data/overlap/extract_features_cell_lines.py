@@ -27,11 +27,14 @@ cell_lines_features = make_lowercase_remove_dashes_spaces_dots_commas(cell_lines
 
 ''' Look up the cell lines we are interested in and extract the features - use the normalised names '''
 cell_lines_data = list(numpy.loadtxt("features_cell_lines/cell_lines.txt",dtype=str))
+cell_lines_full_data = list(numpy.loadtxt("features_cell_lines/cell_lines_full.txt",dtype=str))
 drugs_data = list(numpy.loadtxt("features_drugs/drugs.txt",dtype=str))
-cell_lines_selected, gene_expression_selected, cnv_selected, mutation_selected = [], [], [], []
-for cl in cell_lines_data:
+cell_lines_selected, cell_lines_selected_full = [], [] 
+gene_expression_selected, cnv_selected, mutation_selected = [], [], []
+for cl, cl_full in zip(cell_lines_data, cell_lines_full_data):
     if cl in cell_lines_features:
         cell_lines_selected.append(cl)
+        cell_lines_selected_full.append(cl_full) # this stores the full cell line name, rather than lowercase etc.
         index = cell_lines_features.index(cl)
         gene_expression_selected.append(gene_expression[index])
         cnv_selected.append(cnv[index])
@@ -52,6 +55,7 @@ mutation_selected = numpy.delete(mutation_selected,indices_mutation_zero_std,axi
 
 ''' Store the features for the cell lines we have features for '''
 numpy.savetxt('features_cell_lines/cell_lines_features.txt',cell_lines_selected,delimiter="\t",fmt="%s")
+numpy.savetxt('features_cell_lines/cell_lines_features_full.txt',cell_lines_selected_full,delimiter="\t",fmt="%s")
 numpy.savetxt('features_cell_lines/gene_expression.txt',gene_expression_selected,delimiter="\t")
 numpy.savetxt('features_cell_lines/cnv.txt',cnv_selected,delimiter="\t")
 numpy.savetxt('features_cell_lines/mutation.txt',mutation_selected,delimiter="\t")

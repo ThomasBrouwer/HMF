@@ -1,17 +1,28 @@
 '''
-DESCRIPTION
+MODEL
 
 Gibbs sampler for Bayesian Hybrid Matrix Factorisation.
 We use Gaussian or Exponential priors for the F's and G's, and ARD for model selection.
 Updates are done per row or column.
 
+- taun, taum, taul ~ Gamma(alphatau,betatau)
+
 - Ft_ik ~ N(0,lambdat_k^-1)  or ~ Exp(lambdat_k)
 
+If not using element-wise sparsity
 - Sn_kl ~ N(0,lambdaSn^-1) or ~ Exp(lambdaSn)
 - Sm_kl ~ N(0,lambdaSm^-1) or ~ Exp(lambdaSm)
+If using element-wise sparsity:
+- Sn_kl ~ N(0,(alpha^n_kl)^-1) or ~ Exp(alpha^n_kl)
+- Sm_kl ~ N(0,(alpha^m_kl)^-1) or ~ Exp(alpha^m_kl)
+- alpha^n_kl ~ Gamma(alpha^S, beta^S)
 
-- lambdat_k ~ Gamma(alpha0,beta0)
-- taun, taum, taul ~ Gamma(alphatau,betatau)
+If using ARD:
+- lambdat_k ~ Gamma(alpha0,beta0)               (if using ARD)
+
+---
+
+PARAMETERS
 
 We expect the following arguments:
 - R, a list of tuples (R^n,M^n,E1,E2,alpha) where:
@@ -31,41 +42,50 @@ We expect the following arguments:
     alpha  - positive real indicating how important this dataset is
 - K, a dictionary { entity1:K1, ..., entityT:KT } mapping an entity type to the number of clusters
 - settings, a dictionary defining the model settings
-    { 'priorF', 'priorG', priorSn', 'priorG', 'orderF', 'orderSn', 'orderSm', 'orderG', 'ARD' }
-    priorF:  defines prior over the Ft; 'exponential' or 'normal'
-    priorG:  defines prior over the Gl; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Dl.
-    priorSn: defines prior over the Sn; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Rn.
-    priorSm: defines prior over the Sm; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Cm.
-    orderF:  draw new values for F per column, or per row: 'columns' or 'rows'
-    orderG:  draw new values for G per column, or per row: 'columns' or 'rows'. Can be a string, or a list wth an entry per Dl.
-    orderSn: draw new values for Sn per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Rn.
-    orderSm: draw new values for Sm per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Cm.
-    ARD:     True if we use Automatic Relevance Determination over F and G, else False
+    { 'priorF', 'priorG', priorSn', 'priorG', 'orderF', 'orderSn', 'orderSm', 'orderG', 'ARD', 'element_sparsity' }
+    priorF:           defines prior over the Ft; 'exponential' or 'normal'
+    priorG:           defines prior over the Gl; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Dl.
+    priorSn:          defines prior over the Sn; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Rn.
+    priorSm:          defines prior over the Sm; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Cm.
+    orderF:           draw new values for F per column, or per row: 'columns' or 'rows'
+    orderG:           draw new values for G per column, or per row: 'columns' or 'rows'. Can be a string, or a list wth an entry per Dl.
+    orderSn:          draw new values for Sn per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Rn.
+    orderSm:          draw new values for Sm per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Cm.
+    ARD:              True if we use Automatic Relevance Determination over F and G, else False.
+                      If True, use all_lambdat dictionary. If False, use lambdaF value.
+    element_sparsity: True if we use element-wise sparsity on elements in S^n, S^m, else False.
+                      If True, use all_lambdan and all_lambdam lists. If False, use lambdaSn and lambdaSm values.
+                      
 - hyperparameters, a dictionary defining the priors over the taus, Fs, Ss,
     { 'alphatau', 'betatau', 'alpha0', 'beta0', 'lambdaSn', 'lambdaSm', 'lambdaF', 'lambdaG' }
     alphatau, betatau  - non-negative reals defining prior over noise parameters taun, taum, taul
     alpha0, beta0      - non-negative reals defining ARD prior over entity factors
+    alphaS, betaS      - non-negative reals defining element-wise sparsity prior over S^n, S^m
     lambdaSn, lambdaSm - non-negative reals defining prior over Sn and Sm matrices
     lambdaF            - nonnegative real defining the prior over the Ft (if ARD is False)
     lambdaG            - nonnegative real defining the prior over the Gl (if ARD is False) 
-    
+   
 We initialise the values of the Ft, Sn, Sm, Gl, lambdat, taun, taum, taul, 
 according to the given argument 'init', which is a dictionary:
-    { 'F', 'G', 'Sn', 'Sm', 'lambdat', 'tau' }
+    { 'F', 'G', 'Sn', 'Sm', 'lambdat', 'lambdaS', 'tau' }
 Options:
 - 'random' -> draw initial values randomly from model definition, using given hyperparameters
 - 'exp'    -> use the expectation of the model definition, using given hyperparameters
-- 'kmeans' -> initialise F and G using Kmeans on the rows of R
-- 'least'  -> initialise Sn, Sm using least squares (find S to minimise ||R-FSG.T||^2)
+- 'kmeans' -> initialise Ft using Kmeans on the rows of R
+- 'least'  -> initialise Sn, Sm, G using least squares (find S to minimise ||R-FSG.T||^2, or G for ||D-FG.T||^2)
+
 F         -> ['random','exp','kmeans']
 G, Sn, Sm -> ['random','exp','least']
-lambdat   -> ['random','exp']
+lambdat   -> ['random','exp']           (for ARD)
+lambdaS   -> ['random','exp']           (for element-wise sparsity S^n, S^m)
 tau       -> ['random','exp']
+
 For G, Sn, and Sm, this can be a single string, or a list with elements per Dl, Rn, and Cm.
 
 ---
 
 USAGE
+
     HMF = hmf_gibbs(R,C,D,K,settings,priors)
     HMF.initisalise(init)
     HMF.run(iterations)
@@ -74,7 +94,7 @@ Or:
     HMF.train(init,iterations)
 Or:
     HMF = hmf_gibbs(R,C,D,K,settings,priors)
-    HMF.train(init,iterations,M_test={'M':M_test, 'dataset':'R' or 'D', 'index': index})
+    HMF.train(init,iterations,M_test={'M':M_test, 'dataset':'R' or 'D', 'index': index (n or l)})
 (In this last case, we measure the performance on the test set while running)
     
 The expectation can be computed by specifying a burn-in and thinning rate, and using:
@@ -82,6 +102,8 @@ The expectation can be computed by specifying a burn-in and thinning rate, and u
     HMF.approx_expectation_Gl(l,burn_in,thinning)
     HMF.approx_expectation_Sn(n,burn_in,thinning)
     HMF.approx_expectation_Sm(m,burn_in,thinning)
+    HMF.approx_expectation_lambdan(n,burn_in,thinning)
+    HMF.approx_expectation_lambdam(m,burn_in,thinning)
     HMF.approx_expectation_taun(n,burn_in,thinning)
     HMF.approx_expectation_taum(m,burn_in,thinning)
     HMF.approx_expectation_taul(l,burn_in,thinning)
@@ -103,6 +125,8 @@ We also store information about each iteration, namely:
 - iterations_all_Sm      - list of length M of lists of numpy arrays of Sn at each iteration (so M x It x size Sm)
 - iterations_all_Gl      - list of length L of lists of numpy arrays of Gl at each iteration (so L x It x size Gl)
 - iterations_all_lambdat - dictionary from entity type name to list of numpy vectors of lambdat at each iterations
+- iterations_all_lambdan - list of length N of lists of lambda^n_kl at each iterations
+- iterations_all_lambdam - list of length M of lists of lambda^m_kl at each iterations
 - iterations_all_taun    - list of length N of lists of taun values at each iteration
 - iterations_all_taum    - list of length M of lists of taum values at each iteration
 
@@ -122,8 +146,17 @@ quality(metric,thinning,burn_in) function:
 import sys
 sys.path.append("/home/tab43/Documents/Projects/libraries/")
 
-from HMF.code.Gibbs.draws_Gibbs import draw_tau, draw_lambda, draw_F, draw_S
-from HMF.code.Gibbs.init_Gibbs import init_lambdak, init_FG, init_S, init_V, init_tau
+from HMF.code.Gibbs.draws_Gibbs import draw_tau
+from HMF.code.Gibbs.draws_Gibbs import draw_F
+from HMF.code.Gibbs.draws_Gibbs import draw_S
+from HMF.code.Gibbs.draws_Gibbs import draw_lambdat
+from HMF.code.Gibbs.draws_Gibbs import draw_lambdaS
+from HMF.code.Gibbs.init_Gibbs import init_lambdak
+from HMF.code.Gibbs.init_Gibbs import init_FG
+from HMF.code.Gibbs.init_Gibbs import init_S
+from HMF.code.Gibbs.init_Gibbs import init_V
+from HMF.code.Gibbs.init_Gibbs import init_tau
+from HMF.code.Gibbs.init_Gibbs import init_lambdaS
 
 import numpy, math, time
 
@@ -131,15 +164,16 @@ import numpy, math, time
 ''' Default settings '''
 IMPORTANCE_DATASET = 1.
 DEFAULT_SETTINGS = {
-    'priorF'  : 'exponential',
-    'priorG'  : 'normal',
-    'priorSn' : 'normal',
-    'priorSm' : 'normal',
-    'orderF'  : 'columns',
-    'orderG'  : 'columns',
-    'orderSn' : 'rows',
-    'orderSm' : 'rows',
-    'ARD'     : True
+    'priorF'           : 'exponential',
+    'priorG'           : 'normal',
+    'priorSn'          : 'normal',
+    'priorSm'          : 'normal',
+    'orderF'           : 'columns',
+    'orderG'           : 'columns',
+    'orderSn'          : 'rows',
+    'orderSm'          : 'rows',
+    'ARD'              : True,
+    'element_sparsity' : False,
 }
 OPTIONS_PRIOR_F = ['exponential','normal']
 OPTIONS_PRIOR_S = ['exponential','normal']
@@ -153,10 +187,12 @@ DEFAULT_PRIORS = {
     'betatau'  : 1.,
     'alpha0'   : 0.001,
     'beta0'    : 0.001,
+    'alphaS'   : 0.001,
+    'betaS'    : 0.001,
     'lambdaF'  : 1.,
     'lambdaG'  : 1.,
     'lambdaSn' : 1.,
-    'lambdaSm' : 1.
+    'lambdaSm' : 1.,
 }
 
 DEFAULT_INIT = {
@@ -165,12 +201,14 @@ DEFAULT_INIT = {
     'Sn'      : 'least',
     'Sm'      : 'least',
     'lambdat' : 'exp',
-    'tau'     : 'exp'
+    'lambdaS' : 'exp',
+    'tau'     : 'exp',
 }
 OPTIONS_INIT_F = ['kmeans','random','exp']
 OPTIONS_INIT_G = ['least','random','exp']
 OPTIONS_INIT_S = ['least','random','exp']
 OPTIONS_INIT_LAMBDAT = ['random','exp']
+OPTIONS_INIT_LAMBDAS = ['random','exp']
 OPTIONS_INIT_TAU = ['random','exp']
 
 METRICS_PERFORMANCE = ['MSE','R^2','Rp'] 
@@ -209,7 +247,10 @@ class HMF_Gibbs:
         self.all_taun = []    # list of taun values, for Rn
         self.all_taum = []    # list of taum values, for Rm
         self.all_taul = []    # list of taul values, for Rl
+        
         self.all_lambdat = {} # dictionary from entity type name to lambdat vector
+        self.all_lambdan = [] # list of (lambda^n)_kl matrices, for Sn
+        self.all_lambdam = [] # list of (lambda^m)_kl matrices, for Sm
         
         self.K = K            # dictionary from entity name to Kt
         self.I = {}           # dictionary from entity name to It
@@ -323,6 +364,8 @@ class HMF_Gibbs:
         self.betatau =  hyperparameters.get('betatau',  DEFAULT_PRIORS['betatau'])
         self.alpha0 =   hyperparameters.get('alpha0',   DEFAULT_PRIORS['alpha0'])
         self.beta0 =    hyperparameters.get('beta0',    DEFAULT_PRIORS['beta0'])
+        self.alphaS =   hyperparameters.get('alphaS',   DEFAULT_PRIORS['alphaS'])
+        self.betaS =    hyperparameters.get('betaS',    DEFAULT_PRIORS['betaS'])
         self.lambdaF =  hyperparameters.get('lambdaF',  DEFAULT_PRIORS['lambdaF'])
         self.lambdaSn = hyperparameters.get('lambdaSn', DEFAULT_PRIORS['lambdaSn'])
         self.lambdaSm = hyperparameters.get('lambdaSm', DEFAULT_PRIORS['lambdaSm'])
@@ -366,7 +409,8 @@ class HMF_Gibbs:
         for order_Sm in self.order_Sm:
             assert order_Sm in OPTIONS_ORDER_S, "Unexpected order for Sm: %s." % order_Sm
         
-        self.ARD =      settings.get('ARD',     DEFAULT_SETTINGS['ARD'])
+        self.ARD =              settings.get('ARD',              DEFAULT_SETTINGS['ARD'])
+        self.element_sparsity = settings.get('element_sparsity', DEFAULT_SETTINGS['element_sparsity'])
         
         self.rows_F =          True if self.order_F  == 'rows' else False
         self.rows_G =         [True if order_G  == 'rows' else False for order_G  in self.order_G ]
@@ -392,6 +436,7 @@ class HMF_Gibbs:
         self.init_Sm =      init.get('Sm',     DEFAULT_INIT['Sm'])
         self.init_Sm =      self.init_Sm if isinstance(self.init_Sm,list) else [self.init_Sm for m in range(0,self.M)]
         self.init_lambdat = init.get('lambdat',DEFAULT_INIT['lambdat'])
+        self.init_lambdaS = init.get('lambdaS',DEFAULT_INIT['lambdaS'])
         self.init_tau =     init.get('tau',    DEFAULT_INIT['tau'])
         
         assert self.init_F in OPTIONS_INIT_F, "Unexpected init for F: %s." % self.init_F
@@ -402,6 +447,7 @@ class HMF_Gibbs:
         for init_Sm in self.init_Sm:
             assert init_Sm in OPTIONS_INIT_S, "Unexpected init for Sm: %s." % init_Sm
         assert self.init_lambdat in OPTIONS_INIT_LAMBDAT, "Unexpected init for lambdat: %s." % self.init_lambdat
+        assert self.init_lambdaS in OPTIONS_INIT_LAMBDAS, "Unexpected init for lambdaS: %s." % self.init_lambdaS
         assert self.init_tau in OPTIONS_INIT_TAU, "Unexpected init for tau: %s." % self.init_tau
         
         ''' Initialise the ARD: lambdat '''
@@ -414,6 +460,32 @@ class HMF_Gibbs:
                     beta0=self.beta0)
                 for E in self.all_E            
             }      
+        
+        ''' Initialise the element-wise sparsity S^n, S^m: lambda^n, lambda^m '''
+        if self.element_sparsity:
+            # Initialise S^n
+            for n in range(0,self.N):
+                E1,E2 = self.E_per_Rn[n]
+                lambdan = init_lambdaS(
+                    init=self.init_lambdaS,
+                    K=self.K[E1],
+                    L=self.K[E2],
+                    alphaS=self.alphaS,
+                    betaS=self.betaS,
+                )
+                self.all_lambdan.append(lambdan) 
+            
+            # Initialise S^m
+            for m in range(0,self.M):
+                E = self.E_per_Cm[m]
+                lambdam = init_lambdaS(
+                    init=self.init_lambdaS,
+                    K=self.K[E],
+                    L=self.K[E],
+                    alphaS=self.alphaS,
+                    betaS=self.betaS,
+                )           
+                self.all_lambdam.append(lambdam) 
         
         ''' Initialise the Ft - for KMeans use first dataset we can find with 
             at least one observed entry for each entity instance. '''
@@ -459,13 +531,14 @@ class HMF_Gibbs:
         for n in range(0,self.N):
             E1,E2 = self.E_per_Rn[n]
             
-            lambdaS = self.lambdaSn * numpy.ones((self.K[E1],self.K[E2]))
+            lambdaSn = self.all_lambdan[n] if self.element_sparsity \
+                       else self.lambdaSn * numpy.ones((self.K[E1],self.K[E2]))            
             Sn = init_S(
                 prior=self.prior_Sn[n],
                 init=self.init_Sn[n],
                 K=self.K[E1],
                 L=self.K[E2],
-                lambdaS=lambdaS,
+                lambdaS=lambdaSn,
                 R=self.all_Rn[n],
                 M=self.all_Mn[n],
                 F=self.all_Ft[E1],
@@ -487,13 +560,14 @@ class HMF_Gibbs:
         for m in range(0,self.M):
             E = self.E_per_Cm[m]
             
-            lambdaS = self.lambdaSm * numpy.ones((self.K[E],self.K[E]))
+            lambdaSm = self.all_lambdam[m] if self.element_sparsity \
+                       else self.lambdaSm * numpy.ones((self.K[E],self.K[E]))
             Sm = init_S(
                 prior=self.prior_Sm[m],
                 init=self.init_Sm[m],
                 K=self.K[E],
                 L=self.K[E],
-                lambdaS=lambdaS,
+                lambdaS=lambdaSm,
                 R=self.all_Cm[m],
                 M=self.all_Mm[m],
                 F=self.all_Ft[E],
@@ -511,8 +585,8 @@ class HMF_Gibbs:
                 S=self.all_Sm[m])
             self.all_taum.append(taum)
       
-        print "Finished initialising with settings: F: %s. G: %s. Sn: %s. Sm: %s. lambdat: %s. tau: %s." % \
-            (self.init_F,self.init_G,self.init_Sn,self.init_Sm,self.init_lambdat,self.init_tau)
+        print "Finished initialising with settings: F: %s. G: %s. Sn: %s. Sm: %s. lambdat: %s. lambdaS: %s. tau: %s." % \
+            (self.init_F,self.init_G,self.init_Sn,self.init_Sm,self.init_lambdat,self.init_lambdaS,self.init_tau)
       
       
     def run(self, iterations, M_test={}):
@@ -527,6 +601,8 @@ class HMF_Gibbs:
         self.iterations_all_lambdat = {E:[] for E in self.all_E}
         self.iterations_all_Sn =      [[] for n in range(0,self.N)]
         self.iterations_all_Sm =      [[] for m in range(0,self.M)]
+        self.iterations_all_lambdan = [[] for n in range(0,self.N)]
+        self.iterations_all_lambdam = [[] for m in range(0,self.M)]
         self.iterations_all_Gl =      [[] for l in range(0,self.L)]
         self.iterations_all_taun =    [[] for n in range(0,self.N)]
         self.iterations_all_taum =    [[] for m in range(0,self.M)]
@@ -571,11 +647,31 @@ class HMF_Gibbs:
                     Fs = [(self.all_Ft[E],self.nonnegative_F)]
                     for l in self.Wt[E]:
                         Fs.append((self.all_Gl[l],self.nonnegative_G[l]))
-                    self.all_lambdat[E] = draw_lambda(
+                    self.all_lambdat[E] = draw_lambdat(
                         alpha0=self.alpha0,
                         beta0=self.beta0,
                         Fs=Fs,
                         K=self.K[E])
+                        
+            ''' Draw new values for the lambdan, lambdam '''
+            if self.element_sparsity:
+                for n in range(0,self.N):
+                    E1,E2 = self.E_per_Rn[n]
+                    self.all_lambdan[n] = draw_lambdaS(
+                        alphaS=self.alphaS,
+                        betaS=self.betaS,
+                        S=self.all_Sn[n],
+                        nonnegative=self.nonnegative_Sn[n],
+                    )
+                
+                for m in range(0,self.M):
+                    E = self.E_per_Cm[m]
+                    self.all_lambdam[m] = draw_lambdaS(
+                        alphaS=self.alphaS,
+                        betaS=self.betaS,
+                        S=self.all_Sm[m],
+                        nonnegative=self.nonnegative_Sm[m],
+                    )
                         
             ''' Draw new values for the Ft '''
             for E in self.all_E:
@@ -602,7 +698,8 @@ class HMF_Gibbs:
             ''' Draw new values for the Sn '''
             for n in range(0,self.N):
                 E1,E2 = self.E_per_Rn[n]
-                lambdaSn = self.lambdaSn * numpy.ones((self.K[E1],self.K[E2]))
+                lambdaSn = self.all_lambdan[n] if self.element_sparsity \
+                           else self.lambdaSn * numpy.ones((self.K[E1],self.K[E2]))   
                 self.all_Sn[n] = draw_S(
                     dataset=self.all_Rn[n],
                     mask=self.all_Mn[n],
@@ -618,7 +715,8 @@ class HMF_Gibbs:
             ''' Draw new values for the Sm '''
             for m in range(0,self.M):
                 E = self.E_per_Cm[m]
-                lambdaSm = self.lambdaSm * numpy.ones((self.K[E],self.K[E]))
+                lambdaSm = self.all_lambdam[m] if self.element_sparsity \
+                           else self.lambdaSm * numpy.ones((self.K[E],self.K[E]))
                 self.all_Sm[m] = draw_S(
                     dataset=self.all_Cm[m],
                     mask=self.all_Mm[m],
@@ -670,9 +768,13 @@ class HMF_Gibbs:
                     self.iterations_all_lambdat[E].append(numpy.copy(self.all_lambdat[E]))
                 self.iterations_all_Ft[E].append(numpy.copy(self.all_Ft[E]))
             for n in range(0,self.N):
+                if self.element_sparsity:
+                    self.iterations_all_lambdan[n].append(numpy.copy(self.all_lambdan[n]))
                 self.iterations_all_Sn[n].append(numpy.copy(self.all_Sn[n]))
                 self.iterations_all_taun[n].append(self.all_taun[n])
             for m in range(0,self.M):
+                if self.element_sparsity:
+                    self.iterations_all_lambdam[m].append(numpy.copy(self.all_lambdam[m]))
                 self.iterations_all_Sm[m].append(numpy.copy(self.all_Sm[m]))
                 self.iterations_all_taum[m].append(self.all_taum[m])
             for l in range(0,self.L):
@@ -735,11 +837,23 @@ class HMF_Gibbs:
         indices = range(burn_in,self.iterations,thinning)  
         return numpy.array([self.iterations_all_Sn[n][i] for i in indices]).sum(axis=0) / float(len(indices))   
       
+    def approx_expectation_lambdan(self,n,burn_in,thinning):
+        ''' Expectation of lambdan '''
+        assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
+        indices = range(burn_in,self.iterations,thinning)  
+        return numpy.array([self.iterations_all_lambdan[n][i] for i in indices]).sum(axis=0) / float(len(indices))   
+      
     def approx_expectation_Sm(self,m,burn_in,thinning):
         ''' Expectation of Sm '''
         assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
         indices = range(burn_in,self.iterations,thinning)  
         return numpy.array([self.iterations_all_Sm[m][i] for i in indices]).sum(axis=0) / float(len(indices))   
+      
+    def approx_expectation_lambdam(self,m,burn_in,thinning):
+        ''' Expectation of lambdam '''
+        assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
+        indices = range(burn_in,self.iterations,thinning)  
+        return numpy.array([self.iterations_all_lambdam[m][i] for i in indices]).sum(axis=0) / float(len(indices))   
       
     def approx_expectation_taun(self,n,burn_in,thinning):
         ''' Expectation of taun '''
@@ -764,7 +878,9 @@ class HMF_Gibbs:
         self.exp_Ft =      { E:self.approx_expectation_Ft(E,burn_in,thinning)      for E in self.all_E }
         self.exp_lambdat = { E:self.approx_expectation_lambdat(E,burn_in,thinning) for E in self.all_E }
         self.exp_Sn =      [ self.approx_expectation_Sn(n,burn_in,thinning)        for n in range(0,self.N) ]
+        self.exp_lambdan = [ self.approx_expectation_lambdan(n,burn_in,thinning)   for n in range(0,self.N) ]
         self.exp_Sm =      [ self.approx_expectation_Sm(m,burn_in,thinning)        for m in range(0,self.M) ]
+        self.exp_lambdam = [ self.approx_expectation_lambdam(m,burn_in,thinning)   for m in range(0,self.M) ]
         self.exp_Gl =      [ self.approx_expectation_Gl(l,burn_in,thinning)        for l in range(0,self.L) ]
         self.exp_taun =    [ self.approx_expectation_taun(n,burn_in,thinning)      for n in range(0,self.N) ]
         self.exp_taum =    [ self.approx_expectation_taum(m,burn_in,thinning)      for m in range(0,self.M) ]

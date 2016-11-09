@@ -71,6 +71,20 @@ def init_lambdak(init,K,alpha0,beta0):
     return lambdak
         
 ###############################################################################
+########################### Initialisation lambdak ############################
+###############################################################################
+
+def init_lambdaS(init,K,L,alphaS,betaS):
+    ''' Initialise the lambda^n_kl or lambda^m_kl parameters using the model definition. Init in ['random','exp']. '''
+    options = ['random','exp']
+    assert init in options, "Unknown initialisation option for element-wise sparsity lambda^S: %s. Options are %s." % (init,options)
+    
+    lambdaS = numpy.zeros((K,L))
+    for k,l in itertools.product(range(0,K),range(0,L)):
+        lambdaS[k,l] = gamma_draw(alphaS,betaS) if init == 'random' else alphaS / float(betaS)
+    return lambdaS
+        
+###############################################################################
 ########################### Initialisation U and V ############################
 ###############################################################################
         

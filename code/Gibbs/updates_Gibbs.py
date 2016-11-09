@@ -241,7 +241,7 @@ def row_mu_S(dataset,mask,tau,alpha,F,S,G,lambdaSk,precision_Sk,k,nonnegative):
 ########## Updates for the parameters of the posterior of lambda_t ############
 ############################################################################### 
         
-def alpha_lambda(alpha0,Fs):
+def alpha_lambdat(alpha0,Fs):
     ''' Return the value for alpha for the Gibbs sampler, for the ARD. '''
     alpha = alpha0
     for F,nonneg in Fs:
@@ -249,7 +249,7 @@ def alpha_lambda(alpha0,Fs):
         alpha += I if nonneg else I / 2.
     return alpha
           
-def beta_lambda(beta0,Fs,k):
+def beta_lambdat(beta0,Fs,k):
     ''' Return the value for beta for the Gibbs sampler, for the kth ARD. '''
     beta = beta0
     for F,nonneg in Fs:
@@ -258,24 +258,48 @@ def beta_lambda(beta0,Fs,k):
         
         
 ###############################################################################
+########## Updates for the parameters of the posterior of lambda_t ############
+############################################################################### 
+        
+def alpha_lambdaS(alphaS,S,nonnegative):
+    ''' Return the values for alpha for the Gibbs sampler, for the element-wise sparsity on S^n, S^m. '''
+    return alphaS + numpy.ones(S.shape) * ( 1. if nonnegative else .5 )
+          
+def beta_lambdaS(betaS,S,nonnegative):
+    ''' Return the value for beta for the Gibbs sampler, for the element-wise sparsity on S^n, S^m. '''
+    return betaS + ( S if nonnegative else S**2 / 2. )
+        
+        
+###############################################################################
 ################# Return both parameters for the variables ####################
 ###############################################################################
         
 def alpha_beta_tau(alphatau,betatau,dataset,mask,F,G,S=None):
+    ''' Return alpha and beta for the noise parameter tau. '''
     alpha = alpha_tau(
         alphatau=alphatau,mask=mask)
     beta = beta_tau(
         betatau=betatau,dataset=dataset,mask=mask,F=F,G=G,S=S)    
     return (alpha,beta)
     
-def alpha_beta_lambda(alpha0,beta0,Fs,k):
-    alpha = alpha_lambda(
+def alpha_beta_lambdat(alpha0,beta0,Fs,k):
+    ''' Returna value for alpha and beta, for lambdak (ARD). '''
+    alpha = alpha_lambdat(
         alpha0=alpha0,Fs=Fs)
-    beta = beta_lambda(
+    beta = beta_lambdat(
         beta0=beta0,Fs=Fs,k=k)
+    return (alpha,beta)
+    
+def alpha_beta_lambdaS(alphaS,betaS,S,nonnegative):
+    ''' Return an array of alpha and beta values for the element-wise sparsity of S^n or S^m. '''
+    alpha = alpha_lambdaS(
+        alphaS=alphaS,S=S,nonnegative=nonnegative)
+    beta = beta_lambdaS(
+        betaS=betaS,S=S,nonnegative=nonnegative)
     return (alpha,beta)
 
 def column_mu_tau_F(R,C,D,lambdaF,k,nonnegative):
+    ''' Return a vector of mu and tau values, for a column of Ft. '''
     tau_Fk = column_tau_F(
         R=R,C=C,D=D,lambdaF=lambdaF,k=k,nonnegative=nonnegative)
     mu_Fk = column_mu_F(
@@ -283,6 +307,7 @@ def column_mu_tau_F(R,C,D,lambdaF,k,nonnegative):
     return (mu_Fk,tau_Fk)
     
 def row_mu_precision_F(R,C,D,lambdaF,i,nonnegative):
+    ''' Return a vector for mu and matrix for the precision values, for a row of Ft. '''
     precision_Fi = row_precision_F(
         R=R,C=C,D=D,lambdaF=lambdaF,i=i,nonnegative=nonnegative)
     mu_Fi = row_mu_F(
@@ -290,6 +315,7 @@ def row_mu_precision_F(R,C,D,lambdaF,i,nonnegative):
     return (mu_Fi,precision_Fi)
 
 def individual_mu_tau_S(dataset,mask,tau,alpha,F,S,G,lambdaSkl,k,l,nonnegative):
+    ''' Return a value for mu and tau, for an element in S^n or S^m. '''
     tau_Skl = individual_tau_S(
         dataset=dataset,mask=mask,tau=tau,alpha=alpha,F=F,S=S,G=G,lambdaSkl=lambdaSkl,k=k,l=l,nonnegative=nonnegative)
     mu_Skl = individual_mu_S(
@@ -297,6 +323,7 @@ def individual_mu_tau_S(dataset,mask,tau,alpha,F,S,G,lambdaSkl,k,l,nonnegative):
     return (mu_Skl,tau_Skl)
     
 def row_mu_precision_S(dataset,mask,tau,alpha,F,S,G,lambdaSk,k,nonnegative):
+    ''' Return a vector for mu and matrix for the precision values, for a row in S^n or S^m. '''
     precision_Sk = row_precision_S(
         dataset=dataset,mask=mask,tau=tau,alpha=alpha,F=F,S=S,G=G,lambdaSk=lambdaSk,k=k,nonnegative=nonnegative)
     mu_Sk = row_mu_S(
