@@ -697,47 +697,6 @@ class HMF_Gibbs:
                         nonnegative=self.nonnegative_Sm[m],
                     )
                         
-            ''' Draw new values for the alphan, alpham, alphal '''
-            if self.importance_learning:
-                for n in range(0,self.N):
-                    E1,E2 = self.E_per_Rn[n]
-                    self.all_alphan[n] = draw_importance(
-                        alphaA=self.alphaA,
-                        betaA=self.betaA,
-                        tau=self.all_taun[n],
-                        dataset=self.all_Rn[n],
-                        mask=self.all_Mn[n],
-                        F=self.all_Ft[E1],
-                        G=self.all_Ft[E2],
-                        S=self.all_Sn[n],
-                    )
-                    
-                for m in range(0,self.M):
-                    E = self.E_per_Cm[m]
-                    self.all_alpham[m] = draw_importance(
-                        alphaA=self.alphaA,
-                        betaA=self.betaA,
-                        tau=self.all_taum[m],
-                        dataset=self.all_Cm[m],
-                        mask=self.all_Mm[m],
-                        F=self.all_Ft[E],
-                        G=self.all_Ft[E],
-                        S=self.all_Sm[m],
-                    )
-                     
-                for l in range(0,self.L):
-                    E = self.E_per_Dl[l]
-                    self.all_alphal[l] = draw_importance(
-                        alphaA=self.alphaA,
-                        betaA=self.betaA,
-                        tau=self.all_taul[l],
-                        dataset=self.all_Dl[l],
-                        mask=self.all_Ml[l],
-                        F=self.all_Ft[E],
-                        G=self.all_Gl[l],
-                    )    
-                
-                        
             ''' Draw new values for the Ft '''
             for E in self.all_E:
                 R, C, D = self.construct_RCD(E)
@@ -829,6 +788,46 @@ class HMF_Gibbs:
                     mask=self.all_Ml[l],
                     F=self.all_Ft[E],
                     G=self.all_Gl[l])
+                
+            ''' Draw new values for the alphan, alpham, alphal '''
+            if self.importance_learning:
+                for n in range(0,self.N):
+                    E1,E2 = self.E_per_Rn[n]
+                    self.all_alphan[n] = draw_importance(
+                        alphaA=self.alphaA,
+                        betaA=self.betaA,
+                        tau=self.all_taun[n],
+                        dataset=self.all_Rn[n],
+                        mask=self.all_Mn[n],
+                        F=self.all_Ft[E1],
+                        G=self.all_Ft[E2],
+                        S=self.all_Sn[n],
+                    )
+                    
+                for m in range(0,self.M):
+                    E = self.E_per_Cm[m]
+                    self.all_alpham[m] = draw_importance(
+                        alphaA=self.alphaA,
+                        betaA=self.betaA,
+                        tau=self.all_taum[m],
+                        dataset=self.all_Cm[m],
+                        mask=self.all_Mm[m],
+                        F=self.all_Ft[E],
+                        G=self.all_Ft[E],
+                        S=self.all_Sm[m],
+                    )
+                     
+                for l in range(0,self.L):
+                    E = self.E_per_Dl[l]
+                    self.all_alphal[l] = draw_importance(
+                        alphaA=self.alphaA,
+                        betaA=self.betaA,
+                        tau=self.all_taul[l],
+                        dataset=self.all_Dl[l],
+                        mask=self.all_Ml[l],
+                        F=self.all_Ft[E],
+                        G=self.all_Gl[l],
+                    )    
                 
             ''' Store the draws - have to make a deep copy for the dicts and lists '''
             for E in self.all_E:
