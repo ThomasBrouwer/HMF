@@ -24,13 +24,16 @@ settings = {
     'orderG'  : 'columns',
     'orderSn' : 'rows',
     'orderSm' : 'individual',
-    'ARD'     : True
+    'ARD'     : True,
+    'importance_learning' : True,
 }
 hyperparameters = {
     'alphatau' : 1.,
     'betatau'  : 1.,
     'alpha0'   : 0.001,
     'beta0'    : 0.001,
+    'alphaS'   : 1.,
+    'betaS'    : 1.,
     'lambdaF'  : 0.1,
     'lambdaG'  : 0.1,
     'lambdaSn' : 0.1,
@@ -45,7 +48,7 @@ init = {
     'tau'     : 'exp'
 }
 
-iterations, burn_in, thinning = 100, 80, 2
+iterations, burn_in, thinning = 20, 10, 2
 
 N,M,L = 2,1,2
 E = [1,2]
@@ -99,32 +102,43 @@ iterations_all_taun = HMF.iterations_all_taun
 iterations_all_taum = HMF.iterations_all_taum
 iterations_all_taul = HMF.iterations_all_taul
 
+iterations_all_alphan = HMF.iterations_all_alphan
+iterations_all_alpham = HMF.iterations_all_alpham
+iterations_all_alphal = HMF.iterations_all_alphal
+
 
 '''Plot tau against iterations to see that it converges '''
-f, axarr = plt.subplots(5, sharex=True)
+f, axarr = plt.subplots(5, 2, sharex='col')
 x = range(1,len(iterations_all_taun[0])+1)
-axarr[0].set_title('Convergence of values')
-axarr[0].plot(x, iterations_all_taun[0])    
-axarr[0].set_ylabel("taun_1")
-axarr[1].plot(x, iterations_all_taun[1]) 
-axarr[1].set_ylabel("taun_2")
-axarr[2].plot(x, iterations_all_taum[0]) 
-axarr[2].set_ylabel("taum_1")
-axarr[3].plot(x, iterations_all_taul[0]) 
-axarr[3].set_ylabel("taul_1")
-axarr[4].plot(x, iterations_all_taul[1]) 
-axarr[4].set_ylabel("taul_2")
-axarr[4].set_xlabel("Iterations")
+axarr[0][0].set_title('Convergence of values')
+axarr[0][0].plot(x, iterations_all_taun[0])    
+axarr[0][0].set_ylabel("taun_1")
+axarr[1][0].plot(x, iterations_all_taun[1]) 
+axarr[1][0].set_ylabel("taun_2")
+axarr[2][0].plot(x, iterations_all_taum[0]) 
+axarr[2][0].set_ylabel("taum_1")
+axarr[3][0].plot(x, iterations_all_taul[0]) 
+axarr[3][0].set_ylabel("taul_1")
+axarr[4][0].plot(x, iterations_all_taul[1]) 
+axarr[4][0].set_ylabel("taul_2")
+axarr[0][1].plot(x, iterations_all_alphan[0])   
+axarr[0][1].yaxis.set_label_position("right") 
+axarr[0][1].set_ylabel("alphan_1")
+axarr[1][1].plot(x, iterations_all_alphan[1])  
+axarr[1][1].yaxis.set_label_position("right") 
+axarr[1][1].set_ylabel("alphan_2")
+axarr[2][1].plot(x, iterations_all_alpham[0])  
+axarr[2][1].yaxis.set_label_position("right") 
+axarr[2][1].set_ylabel("alpham_1")
+axarr[3][1].plot(x, iterations_all_alphal[0]) 
+axarr[3][1].yaxis.set_label_position("right")  
+axarr[3][1].set_ylabel("alphal_1")
+axarr[4][1].plot(x, iterations_all_alphal[1])  
+axarr[4][1].yaxis.set_label_position("right") 
+axarr[4][1].set_ylabel("alphal_2")
+axarr[4][0].set_xlabel("Iterations")
+axarr[4][1].set_xlabel("Iterations")
 
 # Extract the performances across all iterations
 print "all_performances_Rn = %s" % HMF.all_performances_Rn
 print "hmf_data = %s" % HMF.all_performances_Rn['MSE'][0]
-
-'''
-
-'''
-
-plt.figure()
-plt.plot(HMF.all_performances_Rn['MSE'][0],label='R1')
-plt.plot(HMF.all_performances_Rn['MSE'][1],label='R2')
-plt.legend()

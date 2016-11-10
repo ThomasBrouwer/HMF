@@ -20,6 +20,9 @@ If using element-wise sparsity:
 If using ARD:
 - lambdat_k ~ Gamma(alpha0,beta0)               (if using ARD)
 
+If using importance learning:
+- alpha^n, alpha^l, alpha^m ~ Gamma(alphaA,betaA)
+
 ---
 
 PARAMETERS
@@ -43,29 +46,31 @@ We expect the following arguments:
 - K, a dictionary { entity1:K1, ..., entityT:KT } mapping an entity type to the number of clusters
 - settings, a dictionary defining the model settings
     { 'priorF', 'priorG', priorSn', 'priorG', 'orderF', 'orderSn', 'orderSm', 'orderG', 'ARD', 'element_sparsity' }
-    priorF:           defines prior over the Ft; 'exponential' or 'normal'
-    priorG:           defines prior over the Gl; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Dl.
-    priorSn:          defines prior over the Sn; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Rn.
-    priorSm:          defines prior over the Sm; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Cm.
-    orderF:           draw new values for F per column, or per row: 'columns' or 'rows'
-    orderG:           draw new values for G per column, or per row: 'columns' or 'rows'. Can be a string, or a list wth an entry per Dl.
-    orderSn:          draw new values for Sn per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Rn.
-    orderSm:          draw new values for Sm per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Cm.
-    ARD:              True if we use Automatic Relevance Determination over F and G, else False.
-                      If True, use all_lambdat dictionary. If False, use lambdaF value.
-    element_sparsity: True if we use element-wise sparsity on elements in S^n, S^m, else False.
-                      If True, use all_lambdan and all_lambdam lists. If False, use lambdaSn and lambdaSm values.
+    priorF:              defines prior over the Ft; 'exponential' or 'normal'
+    priorG:              defines prior over the Gl; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Dl.
+    priorSn:             defines prior over the Sn; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Rn.
+    priorSm:             defines prior over the Sm; 'exponential' or 'normal'. Can be a string, or a list wth an entry per Cm.
+    orderF:              draw new values for F per column, or per row: 'columns' or 'rows'
+    orderG:              draw new values for G per column, or per row: 'columns' or 'rows'. Can be a string, or a list wth an entry per Dl.
+    orderSn:             draw new values for Sn per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Rn.
+    orderSm:             draw new values for Sm per individual element, or per row: 'individual' or 'rows'. Can be a string, or a list wth an entry per Cm.
+    ARD:                 True if we use Automatic Relevance Determination over F and G, else False.
+                         If True, use all_lambdat dictionary. If False, use lambdaF value.
+    element_sparsity:    True if we use element-wise sparsity on elements in S^n, S^m, else False.
+                         If True, use all_lambdan and all_lambdam lists. If False, use lambdaSn and lambdaSm values.
+    importance_learning: True if we want to learn dataset importance automatically, else False.
                       
 - hyperparameters, a dictionary defining the priors over the taus, Fs, Ss,
     { 'alphatau', 'betatau', 'alpha0', 'beta0', 'lambdaSn', 'lambdaSm', 'lambdaF', 'lambdaG' }
     alphatau, betatau  - non-negative reals defining prior over noise parameters taun, taum, taul
     alpha0, beta0      - non-negative reals defining ARD prior over entity factors
     alphaS, betaS      - non-negative reals defining element-wise sparsity prior over S^n, S^m
+    alphaA, betaA      - non-negative reals defining importance learning prior over alpha^n, alpha^l, alpha^m
     lambdaSn, lambdaSm - non-negative reals defining prior over Sn and Sm matrices
     lambdaF            - nonnegative real defining the prior over the Ft (if ARD is False)
     lambdaG            - nonnegative real defining the prior over the Gl (if ARD is False) 
    
-We initialise the values of the Ft, Sn, Sm, Gl, lambdat, taun, taum, taul, 
+We initialise the values of the Ft, Sn, Sm, Gl, lambdat, lambdan, lambdam, taun, taum, taul, 
 according to the given argument 'init', which is a dictionary:
     { 'F', 'G', 'Sn', 'Sm', 'lambdat', 'lambdaS', 'tau' }
 Options:
@@ -81,6 +86,7 @@ lambdaS   -> ['random','exp']           (for element-wise sparsity S^n, S^m)
 tau       -> ['random','exp']
 
 For G, Sn, and Sm, this can be a single string, or a list with elements per Dl, Rn, and Cm.
+If we use importance learning, the alpha get initialised to the alpha value given in R, D, C.
 
 ---
 
@@ -110,7 +116,6 @@ The expectation can be computed by specifying a burn-in and thinning rate, and u
 Or all approximations can be computed and stored as HMF.exp_Ft, HMF.exp_Gl, etc:
     HMF.approx_expectation_all(burn_in,thinning)
 
-
 We can test the performance of our model on a test dataset, specifying our test set with a mask M. 
     performance = HMF.predict_Rn(n,M_pred,burn_in,thinning)
     performance = HMF.predict_Cm(m,M_pred,burn_in,thinning)
@@ -124,11 +129,17 @@ We also store information about each iteration, namely:
 - iterations_all_Sn      - list of length N of lists of numpy arrays of Sn at each iteration (so N x It x size Sn)
 - iterations_all_Sm      - list of length M of lists of numpy arrays of Sn at each iteration (so M x It x size Sm)
 - iterations_all_Gl      - list of length L of lists of numpy arrays of Gl at each iteration (so L x It x size Gl)
-- iterations_all_lambdat - dictionary from entity type name to list of numpy vectors of lambdat at each iterations
-- iterations_all_lambdan - list of length N of lists of lambda^n_kl at each iterations
-- iterations_all_lambdam - list of length M of lists of lambda^m_kl at each iterations
 - iterations_all_taun    - list of length N of lists of taun values at each iteration
 - iterations_all_taum    - list of length M of lists of taum values at each iteration
+If ARD:
+- iterations_all_lambdat - dictionary from entity type name to list of numpy vectors of lambdat at each iterations
+If element-wise sparsity:
+- iterations_all_lambdan - list of length N of lists of lambda^n_kl at each iteration
+- iterations_all_lambdam - list of length M of lists of lambda^m_kl at each iteration
+If importance learning:
+- iterations_all_alphan - list of length N of lists of alpha^n at each iteration
+- iterations_all_alpham - list of length M of lists of alpha^m at each iteration
+- iterations_all_alphal - list of length L of lists of alpha^l at each iteration
 
 - all_performances_Rn    - dictionary from 'MSE', 'R^2', or 'Rp', to a list of lists of performances for each Rn
 - all_performances_Dl    - dictionary from 'MSE', 'R^2', or 'Rp', to a list of lists of performances for each Dl
@@ -151,6 +162,7 @@ from HMF.code.Gibbs.draws_Gibbs import draw_F
 from HMF.code.Gibbs.draws_Gibbs import draw_S
 from HMF.code.Gibbs.draws_Gibbs import draw_lambdat
 from HMF.code.Gibbs.draws_Gibbs import draw_lambdaS
+from HMF.code.Gibbs.draws_Gibbs import draw_importance
 from HMF.code.Gibbs.init_Gibbs import init_lambdak
 from HMF.code.Gibbs.init_Gibbs import init_FG
 from HMF.code.Gibbs.init_Gibbs import init_S
@@ -164,16 +176,17 @@ import numpy, math, time
 ''' Default settings '''
 IMPORTANCE_DATASET = 1.
 DEFAULT_SETTINGS = {
-    'priorF'           : 'exponential',
-    'priorG'           : 'normal',
-    'priorSn'          : 'normal',
-    'priorSm'          : 'normal',
-    'orderF'           : 'columns',
-    'orderG'           : 'columns',
-    'orderSn'          : 'rows',
-    'orderSm'          : 'rows',
-    'ARD'              : True,
-    'element_sparsity' : False,
+    'priorF'              : 'exponential',
+    'priorG'              : 'normal',
+    'priorSn'             : 'normal',
+    'priorSm'             : 'normal',
+    'orderF'              : 'columns',
+    'orderG'              : 'columns',
+    'orderSn'             : 'rows',
+    'orderSm'             : 'rows',
+    'ARD'                 : True,
+    'element_sparsity'    : False,
+    'importance_learning' : False,
 }
 OPTIONS_PRIOR_F = ['exponential','normal']
 OPTIONS_PRIOR_S = ['exponential','normal']
@@ -189,6 +202,8 @@ DEFAULT_PRIORS = {
     'beta0'    : 0.001,
     'alphaS'   : 0.001,
     'betaS'    : 0.001,
+    'alphaA'   : 1,
+    'betaA'    : 1,
     'lambdaF'  : 1.,
     'lambdaG'  : 1.,
     'lambdaSn' : 1.,
@@ -366,6 +381,8 @@ class HMF_Gibbs:
         self.beta0 =    hyperparameters.get('beta0',    DEFAULT_PRIORS['beta0'])
         self.alphaS =   hyperparameters.get('alphaS',   DEFAULT_PRIORS['alphaS'])
         self.betaS =    hyperparameters.get('betaS',    DEFAULT_PRIORS['betaS'])
+        self.alphaA =   hyperparameters.get('alphaA',   DEFAULT_PRIORS['alphaA'])
+        self.betaA =    hyperparameters.get('betaA',    DEFAULT_PRIORS['betaA'])
         self.lambdaF =  hyperparameters.get('lambdaF',  DEFAULT_PRIORS['lambdaF'])
         self.lambdaSn = hyperparameters.get('lambdaSn', DEFAULT_PRIORS['lambdaSn'])
         self.lambdaSm = hyperparameters.get('lambdaSm', DEFAULT_PRIORS['lambdaSm'])
@@ -409,8 +426,9 @@ class HMF_Gibbs:
         for order_Sm in self.order_Sm:
             assert order_Sm in OPTIONS_ORDER_S, "Unexpected order for Sm: %s." % order_Sm
         
-        self.ARD =              settings.get('ARD',              DEFAULT_SETTINGS['ARD'])
-        self.element_sparsity = settings.get('element_sparsity', DEFAULT_SETTINGS['element_sparsity'])
+        self.ARD =                 settings.get('ARD',                 DEFAULT_SETTINGS['ARD'])
+        self.element_sparsity =    settings.get('element_sparsity',    DEFAULT_SETTINGS['element_sparsity'])
+        self.importance_learning = settings.get('importance_learning', DEFAULT_SETTINGS['importance_learning'])
         
         self.rows_F =          True if self.order_F  == 'rows' else False
         self.rows_G =         [True if order_G  == 'rows' else False for order_G  in self.order_G ]
@@ -610,6 +628,9 @@ class HMF_Gibbs:
         self.iterations_all_taun =    [[] for n in range(0,self.N)]
         self.iterations_all_taum =    [[] for m in range(0,self.M)]
         self.iterations_all_taul =    [[] for l in range(0,self.L)]
+        self.iterations_all_alphan =  [[] for n in range(0,self.N)]
+        self.iterations_all_alpham =  [[] for m in range(0,self.M)]
+        self.iterations_all_alphal =  [[] for l in range(0,self.L)]
         self.all_times = [] 
         
         metrics = ['MSE','R^2','Rp']
@@ -675,6 +696,47 @@ class HMF_Gibbs:
                         S=self.all_Sm[m],
                         nonnegative=self.nonnegative_Sm[m],
                     )
+                        
+            ''' Draw new values for the alphan, alpham, alphal '''
+            if self.importance_learning:
+                for n in range(0,self.N):
+                    E1,E2 = self.E_per_Rn[n]
+                    self.all_alphan[n] = draw_importance(
+                        alphaA=self.alphaA,
+                        betaA=self.betaA,
+                        tau=self.all_taun[n],
+                        dataset=self.all_Rn[n],
+                        mask=self.all_Mn[n],
+                        F=self.all_Ft[E1],
+                        G=self.all_Ft[E2],
+                        S=self.all_Sn[n],
+                    )
+                    
+                for m in range(0,self.M):
+                    E = self.E_per_Cm[m]
+                    self.all_alpham[m] = draw_importance(
+                        alphaA=self.alphaA,
+                        betaA=self.betaA,
+                        tau=self.all_taum[m],
+                        dataset=self.all_Cm[m],
+                        mask=self.all_Mm[m],
+                        F=self.all_Ft[E],
+                        G=self.all_Ft[E],
+                        S=self.all_Sm[m],
+                    )
+                     
+                for l in range(0,self.L):
+                    E = self.E_per_Dl[l]
+                    self.all_alphal[l] = draw_importance(
+                        alphaA=self.alphaA,
+                        betaA=self.betaA,
+                        tau=self.all_taul[l],
+                        dataset=self.all_Dl[l],
+                        mask=self.all_Ml[l],
+                        F=self.all_Ft[E],
+                        G=self.all_Gl[l],
+                    )    
+                
                         
             ''' Draw new values for the Ft '''
             for E in self.all_E:
@@ -776,14 +838,20 @@ class HMF_Gibbs:
             for n in range(0,self.N):
                 if self.element_sparsity:
                     self.iterations_all_lambdan[n].append(numpy.copy(self.all_lambdan[n]))
+                #if self.importance_learning:
+                self.iterations_all_alphan[n].append(self.all_alphan[n])
                 self.iterations_all_Sn[n].append(numpy.copy(self.all_Sn[n]))
                 self.iterations_all_taun[n].append(self.all_taun[n])
             for m in range(0,self.M):
                 if self.element_sparsity:
                     self.iterations_all_lambdam[m].append(numpy.copy(self.all_lambdam[m]))
+                #if self.importance_learning:
+                self.iterations_all_alpham[m].append(self.all_alphan[m])
                 self.iterations_all_Sm[m].append(numpy.copy(self.all_Sm[m]))
                 self.iterations_all_taum[m].append(self.all_taum[m])
             for l in range(0,self.L):
+                #if self.importance_learning:
+                self.iterations_all_alphal[l].append(self.all_alphal[l])
                 self.iterations_all_Gl[l].append(numpy.copy(self.all_Gl[l]))
                 self.iterations_all_taul[l].append(self.all_taul[l])
             
@@ -882,6 +950,24 @@ class HMF_Gibbs:
         indices = range(burn_in,self.iterations,thinning)  
         return numpy.array([self.iterations_all_taul[l][i] for i in indices]).sum(axis=0) / float(len(indices))   
         
+    def approx_expectation_alphan(self,n,burn_in,thinning):
+        ''' Expectation of alphan '''
+        assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
+        indices = range(burn_in,self.iterations,thinning)  
+        return numpy.array([self.iterations_all_alphan[n][i] for i in indices]).sum(axis=0) / float(len(indices))   
+        
+    def approx_expectation_alpham(self,m,burn_in,thinning):
+        ''' Expectation of alpham '''
+        assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
+        indices = range(burn_in,self.iterations,thinning)  
+        return numpy.array([self.iterations_all_alpham[m][i] for i in indices]).sum(axis=0) / float(len(indices))   
+        
+    def approx_expectation_alphal(self,l,burn_in,thinning):
+        ''' Expectation of alphal '''
+        assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
+        indices = range(burn_in,self.iterations,thinning)  
+        return numpy.array([self.iterations_all_alphal[l][i] for i in indices]).sum(axis=0) / float(len(indices))   
+        
     def approx_expectation_all(self,burn_in,thinning):
         ''' Compute all expectations '''
         self.exp_Ft =      { E:self.approx_expectation_Ft(E,burn_in,thinning)      for E in self.all_E }
@@ -894,6 +980,9 @@ class HMF_Gibbs:
         self.exp_taun =    [ self.approx_expectation_taun(n,burn_in,thinning)      for n in range(0,self.N) ]
         self.exp_taum =    [ self.approx_expectation_taum(m,burn_in,thinning)      for m in range(0,self.M) ]
         self.exp_taul =    [ self.approx_expectation_taul(l,burn_in,thinning)      for l in range(0,self.L) ]
+        self.exp_alphan =  [ self.approx_expectation_alphan(n,burn_in,thinning)    for n in range(0,self.N) ]
+        self.exp_alpham =  [ self.approx_expectation_alpham(m,burn_in,thinning)    for m in range(0,self.M) ]
+        self.exp_alphal =  [ self.approx_expectation_alphal(l,burn_in,thinning)    for l in range(0,self.L) ]
         
 
     """ Compute the expectation of F, S, and G, and use it to predict missing values """

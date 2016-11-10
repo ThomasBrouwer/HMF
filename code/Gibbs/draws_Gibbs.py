@@ -27,7 +27,7 @@ import numpy
 ###############################################################################
 
 def check_dimensions_RCD(R,C,D):
-    ''' Check dimensions of passed datasets - number of rows should be the same '''
+    ''' Check dimensions of passed datasets (R,C,D) - number of rows should be the same. Return the F matrix. '''
     I, F = None, None
     
     for n in range(0,len(R)):
@@ -64,9 +64,21 @@ def check_dimensions_RCD(R,C,D):
 ###############################################################################
 
 def draw_tau(alphatau,betatau,importance,dataset,mask,F,G,S=None):
+    ''' Draw new values for tau (noise) parameter. '''
     alpha, beta = updates.alpha_beta_tau(alphatau=alphatau,betatau=betatau,importance=importance,dataset=dataset,mask=mask,F=F,G=G,S=S)
     tau = gamma_draw(alpha,beta)
     return tau
+        
+
+###############################################################################
+########## Draw new values for alpha (dataset importance) parameter ###########
+###############################################################################
+
+def draw_importance(alphaA,betaA,tau,dataset,mask,F,G,S=None):
+    ''' Draw new values for alpha (dataset importance) parameter. '''
+    alpha, beta = updates.alpha_beta_importance(alphaA=alphaA,betaA=betaA,tau=tau,dataset=dataset,mask=mask,F=F,G=G,S=S)
+    importance = gamma_draw(alpha,beta)
+    return importance
 
 
 ###############################################################################
@@ -74,6 +86,7 @@ def draw_tau(alphatau,betatau,importance,dataset,mask,F,G,S=None):
 ###############################################################################
 
 def draw_lambdat(alpha0,beta0,Fs,K):
+    ''' Draw new values for lambda (ARD) parameters. '''
     new_lambdas = numpy.empty(K)
     for k in range(0,K):
         alpha, beta = updates.alpha_beta_lambdat(alpha0=alpha0,beta0=beta0,Fs=Fs,k=k)
@@ -86,6 +99,7 @@ def draw_lambdat(alpha0,beta0,Fs,K):
 ###############################################################################
 
 def draw_lambdaS(alphaS,betaS,S,nonnegative):
+    ''' Draw new values for lambda (ARD) parameters. '''
     (K,L) = S.shape
     new_lambdaS = numpy.empty((K,L))
     alpha, beta = updates.alpha_beta_lambdaS(alphaS=alphaS,betaS=betaS,S=S,nonnegative=nonnegative)
@@ -99,7 +113,7 @@ def draw_lambdaS(alphaS,betaS,S,nonnegative):
 ###############################################################################
           
 def draw_F(R,C,D,lambdaF,nonnegative,rows):
-    ''' Draw new values for F, and update in place.
+    ''' Draw new values for F or G matrix, and update in place.
         First do some dimensionality checks. 
         Then if rows=True, draw per row, otherwise per column.'''
         
@@ -130,7 +144,7 @@ def draw_F(R,C,D,lambdaF,nonnegative,rows):
 ###############################################################################
 
 def draw_S(dataset,mask,tau,alpha,F,S,G,lambdaS,nonnegative,rows):
-    ''' Draw new values for S, and update in place.
+    ''' Draw new values for S matrix, and update in place.
         First do some dimensionality checks.
         Then if rows=True, draw per row, otherwise per individual element.'''
         

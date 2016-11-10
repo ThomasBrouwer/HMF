@@ -40,7 +40,7 @@ Usage for single dataset matrix tri-factorisation:
     G: column_tau_F([(R.T,M.T,G,S.T,F,tau,1)],[],[]),   column_mu_F(TODO)
 """
 
-import numpy
+import numpy, math
 
 ###############################################################################
 ################################### Helpers ###################################
@@ -69,6 +69,55 @@ def beta_tau(betatau,importance,dataset,mask,F,G,S=None):
     dataset_pred = numpy.dot(F,G.T) if S is None else triple_dot(F,S,G.T)
     squared_error = (mask*(dataset-dataset_pred)**2).sum()
     return betatau + importance * squared_error / 2.
+        
+        
+###############################################################################
+### Updates for the parameters of the posterior of importances alpha^n,m,l ####
+############################################################################### 
+        
+def alpha_importance(alphaA):
+    ''' Return the values for alpha for the Gibbs sampler, for the importance learning of alpha. '''
+    return alphaA
+          
+def beta_importance(betaA,tau,dataset,mask,F,G,S=None):
+    ''' Return the values for beta for the Gibbs sampler, for the importance learning of alpha. '''
+    dataset_pred = numpy.dot(F,G.T) if S is None else triple_dot(F,S,G.T)
+    squared_error = (mask*(dataset-dataset_pred)**2).sum()
+    size_Omega = mask.sum()
+    return betaA + tau * squared_error / 2. - size_Omega / 2. * math.log(tau / (2.*math.pi))
+    
+        
+###############################################################################
+########## Updates for the parameters of the posterior of lambda_t ############
+############################################################################### 
+        
+def alpha_lambdat(alpha0,Fs):
+    ''' Return the value for alpha for the Gibbs sampler, for the ARD. '''
+    alpha = alpha0
+    for F,nonneg in Fs:
+        I,_ = F.shape
+        alpha += I if nonneg else I / 2.
+    return alpha
+          
+def beta_lambdat(beta0,Fs,k):
+    ''' Return the value for beta for the Gibbs sampler, for the kth ARD. '''
+    beta = beta0
+    for F,nonneg in Fs:
+        beta += F[:,k].sum() if nonneg else (F[:,k]**2).sum() / 2.
+    return beta
+        
+        
+###############################################################################
+#### Updates for the parameters of the posterior of lambda^n and lambda^m #####
+############################################################################### 
+        
+def alpha_lambdaS(alphaS,S,nonnegative):
+    ''' Return the values for alpha for the Gibbs sampler, for the element-wise sparsity on S^n, S^m. '''
+    return alphaS + numpy.ones(S.shape) * ( 1. if nonnegative else .5 )
+          
+def beta_lambdaS(betaS,S,nonnegative):
+    ''' Return the value for beta for the Gibbs sampler, for the element-wise sparsity on S^n, S^m. '''
+    return betaS + ( S if nonnegative else S**2 / 2. )
         
         
 ###############################################################################
@@ -235,39 +284,6 @@ def row_mu_S(dataset,mask,tau,alpha,F,S,G,lambdaSk,precision_Sk,k,nonnegative):
     sigma_Sk = numpy.linalg.inv(precision_Sk)
     mu_S = numpy.dot(sigma_Sk,mu_S)
     return mu_S
-    
-        
-###############################################################################
-########## Updates for the parameters of the posterior of lambda_t ############
-############################################################################### 
-        
-def alpha_lambdat(alpha0,Fs):
-    ''' Return the value for alpha for the Gibbs sampler, for the ARD. '''
-    alpha = alpha0
-    for F,nonneg in Fs:
-        I,_ = F.shape
-        alpha += I if nonneg else I / 2.
-    return alpha
-          
-def beta_lambdat(beta0,Fs,k):
-    ''' Return the value for beta for the Gibbs sampler, for the kth ARD. '''
-    beta = beta0
-    for F,nonneg in Fs:
-        beta += F[:,k].sum() if nonneg else (F[:,k]**2).sum() / 2.
-    return beta
-        
-        
-###############################################################################
-########## Updates for the parameters of the posterior of lambda_t ############
-############################################################################### 
-        
-def alpha_lambdaS(alphaS,S,nonnegative):
-    ''' Return the values for alpha for the Gibbs sampler, for the element-wise sparsity on S^n, S^m. '''
-    return alphaS + numpy.ones(S.shape) * ( 1. if nonnegative else .5 )
-          
-def beta_lambdaS(betaS,S,nonnegative):
-    ''' Return the value for beta for the Gibbs sampler, for the element-wise sparsity on S^n, S^m. '''
-    return betaS + ( S if nonnegative else S**2 / 2. )
         
         
 ###############################################################################
@@ -280,6 +296,14 @@ def alpha_beta_tau(alphatau,betatau,importance,dataset,mask,F,G,S=None):
         alphatau=alphatau,importance=importance,mask=mask)
     beta = beta_tau(
         betatau=betatau,importance=importance,dataset=dataset,mask=mask,F=F,G=G,S=S)    
+    return (alpha,beta)
+    
+def alpha_beta_importance(alphaA,betaA,tau,dataset,mask,F,G,S=None):
+    ''' Return alpha and beta for the dataset importance alpha. '''
+    alpha = alpha_importance(
+        alphaA=alphaA)
+    beta = beta_importance(
+        betaA=betaA,tau=tau,dataset=dataset,mask=mask,F=F,G=G,S=S) 
     return (alpha,beta)
     
 def alpha_beta_lambdat(alpha0,beta0,Fs,k):
