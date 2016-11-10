@@ -7,7 +7,9 @@ project_location = "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs
-from HMF.drug_sensitivity.load_dataset import load_data, load_names
+from HMF.drug_sensitivity.load_dataset import load_data
+from HMF.drug_sensitivity.load_dataset import load_names
+from HMF.drug_sensitivity.load_dataset import load_data_without_empty
 
 import numpy
 
@@ -20,6 +22,7 @@ location_features_cell_lines =  location+"features_cell_lines/"
 location_kernels =              location+"kernels_features/"
 
 cell_lines, drugs = load_names()
+
 R_gdsc,     M_gdsc    = load_data(location_data+"gdsc_ic50_row_01.txt")
 R_ccle_ec,  M_ccle_ec = load_data(location_data+"ccle_ec50_row_01.txt")
 R_ctrp,     M_ctrp    = load_data(location_data+"ctrp_ec50_row_01.txt")
@@ -43,14 +46,14 @@ hyperparameters = {
     'lambdaSm' : 0.1,
 }
 settings = {
-    'priorF'              : 'normal',
-    'priorG'              : 'normal',
-    'priorSn'             : 'normal',
-    'priorSm'             : 'normal',
-    'orderF'              : 'rows',
-    'orderG'              : 'rows',
-    'orderSn'             : 'rows',
-    'orderSm'             : 'rows',
+    'priorF'              : 'exponential', #'normal',
+    'priorG'              : 'exponential', #'normal',
+    'priorSn'             : 'exponential', #'normal',
+    'priorSm'             : 'exponential', #'normal',
+    'orderF'              : 'columns', #'rows',
+    'orderG'              : 'columns', #'rows',
+    'orderSn'             : 'individual', #'rows',
+    'orderSm'             : 'individual', #'rows',
     'ARD'                 : True,
     'element_sparsity'    : True,
 }
@@ -60,7 +63,8 @@ init = {
     'Sm'      : 'least',
     'G'       : 'least',
     'lambdat' : 'exp',
-    'tau'     : 'exp'
+    'lambdaS' : 'exp',
+    'tau'     : 'exp',
 }
 
 alpha_n = [1., 1., 1., 1.] # GDSC, CTRP, CCLE IC, CCLE EC
@@ -101,9 +105,10 @@ numpy.savetxt(fname=folder+'thinned_S_ccle_ec', X=thinned_S_ccle_ec)
 """
 
 ''' Store the mean of the matrices. '''
+folder = project_location+'HMF/drug_sensitivity/bicluster_analysis/matrices_nonneg_5_5/'
+
 E_drugs, E_cell_lines = 'Drugs', 'Cell_lines'
 n_gdsc, n_ctrp, n_ccle_ic, n_ccle_ec = 0, 1, 2, 3
-folder = project_location+'HMF/drug_sensitivity/bicluster_analysis/matrices/'
 
 exp_F_drugs = HMF.approx_expectation_Ft(E=E_drugs, burn_in=burn_in, thinning=thinning)
 exp_F_cell_lines = HMF.approx_expectation_Ft(E=E_cell_lines, burn_in=burn_in, thinning=thinning)
