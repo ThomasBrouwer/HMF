@@ -46,13 +46,13 @@ import numpy, itertools
 ############################# Initialisation tau ##############################
 ###############################################################################
 
-def init_tau(init,alphatau,betatau,R,M,F,G,S=None):
+def init_tau(init,alphatau,betatau,importance,R,M,F,G,S=None):
     ''' Initialise the tau parameter using the model definition. Init in ['random','exp']. '''
     options = ['random','exp']
     assert init in options, "Unknown initialisation option for tau: %s. Options are %s." % (init,options)
     
     alpha, beta = updates_Gibbs.alpha_beta_tau(
-        alphatau=alphatau,betatau=betatau,dataset=R,mask=M,F=F,G=G,S=S)
+        alphatau=alphatau,betatau=betatau,importance=importance,dataset=R,mask=M,F=F,G=G,S=S)
         
     return gamma_draw(alpha,beta) if init == 'random' else alpha / float(beta)
         

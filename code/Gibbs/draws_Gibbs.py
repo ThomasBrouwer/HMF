@@ -63,8 +63,8 @@ def check_dimensions_RCD(R,C,D):
 ################## Draw new values for tau (noise) parameter ##################
 ###############################################################################
 
-def draw_tau(alphatau,betatau,dataset,mask,F,G,S=None):
-    alpha, beta = updates.alpha_beta_tau(alphatau=alphatau,betatau=betatau,dataset=dataset,mask=mask,F=F,G=G,S=S)
+def draw_tau(alphatau,betatau,importance,dataset,mask,F,G,S=None):
+    alpha, beta = updates.alpha_beta_tau(alphatau=alphatau,betatau=betatau,importance=importance,dataset=dataset,mask=mask,F=F,G=G,S=S)
     tau = gamma_draw(alpha,beta)
     return tau
 

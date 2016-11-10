@@ -67,12 +67,12 @@ R_F, C_F, D_F = [(R,M,F,S,G,tau,alpha)], [(Cs,Ms,F,Ss,tau,alpha)], [(R,M,F,V,tau
 def test_draw_tau():
     # MF case
     for i in range(0,100):
-        new_tau = draws_Gibbs.draw_tau(alphatau,betatau,R,M,U,V)
+        new_tau = draws_Gibbs.draw_tau(alphatau,betatau,alpha,R,M,U,V)
         assert new_tau >= 0.
     
     # MTF case
     for i in range(0,100):
-        new_tau = draws_Gibbs.draw_tau(alphatau,betatau,R,M,F,G,S)
+        new_tau = draws_Gibbs.draw_tau(alphatau,betatau,alpha,R,M,F,G,S)
         assert new_tau >= 0.
         
         

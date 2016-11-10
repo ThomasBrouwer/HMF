@@ -346,7 +346,7 @@ def test_initialise():
         for i,k in itertools.product(xrange(0,I[E1]),xrange(0,K[E1])):
             assert HMF.all_Ft[E1][i,k] == 1./HMF.all_lambdat[E1][k]
             
-    expected_all_taun = [0.015669815208888795,0.015669815208888795,0.247363401258231]
+    expected_all_taun = [0.015369654419961557,0.015367151516936775,0.2442062783472021]
     for n in range(0,N):
         E1,E2 = E_per_Rn[n]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E2])):
@@ -355,7 +355,7 @@ def test_initialise():
             assert HMF.all_Sn[n][k,l] == 1./expected_lambdan_kl
         assert HMF.all_taun[n] == expected_all_taun[n]
             
-    expected_all_taum = [0.0064256529448969129,3.1016219740810165]
+    expected_all_taum = [0.0062975762814580696,3.7505835292008993]
     for m in range(0,M):
         E1 = E_per_Cm[m]
         for k,l in itertools.product(xrange(0,K[E1]),xrange(0,K[E1])):
@@ -364,7 +364,7 @@ def test_initialise():
             assert HMF.all_Sm[m][k,l] == 1./expected_lambdam_kl
         assert HMF.all_taum[m] == expected_all_taum[m]
             
-    expected_all_taul = [4.1601208459214458]
+    expected_all_taul = [7.2634333565945441]
     for l in range(0,L):
         E1 = E_per_Dl[l]
         for j,k in itertools.product(xrange(0,J[l]),xrange(0,K[E1])):

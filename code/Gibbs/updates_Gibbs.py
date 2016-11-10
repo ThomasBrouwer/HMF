@@ -60,15 +60,15 @@ def triple_dot(M1,M2,M3):
 ###### Updates for the alpha and beta parameters of the noise parameters ######
 ###############################################################################
 
-def alpha_tau(alphatau,mask):
+def alpha_tau(alphatau,importance,mask):
     ''' Return the value for alpha for the Gibbs sampler, for the noise tau. '''
-    return alphatau + mask.sum() / 2.
+    return alphatau + importance * mask.sum() / 2.
           
-def beta_tau(betatau,dataset,mask,F,G,S=None):
+def beta_tau(betatau,importance,dataset,mask,F,G,S=None):
     ''' Return the value for beta for the Gibbs sampler, for the noise tau. '''
     dataset_pred = numpy.dot(F,G.T) if S is None else triple_dot(F,S,G.T)
     squared_error = (mask*(dataset-dataset_pred)**2).sum()
-    return betatau + squared_error / 2.
+    return betatau + importance * squared_error / 2.
         
         
 ###############################################################################
@@ -274,12 +274,12 @@ def beta_lambdaS(betaS,S,nonnegative):
 ################# Return both parameters for the variables ####################
 ###############################################################################
         
-def alpha_beta_tau(alphatau,betatau,dataset,mask,F,G,S=None):
+def alpha_beta_tau(alphatau,betatau,importance,dataset,mask,F,G,S=None):
     ''' Return alpha and beta for the noise parameter tau. '''
     alpha = alpha_tau(
-        alphatau=alphatau,mask=mask)
+        alphatau=alphatau,importance=importance,mask=mask)
     beta = beta_tau(
-        betatau=betatau,dataset=dataset,mask=mask,F=F,G=G,S=S)    
+        betatau=betatau,importance=importance,dataset=dataset,mask=mask,F=F,G=G,S=S)    
     return (alpha,beta)
     
 def alpha_beta_lambdat(alpha0,beta0,Fs,k):

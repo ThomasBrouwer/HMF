@@ -43,11 +43,11 @@ hyperparameters = {
     'lambdaSm' : 0.1,
 }
 settings = {
-    'priorF'           : 'exponential',
+    'priorF'           : 'normal',
     'priorG'           : 'normal',
     'priorSn'          : 'normal',
     'priorSm'          : 'normal',
-    'orderF'           : 'columns',
+    'orderF'           : 'rows',
     'orderG'           : 'rows',
     'orderSn'          : 'rows',
     'orderSm'          : 'rows',

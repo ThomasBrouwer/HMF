@@ -521,6 +521,7 @@ class HMF_Gibbs:
                 init=self.init_tau,
                 alphatau=self.alphatau,
                 betatau=self.betatau,
+                importance=self.all_alphal[l],
                 R=self.all_Dl[l],
                 M=self.all_Ml[l],
                 F=self.all_Ft[E],
@@ -549,6 +550,7 @@ class HMF_Gibbs:
                 init=self.init_tau,
                 alphatau=self.alphatau,
                 betatau=self.betatau,
+                importance=self.all_alphan[n],
                 R=self.all_Rn[n],
                 M=self.all_Mn[n],
                 F=self.all_Ft[E1],
@@ -578,6 +580,7 @@ class HMF_Gibbs:
                 init=self.init_tau,
                 alphatau=self.alphatau,
                 betatau=self.betatau,
+                importance=self.all_alpham[m],
                 R=self.all_Cm[m],
                 M=self.all_Mm[m],
                 F=self.all_Ft[E],
@@ -735,6 +738,7 @@ class HMF_Gibbs:
                 self.all_taun[n] = draw_tau(
                     alphatau=self.alphatau,
                     betatau=self.betatau,
+                    importance=self.all_alphan[n],
                     dataset=self.all_Rn[n],
                     mask=self.all_Mn[n],
                     F=self.all_Ft[E1],
@@ -746,6 +750,7 @@ class HMF_Gibbs:
                 self.all_taum[m] = draw_tau(
                     alphatau=self.alphatau,
                     betatau=self.betatau,
+                    importance=self.all_alpham[m],
                     dataset=self.all_Cm[m],
                     mask=self.all_Mm[m],
                     F=self.all_Ft[E],
@@ -757,6 +762,7 @@ class HMF_Gibbs:
                 self.all_taul[l] = draw_tau(
                     alphatau=self.alphatau,
                     betatau=self.betatau,
+                    importance=self.all_alphal[l],
                     dataset=self.all_Dl[l],
                     mask=self.all_Ml[l],
                     F=self.all_Ft[E],
@@ -821,6 +827,7 @@ class HMF_Gibbs:
         
     def approx_expectation_lambdat(self,E,burn_in,thinning):
         ''' Expectation of lambdat belonging to entity type E '''
+        assert self.ARD, "ARD is not used in this model!"
         assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
         indices = range(burn_in,self.iterations,thinning)  
         return numpy.array([self.iterations_all_lambdat[E][i] for i in indices]).sum(axis=0) / float(len(indices))   
@@ -839,6 +846,7 @@ class HMF_Gibbs:
       
     def approx_expectation_lambdan(self,n,burn_in,thinning):
         ''' Expectation of lambdan '''
+        assert self.element_sparsity, "Element-wise sparsity is not used in this model!"
         assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
         indices = range(burn_in,self.iterations,thinning)  
         return numpy.array([self.iterations_all_lambdan[n][i] for i in indices]).sum(axis=0) / float(len(indices))   
@@ -851,6 +859,7 @@ class HMF_Gibbs:
       
     def approx_expectation_lambdam(self,m,burn_in,thinning):
         ''' Expectation of lambdam '''
+        assert self.element_sparsity, "Element-wise sparsity is not used in this model!"
         assert burn_in < self.iterations, "burn_in=%s should not be greater than the number of iterations=%s." % (burn_in,self.iterations)
         indices = range(burn_in,self.iterations,thinning)  
         return numpy.array([self.iterations_all_lambdam[m][i] for i in indices]).sum(axis=0) / float(len(indices))   

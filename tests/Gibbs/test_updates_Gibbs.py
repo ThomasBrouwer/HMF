@@ -46,31 +46,31 @@ alphatau, betatau = 3, 1
 alpha0, beta0 = 6, 7
 
 def test_alpha_tau():
-    alphatau_s = alphatau + M.sum() / 2.
-    assert alphatau_s == updates_Gibbs.alpha_tau(alphatau,M)
+    alphatau_s = alphatau + alpha * M.sum() / 2.
+    assert alphatau_s == updates_Gibbs.alpha_tau(alphatau,alpha,M)
 
 def test_beta_tau():
     # MTF case
-    betatau_s = betatau + .5*((R_pred_MTF*M)**2).sum()
-    assert abs(betatau_s - updates_Gibbs.beta_tau(betatau,R,M,F,G,S)) < 0.0000000000001
+    betatau_s = betatau + alpha * .5*((R_pred_MTF*M)**2).sum()
+    assert abs(betatau_s - updates_Gibbs.beta_tau(betatau,alpha,R,M,F,G,S)) < 0.0000000000001
     
     # MF case
-    betatau_s = betatau + .5*((R_pred_MF*M)**2).sum()
-    assert abs(betatau_s - updates_Gibbs.beta_tau(betatau,R,M,U,V)) < 0.00000000001
+    betatau_s = betatau + alpha * .5*((R_pred_MF*M)**2).sum()
+    assert abs(betatau_s - updates_Gibbs.beta_tau(betatau,alpha,R,M,U,V)) < 0.00000000001
         
 def test_alpha_beta_tau():
     # MTF case
-    expected_alphatau_s = alphatau + M.sum() / 2.
-    expected_betatau_s = betatau + .5*((R_pred_MTF*M)**2).sum()
+    expected_alphatau_s = alphatau + alpha * M.sum() / 2.
+    expected_betatau_s = betatau + alpha * .5*((R_pred_MTF*M)**2).sum()
     
-    alphatau_s, betatau_s = updates_Gibbs.alpha_beta_tau(alphatau,betatau,R,M,F,G,S)
+    alphatau_s, betatau_s = updates_Gibbs.alpha_beta_tau(alphatau,betatau,alpha,R,M,F,G,S)
     assert abs(expected_alphatau_s - alphatau_s) < 0.0000001
     assert abs(expected_betatau_s - betatau_s) < 0.0000001
     
     # MF case
-    expected_betatau_s = betatau + .5*((R_pred_MF*M)**2).sum()
+    expected_betatau_s = betatau + alpha * .5*((R_pred_MF*M)**2).sum()
     
-    alphatau_s, betatau_s = updates_Gibbs.alpha_beta_tau(alphatau,betatau,R,M,U,V)
+    alphatau_s, betatau_s = updates_Gibbs.alpha_beta_tau(alphatau,betatau,alpha,R,M,U,V)
     assert abs(expected_alphatau_s - alphatau_s) < 0.0000001
     assert abs(expected_betatau_s - betatau_s) < 0.0000001
     
