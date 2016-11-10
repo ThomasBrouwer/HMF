@@ -43,16 +43,16 @@ hyperparameters = {
     'lambdaSm' : 0.1,
 }
 settings = {
-    'priorF'           : 'normal',
-    'priorG'           : 'normal',
-    'priorSn'          : 'normal',
-    'priorSm'          : 'normal',
-    'orderF'           : 'rows',
-    'orderG'           : 'rows',
-    'orderSn'          : 'rows',
-    'orderSm'          : 'rows',
-    'ARD'              : True,
-    'element_sparsity' : True,
+    'priorF'              : 'normal',
+    'priorG'              : 'normal',
+    'priorSn'             : 'normal',
+    'priorSm'             : 'normal',
+    'orderF'              : 'rows',
+    'orderG'              : 'rows',
+    'orderSn'             : 'rows',
+    'orderSm'             : 'rows',
+    'ARD'                 : True,
+    'element_sparsity'    : True,
 }
 init = {
     'F'       : 'random',

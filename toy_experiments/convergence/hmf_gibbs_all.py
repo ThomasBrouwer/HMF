@@ -34,6 +34,8 @@ hyperparameters = {
     'beta0'    : 0.001,
     'alphaS'   : 1.,
     'betaS'    : 1.,
+    'alphaA'   : 10000.,
+    'betaA'    : 10000.,
     'lambdaF'  : 0.1,
     'lambdaG'  : 0.1,
     'lambdaSn' : 0.1,
@@ -48,7 +50,7 @@ init = {
     'tau'     : 'exp'
 }
 
-iterations, burn_in, thinning = 20, 10, 2
+iterations, burn_in, thinning = 100, 80, 2
 
 N,M,L = 2,1,2
 E = [1,2]

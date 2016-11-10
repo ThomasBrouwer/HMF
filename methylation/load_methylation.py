@@ -123,6 +123,6 @@ def load_kernels():
     
 
 #(R_ge, R_pm, R_gm, genes, samples) = filter_driver_genes()
-(R_ge_std, R_pm_std, R_gm_std, genes_std, samples_std) = filter_driver_genes_std()
-K_ge, K_pm, K_gm = load_kernels()
+#(R_ge_std, R_pm_std, R_gm_std, genes_std, samples_std) = filter_driver_genes_std()
+#K_ge, K_pm, K_gm = load_kernels()
 
