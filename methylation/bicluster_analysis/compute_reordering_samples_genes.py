@@ -48,7 +48,7 @@ def compute_dendrogram(R):
     #plt.figure()
     # Hierarchical clustering methods: 
     # single (Nearest Point), complete (Von Hees), average (UPGMA), weighted (WPGMA), centroid (UPGMC), median (WPGMC), ward (incremental)
-    Y = linkage(y=R, method='ward', metric='euclidean') 
+    Y = linkage(y=R, method='centroid', metric='euclidean') 
     Z = dendrogram(Z=Y, orientation='top', no_plot=True)#False)
     reordered_indices = Z['leaves']
     return reordered_indices

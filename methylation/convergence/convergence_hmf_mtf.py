@@ -26,8 +26,6 @@ hyperparameters = {
     'betatau'  : 1,
     'alpha0'   : 0.001,
     'beta0'    : 0.001,
-    'alphaA'   : 1000.,
-    'betaA'    : 1000.,
     'lambdaF'  : 0.1,
     'lambdaSn' : 0.1,
 }
