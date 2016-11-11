@@ -15,7 +15,9 @@ name_gene_expression = 'matched_expression'
 name_promoter_methylation = 'matched_methylation_genePromoter'
 name_gene_body_methylation = 'matched_methylation_geneBody'
 name_driver_genes = 'intogen-BRCA-drivers-data.geneid'
+name_labels = 'matched_sample_label'
 
+""" Methods for loading gene expression and methylation datasets. """
 def load_dataset(filename,delim='\t'):
     ''' Return a tuple (values,genes,samples) - numpy array, row names, column names. '''
     data = numpy.array([line.split('\n')[0].split(delim) for line in open(filename,'r').readlines()],dtype=str)
@@ -113,16 +115,109 @@ def standardise_data(R):
         R_std[:,j] = (R_std[:,j] - mean) / std
     return R_std
     
+    
+""" Method for loading similarity kernels. """
 def load_kernels():
+    ''' Load similarity kernels samples. '''
     kernel_folder = project_location+"HMF/methylation/data/"
     K_ge, K_pm, K_gm = GaussianKernel(), GaussianKernel(), GaussianKernel()
-    K_ge.load_kernel(location_input=kernel_folder+"kernel_ge_std")
-    K_pm.load_kernel(location_input=kernel_folder+"kernel_pm_std")
-    K_gm.load_kernel(location_input=kernel_folder+"kernel_gm_std")
+    K_ge.load_kernel(location_input=kernel_folder+"kernel_ge_std_samples")
+    K_pm.load_kernel(location_input=kernel_folder+"kernel_pm_std_samples")
+    K_gm.load_kernel(location_input=kernel_folder+"kernel_gm_std_samples")
     return (K_ge.kernel, K_pm.kernel, K_gm.kernel)
+    
+def load_kernels_genes():
+    ''' Load similarity kernels genes. '''
+    kernel_folder = project_location+"HMF/methylation/data/"
+    K_ge, K_pm, K_gm = GaussianKernel(), GaussianKernel(), GaussianKernel()
+    K_ge.load_kernel(location_input=kernel_folder+"kernel_ge_std_genes")
+    K_pm.load_kernel(location_input=kernel_folder+"kernel_pm_std_genes")
+    K_gm.load_kernel(location_input=kernel_folder+"kernel_gm_std_genes")
+    return (K_ge.kernel, K_pm.kernel, K_gm.kernel)
+        
+        
+""" Methods for loading healthy / tumour labels. """
+def load_labels(filename=location_methylation+name_labels,delim='\t'):
+    ''' Return a list of 'tumor' or 'normal' labels. '''
+    data = numpy.array([line.split('\n')[0].split(delim) for line in open(filename,'r').readlines()],dtype=str)
+    return data[:,1]
+    
+def load_label_matrix():
+    ''' Return a <no_samples> by 2 matrix, with the first column containing 1
+        if the sample is healthy (0 in second column), and vice versa for a 
+        tumour tissue. 
+    '''
+    labels = load_labels()
+    label_matrix = numpy.zeros((len(labels),2))
+    for i,label in enumerate(labels):
+        if label == 'tumor':
+            label_matrix[i,1] = 1
+        else:
+            label_matrix[i,0] = 1
+    return label_matrix
+
+def load_tumor_label_list():
+    ''' Return a list of labels, with 1 for tumor and 0 for healthy. '''
+    return load_label_matrix()[:,1]
+
+def load_healthy_label_list():
+    ''' Return a list of labels, with 1 for healthy and 0 for tumor. '''
+    return load_label_matrix()[:,0]
+    
+    
+""" Methods for reordering rows and columns of datasets. """
+def reorder_rows(R, old_rows, new_rows):
+    ''' Reorder the rows of R, with old ordering old_rows and new ordering new_rows. '''
+    mapping_name_to_values = {
+        old_name: R[i]
+        for i,old_name in enumerate(old_rows)
+    }
+    new_R = numpy.array([
+        mapping_name_to_values[new_name]
+        for new_name in new_rows
+    ])
+    return new_R
+    
+def reorder_rows_columns(R, old_rows, new_rows, old_columns, new_columns):
+    ''' Reorder both the row and the column entries. '''
+    R_rows = reorder_rows(R, old_rows, new_rows)
+    R_rows_and_columns = reorder_rows(R_rows.T, old_columns, new_columns).T
+    return R_rows_and_columns
+    
+def reorder_samples_label(R, samples):
+    ''' Reorder the columns (samples) so that the healthy samples come first. 
+        Return (R, sorted_samples, sorted_labels_tumours).    
+    '''
+    labels_tumour = load_tumor_label_list()
+    sorted_samples_labels = sorted([(name,labels_tumour[index]) for index,name in enumerate(samples)], key=lambda x:(x[1], x[0]))
+    sorted_samples = [v[0] for v in sorted_samples_labels]
+    sorted_labels_tumour = [v[1] for v in sorted_samples_labels]
+    R_sorted = reorder_rows(R.T, samples, sorted_samples).T
+    return (R_sorted, sorted_samples, sorted_labels_tumour)
+    
+    
+def load_driver_genes_std_tumour_labels_reordered():
+    ''' Load the three datasets with only the driver genes and standardise values
+        per gene. Also load the tumour labels, and reorder samples to have tumours
+        next to each other, genes to have TODO.
+        Return (R_ge_std, R_pm_std, R_gm_std, tumour_labels, genes, samples).
+    '''
+    R_ge, R_pm, R_gm, genes, samples = filter_driver_genes_std()
+    
+    # Figure out reordering samples and genes
+    (_, sorted_samples, sorted_labels_tumour) = reorder_samples_label(R_ge, samples)
+    #TODO: genes reordering
+    
+    # Do the reordering and return the data    
+    R_ge_reordered = reorder_rows_columns(R_ge, genes, genes, samples, sorted_samples)
+    R_pm_reordered = reorder_rows_columns(R_pm, genes, genes, samples, sorted_samples)
+    R_gm_reordered = reorder_rows_columns(R_gm, genes, genes, samples, sorted_samples)
+    
+    return (R_ge_reordered, R_pm_reordered, R_gm_reordered, sorted_labels_tumour, genes, sorted_samples)
     
 
 #(R_ge, R_pm, R_gm, genes, samples) = filter_driver_genes()
 #(R_ge_std, R_pm_std, R_gm_std, genes_std, samples_std) = filter_driver_genes_std()
 #K_ge, K_pm, K_gm = load_kernels()
 
+#(R_ge_reordered, R_pm_reordered, R_gm_reordered, labels_tumour, genes, sorted_samples) = load_driver_genes_std_tumour_labels_reordered()

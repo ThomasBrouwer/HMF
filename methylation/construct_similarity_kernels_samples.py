@@ -3,7 +3,7 @@ Use the gene expression and two methylation datasets to construct similarity
 kernels between the samples.
 
 We use only the cancer driver genes, and standardise the values per gene.
-We use a Gaussian kernel, using sigma^2 = no. genes / 4.
+We use a Gaussian kernel, using sigma^2 = no. genes
 """
 
 project_location = "/home/tab43/Documents/Projects/libraries/"
@@ -36,6 +36,6 @@ kernel_pm.construct_kernel(sigma_2=sigma_2)
 ''' Store the kernels. '''
 output_folder = project_location+"HMF/methylation/data/"
 
-kernel_ge.store_kernel(location_output=output_folder+"kernel_ge_std")
-kernel_gm.store_kernel(location_output=output_folder+"kernel_gm_std")
-kernel_pm.store_kernel(location_output=output_folder+"kernel_pm_std")
+kernel_ge.store_kernel(location_output=output_folder+"kernel_ge_std_samples")
+kernel_gm.store_kernel(location_output=output_folder+"kernel_gm_std_samples")
+kernel_pm.store_kernel(location_output=output_folder+"kernel_pm_std_samples")
