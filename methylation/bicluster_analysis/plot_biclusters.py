@@ -30,8 +30,11 @@ samples = numpy.loadtxt(folder_data+'samples_reordered', dtype='str')
 folder_biclusters = project_location+'HMF/methylation/bicluster_analysis/plots_biclusters/'
 
 biclusters = [ # list of S matrix, bicluster index (k,l), and dataset name
-    #(S_ge, (1,1),  'ge'),
-    (S_pm, (6,11), 'pm'),
+    (S_ge, (2,18), 'ge'),
+    (S_ge, (1,18), 'ge'),
+    (S_gm, (4,11), 'gm'),
+    (S_pm, (4,19), 'pm'),
+    (S_pm, (16,19), 'pm'),
 ]
 
 for S, (k,l), name in biclusters:

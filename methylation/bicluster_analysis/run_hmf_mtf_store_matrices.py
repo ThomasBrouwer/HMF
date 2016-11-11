@@ -32,7 +32,6 @@ hyperparameters = {
     'alphaS'   : 0.001,
     'betaS'    : 0.001,
     'lambdaF'  : 0.1,
-    'lambdaSn' : 0.1,
 }
 init = {
     'F'       : 'kmeans',
@@ -41,7 +40,7 @@ init = {
     'tau'     : 'exp'
 }
 
-iterations, burn_in, thinning = 100, 80, 2
+iterations, burn_in, thinning = 200, 150, 2
 
 E = ['genes','samples']
 K = {'genes':20, 'samples':20}
