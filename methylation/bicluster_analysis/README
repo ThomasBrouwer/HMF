@@ -1,0 +1,34 @@
+In this folder we do some biclustering analysis on the gene expression and methylation datasets.
+
+We are looking to find biclusters that are interesting, for example:
+- One that separates healthy vs diseased tumours.
+- Biclusters that are shared between two or three of the datasets.
+
+
+plot_datasets.py
+    Method for plotting a heatmap of the given dataset. Plots this for the 
+    three datasets, storing them in /plots/.
+
+compute_reordering_samples_genes.py
+    Runs hierarchical clustering on the gene expression dataset to find a 
+    sensible reordering of the samples and genes. Stores new heatmaps in 
+    /plots/, and reordered data in /data_reordered/.
+    Conclusion: not an easy reordering to be found that shows biclusters.
+
+run_hmf_mtf_store_matrices.py
+    Run the HMF D-MTF model on the datasets, and store the F and S matrices in
+    /matrices/.
+
+rank_biclusters.py
+    Methods for ranking the different biclusters, and returning a sorted list 
+    of them. Either based on S value, total S value across different datasets,
+    variance explained by each bicluster in one dataset, or total variance
+    across all datasets.
+
+plot_biclusters.py
+    Plot the specified biclusters, showing only the values explained by that
+    bicluster, R_kl, and store in /plots_biclusters/. 
+    Also:
+    - Reorder rows and columns using hierarchical clustering on R_kl.
+    - Add the hierarchical clustering to the diagram.
+    - Add the healthy vs diseased classification to the diagram.

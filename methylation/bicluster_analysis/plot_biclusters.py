@@ -1,5 +1,7 @@
 """
 Load the factor matrices, and plot heatmaps of the biggest biclusters.
+Also do hierarchical clustering to reorder rows/columns, add this hierarchy to
+the plot, and add the healthy vs diseased labels.
 """
 
 project_location = "/home/tab43/Documents/Projects/libraries/"
@@ -26,7 +28,12 @@ folder_data = project_location+'HMF/methylation/bicluster_analysis/data_reordere
 genes = numpy.loadtxt(folder_data+'genes_reordered', dtype='str')
 samples = numpy.loadtxt(folder_data+'samples_reordered', dtype='str')
 
-''' Extract the most interesting biclusters, and plot them. '''
+''' Method for plotting specified biclusters. '''
+def plot_heatmap_clustering_labels(new_R, genes, samples, labels):
+    TODO
+
+
+''' Plot the specified biclusters. '''
 folder_biclusters = project_location+'HMF/methylation/bicluster_analysis/plots_biclusters/'
 
 biclusters = [ # list of S matrix, bicluster index (k,l), and dataset name
@@ -43,3 +50,4 @@ for S, (k,l), name in biclusters:
     new_R = numpy.dot(F_genes, numpy.dot(new_S, F_samples.T))
     plot_heatmap(new_R, genes, samples, 
                  folder_biclusters+'bicluster_%s_%s_%s' % (name,k,l))
+                 
