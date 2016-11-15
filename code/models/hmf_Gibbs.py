@@ -59,6 +59,7 @@ We expect the following arguments:
     element_sparsity:    True if we use element-wise sparsity on elements in S^n, S^m, else False.
                          If True, use all_lambdan and all_lambdam lists. If False, use lambdaSn and lambdaSm values.
     importance_learning: True if we want to learn dataset importance automatically, else False.
+                         NOTE: this does NOT work well at all!
                       
 - hyperparameters, a dictionary defining the priors over the taus, Fs, Ss,
     { 'alphatau', 'betatau', 'alpha0', 'beta0', 'lambdaSn', 'lambdaSm', 'lambdaF', 'lambdaG' }
@@ -87,6 +88,18 @@ tau       -> ['random','exp']
 
 For G, Sn, and Sm, this can be a single string, or a list with elements per Dl, Rn, and Cm.
 If we use importance learning, the alpha get initialised to the alpha value given in R, D, C.
+
+---
+
+TENSOR DECOMPOSITION
+
+It can be shown that multiple matrix tri-factorisation of repeated experiments
+between the same two entity types is equivalent to tensor decomposition (where
+the third diomension is the repeated experiments), but only when the S matrices
+are diagonal.
+
+To do this CP decomposition, set 'tensor_decomposition' to True in settings.
+This restrains the S matrices to be diagonal.
 
 ---
 
@@ -176,17 +189,18 @@ import numpy, math, time
 ''' Default settings '''
 IMPORTANCE_DATASET = 1.
 DEFAULT_SETTINGS = {
-    'priorF'              : 'exponential',
-    'priorG'              : 'normal',
-    'priorSn'             : 'normal',
-    'priorSm'             : 'normal',
-    'orderF'              : 'columns',
-    'orderG'              : 'columns',
-    'orderSn'             : 'rows',
-    'orderSm'             : 'rows',
-    'ARD'                 : True,
-    'element_sparsity'    : False,
-    'importance_learning' : False,
+    'priorF'               : 'exponential',
+    'priorG'               : 'normal',
+    'priorSn'              : 'normal',
+    'priorSm'              : 'normal',
+    'orderF'               : 'columns',
+    'orderG'               : 'columns',
+    'orderSn'              : 'rows',
+    'orderSm'              : 'rows',
+    'ARD'                  : True,
+    'element_sparsity'     : False,
+    'importance_learning'  : False,
+    'tensor_decomposition' : False,
 }
 OPTIONS_PRIOR_F = ['exponential','normal']
 OPTIONS_PRIOR_S = ['exponential','normal']
@@ -426,9 +440,10 @@ class HMF_Gibbs:
         for order_Sm in self.order_Sm:
             assert order_Sm in OPTIONS_ORDER_S, "Unexpected order for Sm: %s." % order_Sm
         
-        self.ARD =                 settings.get('ARD',                 DEFAULT_SETTINGS['ARD'])
-        self.element_sparsity =    settings.get('element_sparsity',    DEFAULT_SETTINGS['element_sparsity'])
-        self.importance_learning = settings.get('importance_learning', DEFAULT_SETTINGS['importance_learning'])
+        self.ARD =                  settings.get('ARD',                  DEFAULT_SETTINGS['ARD'])
+        self.element_sparsity =     settings.get('element_sparsity',     DEFAULT_SETTINGS['element_sparsity'])
+        self.importance_learning =  settings.get('importance_learning',  DEFAULT_SETTINGS['importance_learning'])
+        self.tensor_decomposition = settings.get('tensor_decomposition', DEFAULT_SETTINGS['tensor_decomposition'])
         
         self.rows_F =          True if self.order_F  == 'rows' else False
         self.rows_G =         [True if order_G  == 'rows' else False for order_G  in self.order_G ]
@@ -517,7 +532,8 @@ class HMF_Gibbs:
                 K=self.K[E],
                 lambdak=lambdaFt,
                 R=R,
-                M=M) 
+                M=M,
+            ) 
         
         ''' Initialise the Gl '''
         for l in range(0,self.L):
@@ -532,7 +548,8 @@ class HMF_Gibbs:
                 lambdak=lambdaGl,
                 R=self.all_Dl[l],
                 M=self.all_Ml[l],
-                U=self.all_Ft[E])
+                U=self.all_Ft[E],
+            )
             self.all_Gl.append(Gl)
             
             taul = init_tau(
@@ -543,7 +560,8 @@ class HMF_Gibbs:
                 R=self.all_Dl[l],
                 M=self.all_Ml[l],
                 F=self.all_Ft[E],
-                G=self.all_Gl[l])
+                G=self.all_Gl[l],
+            )
             self.all_taul.append(taul)
             
         ''' Initialise the Sn and taun '''
@@ -561,7 +579,9 @@ class HMF_Gibbs:
                 R=self.all_Rn[n],
                 M=self.all_Mn[n],
                 F=self.all_Ft[E1],
-                G=self.all_Ft[E2])
+                G=self.all_Ft[E2],
+                tensor_decomposition=self.tensor_decomposition,
+            )
             self.all_Sn.append(Sn)
             
             taun = init_tau(
@@ -573,7 +593,8 @@ class HMF_Gibbs:
                 M=self.all_Mn[n],
                 F=self.all_Ft[E1],
                 G=self.all_Ft[E2],
-                S=self.all_Sn[n])
+                S=self.all_Sn[n],
+            )
             self.all_taun.append(taun)
             
         ''' Initialise the Sm and taum '''
@@ -591,7 +612,9 @@ class HMF_Gibbs:
                 R=self.all_Cm[m],
                 M=self.all_Mm[m],
                 F=self.all_Ft[E],
-                G=self.all_Ft[E])
+                G=self.all_Ft[E],
+                tensor_decomposition=self.tensor_decomposition,
+            )
             self.all_Sm.append(Sm)
                 
             taum = init_tau(
@@ -603,7 +626,8 @@ class HMF_Gibbs:
                 M=self.all_Mm[m],
                 F=self.all_Ft[E],
                 G=self.all_Ft[E],
-                S=self.all_Sm[m])
+                S=self.all_Sm[m],
+            )
             self.all_taum.append(taum)
       
         print "Finished initialising with settings: F: %s. G: %s. Sn: %s. Sm: %s. lambdat: %s. lambdaS: %s. tau: %s." % \
@@ -675,7 +699,8 @@ class HMF_Gibbs:
                         alpha0=self.alpha0,
                         beta0=self.beta0,
                         Fs=Fs,
-                        K=self.K[E])
+                        K=self.K[E],
+                    )
                         
             ''' Draw new values for the lambdan, lambdam '''
             if self.element_sparsity:
@@ -705,7 +730,8 @@ class HMF_Gibbs:
                     R=R,C=C,D=D,
                     lambdaF=lambdaFt,
                     nonnegative=self.nonnegative_F,
-                    rows=self.rows_F) 
+                    rows=self.rows_F,
+                ) 
                 
             ''' Draw new values for the Gl '''
             for l in range(0,self.L):
@@ -717,7 +743,8 @@ class HMF_Gibbs:
                     R=[],C=[],D=D,
                     lambdaF=lambdaGl,
                     nonnegative=self.nonnegative_G[l],
-                    rows=self.rows_G[l]) 
+                    rows=self.rows_G[l],
+                ) 
                 
             ''' Draw new values for the Sn '''
             for n in range(0,self.N):
@@ -734,7 +761,9 @@ class HMF_Gibbs:
                     G=self.all_Ft[E2],
                     lambdaS=lambdaSn,
                     nonnegative=self.nonnegative_Sn[n],
-                    rows=self.rows_Sn[n]) 
+                    rows=self.rows_Sn[n],
+                    tensor_decomposition=self.tensor_decomposition,
+                ) 
                 
             ''' Draw new values for the Sm '''
             for m in range(0,self.M):
@@ -751,7 +780,9 @@ class HMF_Gibbs:
                     G=self.all_Ft[E],
                     lambdaS=lambdaSm,
                     nonnegative=self.nonnegative_Sm[m],
-                    rows=self.rows_Sm[m]) 
+                    rows=self.rows_Sm[m],
+                    tensor_decomposition=self.tensor_decomposition,
+                ) 
             
             ''' Draw new values for the taun, taum, taul '''
             for n in range(0,self.N):
@@ -764,7 +795,8 @@ class HMF_Gibbs:
                     mask=self.all_Mn[n],
                     F=self.all_Ft[E1],
                     G=self.all_Ft[E2],
-                    S=self.all_Sn[n])
+                    S=self.all_Sn[n],
+                )
                     
             for m in range(0,self.M):
                 E = self.E_per_Cm[m]
@@ -776,7 +808,8 @@ class HMF_Gibbs:
                     mask=self.all_Mm[m],
                     F=self.all_Ft[E],
                     G=self.all_Ft[E],
-                    S=self.all_Sm[m])
+                    S=self.all_Sm[m],
+                )
                     
             for l in range(0,self.L):
                 E = self.E_per_Dl[l]
@@ -787,7 +820,8 @@ class HMF_Gibbs:
                     dataset=self.all_Dl[l],
                     mask=self.all_Ml[l],
                     F=self.all_Ft[E],
-                    G=self.all_Gl[l])
+                    G=self.all_Gl[l],
+                )
                 
             ''' Draw new values for the alphan, alpham, alphal '''
             if self.importance_learning:

@@ -14,12 +14,13 @@ import numpy, matplotlib.pyplot as plt
 
 ''' Model settings '''
 settings = {
-    'priorF'              : 'exponential',
-    'priorSn'             : ['normal','normal','normal'], #GE,PM
-    'orderF'              : 'columns',
-    'orderSn'             : ['rows','rows','rows'],
-    'ARD'                 : True,
-    'importance_learning' : True,
+    'priorF'               : 'exponential',
+    'priorSn'              : ['normal','normal','normal'], #GE,PM
+    'orderF'               : 'columns',
+    'orderSn'              : ['rows','rows','rows'],
+    'ARD'                  : True,
+    'importance_learning'  : False,
+    'tensor_decomposition' : True,
 }
 hyperparameters = {
     'alphatau' : 1,

@@ -143,10 +143,11 @@ def draw_F(R,C,D,lambdaF,nonnegative,rows):
 ######################## Draw new values for S matrix #########################
 ###############################################################################
 
-def draw_S(dataset,mask,tau,alpha,F,S,G,lambdaS,nonnegative,rows):
+def draw_S(dataset,mask,tau,alpha,F,S,G,lambdaS,nonnegative,rows,tensor_decomposition):
     ''' Draw new values for S matrix, and update in place.
         First do some dimensionality checks.
-        Then if rows=True, draw per row, otherwise per individual element.'''
+        Then if rows=True, draw per row, otherwise per individual element.
+        If tensor_decomposition = True, only draw new values for the diagonal. '''
         
     assert not nonnegative or not rows, "Nonnegative and row draws not implemented yet!"        
         
@@ -154,16 +155,21 @@ def draw_S(dataset,mask,tau,alpha,F,S,G,lambdaS,nonnegative,rows):
     assert lambdaS.shape == (K,L) and F.shape == (I,K) and G.shape == (J,L) and dataset.shape == mask.shape
     
     for k in range(0,K):
-        if rows:
+        ''' If doing CP, don't do row-wise draws. '''
+        if rows and not tensor_decomposition:
             mu_Sk, precision_Fi = updates.row_mu_precision_S(
                 dataset=dataset,mask=mask,tau=tau,alpha=alpha,F=F,S=S,G=G,lambdaSk=lambdaS[k],k=k,nonnegative=nonnegative)
             new_Sk = MTN_draw(mu_Sk,precision_Fi) if nonnegative else MN_draw(mu_Sk,precision_Fi)
             S[k,:] = new_Sk
         else:
             for l in range(0,L):
-                mu_Skl, tau_Skl = updates.individual_mu_tau_S(
-                    dataset=dataset,mask=mask,tau=tau,alpha=alpha,F=F,S=S,G=G,lambdaSkl=lambdaS[k,l],k=k,l=l,nonnegative=nonnegative)
-                new_Skl = TN_draw(mu_Skl,tau_Skl) if nonnegative else normal_draw(mu_Skl,tau_Skl)    
-                S[k,l] = new_Skl
+                ''' If doing CP, only draw value for l = k (diagonal). '''
+                if tensor_decomposition and l != k:
+                    S[k,l] = 0.
+                else:
+                    mu_Skl, tau_Skl = updates.individual_mu_tau_S(
+                        dataset=dataset,mask=mask,tau=tau,alpha=alpha,F=F,S=S,G=G,lambdaSkl=lambdaS[k,l],k=k,l=l,nonnegative=nonnegative)
+                    new_Skl = TN_draw(mu_Skl,tau_Skl) if nonnegative else normal_draw(mu_Skl,tau_Skl)    
+                    S[k,l] = new_Skl
         
     return S

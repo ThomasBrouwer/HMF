@@ -184,7 +184,8 @@ def test_draw_S():
         G=G,
         lambdaS=lambdaS,
         nonnegative=True,
-        rows=False  
+        rows=False,
+        tensor_decomposition=False,
     )
     for k,l in itertools.product(range(0,K),range(0,L)):
         assert new_S[k,l] != copy_S[k,l]
@@ -204,7 +205,8 @@ def test_draw_S():
         G=G,
         lambdaS=lambdaS,
         nonnegative=False,
-        rows=False
+        rows=False,
+        tensor_decomposition=False,
     )
     for k,l in itertools.product(range(0,K),range(0,L)):
         assert new_S[k,l] != copy_S[k,l]
@@ -222,9 +224,32 @@ def test_draw_S():
         G=G,
         lambdaS=lambdaS,
         nonnegative=False,
-        rows=True
+        rows=True,
+        tensor_decomposition=False,
     )
     for k,l in itertools.product(range(0,K),range(0,L)):
         assert new_S[k,l] != copy_S[k,l]
     assert any([True if new_S[k,l] < 0. else False for k,l in itertools.product(range(0,K),range(0,L))])
     
+    
+    ''' Finally, test tensor decomposition (off-diagonal all zero). '''
+    ''' Nonnegative, columns '''
+    new_S = draws_Gibbs.draw_S(
+        dataset=R,
+        mask=M,
+        tau=tau,
+        alpha=alpha,
+        F=F,
+        S=S,
+        G=G,
+        lambdaS=lambdaS,
+        nonnegative=True,
+        rows=False,
+        tensor_decomposition=True,
+    )
+    for k,l in itertools.product(range(0,K),range(0,L)):
+        if k != l:
+            assert new_S[k,l] == 0.
+        else:
+            assert new_S[k,l] != copy_S[k,l]
+            assert new_S[k,l] > 0.

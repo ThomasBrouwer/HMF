@@ -185,7 +185,7 @@ def init_S_leastsquares(R,M,F,G):
     S = numpy.dot(F_pinv,numpy.dot(R_imp,G_T_pinv))
     return S
     
-def init_S(prior,init,K,L,lambdaS,R=None,M=None,F=None,G=None):
+def init_S(prior,init,K,L,lambdaS,R=None,M=None,F=None,G=None,tensor_decomposition=False):
     ''' Initialise S. Prior in ['normal','exponential']. Init in ['random','exp','least']. '''
     assert lambdaS.shape == (K,L), "lambdaS should be shape %s, rather than %s." % ((K,L),lambdaS.shape)  
     
@@ -193,8 +193,12 @@ def init_S(prior,init,K,L,lambdaS,R=None,M=None,F=None,G=None):
     S = init_S_leastsquares(R=R,M=M,F=F,G=G) if init == 'least' \
         else init_matrix_random_exp(prior=prior,init=init,I=K,K=L,lambdak=lambdaS0)
         
-    ''' If S is nonnegative, set all negative elements to 0. '''
+    ''' If S is nonnegative, set all negative elements to a very small value. '''
     if prior == 'exponential':
         S = S.clip(min=0.01)    
+
+    ''' If doing tensor decomposition (CP), set off-diagonal elements to 0. '''
+    if tensor_decomposition:
+        S[~(numpy.eye(K,L,dtype=bool))] = 0.
         
     return S
