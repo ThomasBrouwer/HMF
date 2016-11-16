@@ -67,12 +67,18 @@ if __name__ == "__main__":
     S_gm = numpy.loadtxt(folder_matrices+'S_gm')
     
     ''' Print ranked biclusters using total S. '''
+    top_n = 20    
+    
     sorted_all_S = sorted_biclusters_all_S(S_ge,S_pm,S_gm)
-    print "Sorted by S: ", sorted_all_S
+    print "Top %s, sorted by S:" % top_n
+    for v in sorted_all_S[:top_n]:
+        print v
     
     ''' Print ranked biclusters using total variance. '''
     sorted_all_variance = sorted_biclusters_all_variance(S_ge,S_pm,S_gm,F_genes,F_samples)
-    print "Sorted by variance: ", sorted_all_variance
+    print "Top %s, sorted by variance:" % top_n
+    for v in sorted_all_variance[:top_n]:
+        print v
     
     ''' Also compute it per dataset. '''
     sorted_ge_variance = sorted_biclusters_one_variance(S_ge,F_genes,F_samples)
