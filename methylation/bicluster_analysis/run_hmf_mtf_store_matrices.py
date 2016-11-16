@@ -17,7 +17,7 @@ iterations, burn_in, thinning = 1000, 800, 10
 indices_thinning = range(burn_in,iterations,thinning)  
 
 settings = {
-    'priorF'           : 'exponential',
+    'priorF'           : 'normal',
     'priorSn'          : ['normal','normal','normal'],
     'orderF'           : 'columns',
     'orderSn'          : ['rows','rows','rows'],
@@ -43,7 +43,7 @@ init = {
 iterations, burn_in, thinning = 200, 150, 2
 
 E = ['genes','samples']
-K = {'genes':20, 'samples':20}
+K = {'genes':10, 'samples':10}
 alpha_n = [1., 1., 1.] # GE, PM, GM
 
 

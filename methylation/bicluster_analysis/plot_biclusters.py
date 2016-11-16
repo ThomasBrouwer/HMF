@@ -137,7 +137,7 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, plot_name):
     ax3.tick_params(axis='x', which='major', pad=pad_labels)
     
     ''' Add the healthy vs diseased labels. '''
-    labels_tumour_matrix = numpy.matrix([labels_tumour])
+    labels_tumour_matrix = numpy.matrix([labels_reordered])
     ax4 = fig.add_axes(dim_labels, frame_on=frame_on_heatmap)
     ax4.imshow(labels_tumour_matrix, aspect='auto', cmap=plt.cm.coolwarm, interpolation='nearest', vmin=0, vmax=1)
     
@@ -154,7 +154,7 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, plot_name):
 folder_biclusters = project_location+'HMF/methylation/bicluster_analysis/plots_biclusters/'
 
 biclusters = [ # list of S matrix, bicluster index (k,l), and dataset name
-    (S_ge, (9,13), 'ge'), (S_pm, (9,13), 'pm'), (S_gm, (9,13), 'gm'),
+    (S_ge, (0,1), 'ge'), (S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
 ]
 
 for S, (k,l), name in biclusters:
