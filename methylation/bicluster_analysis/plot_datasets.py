@@ -36,7 +36,7 @@ def plot_heatmap(R, rows, columns, outfile, size=(20, 15)):
     ax.invert_yaxis()
     ax.xaxis.tick_top()
     
-    # Show drug and cell line names
+    # Show sample and gene names
     ax.set_xticklabels(columns, minor=False, fontsize = 4)
     ax.set_yticklabels(rows, minor=False, fontsize = 4)
 

@@ -13,6 +13,9 @@ Genes
 Samples
 -> Firstly we divide the genes into healthy vs tumour
 -> Then for both groups compute a dendrogram as with the genes.
+
+Alternatively:
+-> Use the F_genes and F_samples matrices instead of the R_ge matrix.
 '''
 
 project_location = "/home/tab43/Documents/Projects/libraries/"
@@ -31,10 +34,19 @@ from scipy.cluster.hierarchy import linkage
 from scipy.cluster.hierarchy import dendrogram
 
 
+USE_FACTOR_MATRICES_FOR_REORDERING = True # If True, use F matrices for hierarchical clustering
+
+
 ''' Load the datasets. '''
 (R_ge, R_pm, R_gm, genes, samples) = filter_driver_genes_std()
 labels_tumour = load_tumor_label_list()
 n_genes, n_samples = len(genes), len(samples)
+
+
+''' Load in factor matrices. '''
+folder_matrices = project_location+'HMF/methylation/bicluster_analysis/matrices/'
+F_genes = numpy.loadtxt(folder_matrices+'F_genes')
+F_samples = numpy.loadtxt(folder_matrices+'F_samples')
 
 
 ''' Reorder dataset for tumour labels. '''
@@ -55,7 +67,8 @@ def compute_dendrogram(R):
 
 
 ''' Compute the dendrogram for genes, using the gene expression data, and reorder data. '''
-reordered_indices_genes = compute_dendrogram(R_ge)
+dataset = R_ge if not USE_FACTOR_MATRICES_FOR_REORDERING else F_genes
+reordered_indices_genes = compute_dendrogram(dataset) 
 
 R_ge = R_ge[reordered_indices_genes,:]
 R_pm = R_pm[reordered_indices_genes,:]
@@ -71,12 +84,15 @@ indices_tumour =  [i for i in range(0,n_samples) if sorted_labels_tumour[i] == 1
 
 # Split data into healthy and tumour
 R_healthy, R_tumour = R_ge[:,indices_healthy], R_ge[:,indices_tumour]
+F_samples_healthy, F_samples_tumour = F_samples[indices_healthy,:], F_samples[indices_tumour,:]
 samples_healthy = [sorted_samples[i] for i in indices_healthy]
 samples_tumour =  [sorted_samples[i] for i in indices_tumour]
 
 # Compute dendrograms and reorderings
-reordered_indices_samples_healthy = compute_dendrogram(R_healthy.T)
-reordered_indices_samples_tumour =  compute_dendrogram(R_tumour.T)
+dataset_healthy = R_healthy.T if not USE_FACTOR_MATRICES_FOR_REORDERING else F_samples_healthy
+dataset_tumour = R_tumour.T if not USE_FACTOR_MATRICES_FOR_REORDERING else F_samples_tumour
+reordered_indices_samples_healthy = compute_dendrogram(dataset_healthy)
+reordered_indices_samples_tumour =  compute_dendrogram(dataset_tumour)
 
 # Reorder datasets and append them again
 R_ge_healthy, R_ge_tumour = R_ge[:,reordered_indices_samples_healthy], R_ge[:,reordered_indices_samples_tumour]
