@@ -42,6 +42,15 @@ pad_labels = 15
 dpi = 300
 
 
+''' Hierarchical clustering settings. 
+    Options for method:
+       'single' (Nearest Point), 'complete' (Voor Hees), 'average' (UPGMA),
+       'weighted' (WPGMA), 'centroid' (UPGMC), 'median' (WPGMC), 'ward' (increment)
+'''
+method = 'ward' # 'complete', 'weighted'
+metric = 'euclidean'
+
+
 ''' Load in factor matrices. '''
 folder_matrices = project_location+'HMF/methylation/bicluster_analysis/matrices/'
 
@@ -80,7 +89,7 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, plot_name):
     ax1.get_xaxis().set_visible(False)
     ax1.get_yaxis().set_visible(False)
     
-    Y_samples = linkage(y=R_kl.T, method='centroid', metric='euclidean') 
+    Y_samples = linkage(y=R_kl.T, method=method, metric=metric) 
     Z_samples = dendrogram(Z=Y_samples, orientation='top', no_plot=False)#False)
     reordered_indices_samples = Z_samples['leaves']  
 
@@ -89,7 +98,7 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, plot_name):
     ax2.get_xaxis().set_visible(False)
     ax2.get_yaxis().set_visible(False)
     
-    Y_genes = linkage(y=R_kl, method='centroid', metric='euclidean') 
+    Y_genes = linkage(y=R_kl, method=method, metric=metric) 
     Z_genes = dendrogram(Z=Y_genes, orientation='left', no_plot=False)#False)
     reordered_indices_genes = Z_genes['leaves']    
     
@@ -154,7 +163,15 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, plot_name):
 folder_biclusters = project_location+'HMF/methylation/bicluster_analysis/plots_biclusters/'
 
 biclusters = [ # list of S matrix, bicluster index (k,l), and dataset name
-    (S_ge, (0,1), 'ge'), (S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
+    #(S_ge, (0,1), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
+    (S_ge, (2,5), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
+    #(S_ge, (6,1), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
+    #(S_ge, (4,5), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
+    #(S_ge, (7,6), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
+    #(S_ge, (3,8), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
+    #(S_ge, (5,1), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
+    #(S_ge, (4,7), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
+    #(S_ge, (7,9), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
 ]
 
 for S, (k,l), name in biclusters:

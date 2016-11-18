@@ -13,7 +13,7 @@ import numpy
 
 
 ''' Settings HMF '''
-iterations, burn_in, thinning = 1000, 800, 10
+iterations, burn_in, thinning = 200, 150, 2 #1000, 800, 10
 indices_thinning = range(burn_in,iterations,thinning)  
 
 settings = {
@@ -29,18 +29,18 @@ hyperparameters = {
     'betatau'  : 1,
     'alpha0'   : 0.001,
     'beta0'    : 0.001,
-    'alphaS'   : 0.001,
+    'alphaS'   : 1.,
     'betaS'    : 0.001,
     'lambdaF'  : 0.1,
 }
 init = {
     'F'       : 'kmeans',
-    'Sn'      : ['least','least','least'],
+    'Sn'      : 'least',
     'lambdat' : 'exp',
     'tau'     : 'exp'
 }
 
-iterations, burn_in, thinning = 200, 150, 2
+iterations, burn_in, thinning = 1000, 800, 5 #200, 150, 2
 
 E = ['genes','samples']
 K = {'genes':10, 'samples':10}
