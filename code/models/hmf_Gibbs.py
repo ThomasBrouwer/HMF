@@ -879,7 +879,7 @@ class HMF_Gibbs:
                 if self.element_sparsity:
                     self.iterations_all_lambdam[m].append(numpy.copy(self.all_lambdam[m]))
                 #if self.importance_learning:
-                self.iterations_all_alpham[m].append(self.all_alphan[m])
+                self.iterations_all_alpham[m].append(self.all_alpham[m])
                 self.iterations_all_Sm[m].append(numpy.copy(self.all_Sm[m]))
                 self.iterations_all_taum[m].append(self.all_taum[m])
             for l in range(0,self.L):
