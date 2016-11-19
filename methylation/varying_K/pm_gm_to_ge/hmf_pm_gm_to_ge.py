@@ -128,8 +128,10 @@ run_all_settings(all_K)
 
 '''
 ARD:
-    
+    all_K = [{'genes': 1, 'samples': 1}, {'genes': 2, 'samples': 2}, {'genes': 4, 'samples': 4}, {'genes': 6, 'samples': 6}, {'genes': 8, 'samples': 8}, {'genes': 10, 'samples': 10}, {'genes': 15, 'samples': 15}, {'genes': 20, 'samples': 20}, {'genes': 25, 'samples': 25}, {'genes': 30, 'samples': 30}, {'genes': 35, 'samples': 35}, {'genes': 40, 'samples': 40}, {'genes': 45, 'samples': 45}, {'genes': 50, 'samples': 50}] 
+    all_average_performances = [1.0008179293234307, 1.0027935398482632, 0.9725686537406224, 0.89406943742551093, 0.90911482664537524, 0.93221899674787956, 0.96545060035367736, 1.0105451043621445, 0.96346641937002442, 1.0115351385666709, 0.97922436610607677, 0.94731013699836597, 0.98923686335869621, 1.0222804345913752]
 
 No ARD:
-    
+    all_K = [{'genes': 1, 'samples': 1}, {'genes': 2, 'samples': 2}, {'genes': 4, 'samples': 4}, {'genes': 6, 'samples': 6}, {'genes': 8, 'samples': 8}, {'genes': 10, 'samples': 10}, {'genes': 15, 'samples': 15}, {'genes': 20, 'samples': 20}, {'genes': 25, 'samples': 25}, {'genes': 30, 'samples': 30}, {'genes': 35, 'samples': 35}, {'genes': 40, 'samples': 40}, {'genes': 45, 'samples': 45}, {'genes': 50, 'samples': 50}] 
+    all_average_performances = [1.0011176009123834, 1.001208239789396, 0.99740877082053725, 0.91132346942128706, 0.94069263452160179, 0.95233362349919037, 1.1101377682300149, 1.0986209628136276, 1.2216930864968425, 1.2224873115331814, 1.2334890299622294, 1.2569353083033512, 1.3493863257094616, 1.362851123555044]
 '''

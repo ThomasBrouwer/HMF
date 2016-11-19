@@ -127,7 +127,8 @@ run_all_settings(all_K)
 
 '''
 ARD:
-    
+    all_K = [{'genes': 1, 'samples': 1}, {'genes': 2, 'samples': 2}, {'genes': 4, 'samples': 4}, {'genes': 6, 'samples': 6}, {'genes': 8, 'samples': 8}, {'genes': 10, 'samples': 10}, {'genes': 15, 'samples': 15}, {'genes': 20, 'samples': 20}, {'genes': 25, 'samples': 25}, {'genes': 30, 'samples': 30}, {'genes': 35, 'samples': 35}, {'genes': 40, 'samples': 40}, {'genes': 45, 'samples': 45}, {'genes': 50, 'samples': 50}] 
+    all_average_performances = [0.96687919064173988, 0.95642859255925061, 0.94183674422775865, 0.91058768715878879, 0.90272335932951753, 0.84169156169043335, 0.80773291957782178, 0.78792060879368808, 0.77616162161044078, 0.76364626947916814, 0.74255960811908162, 0.73981982592197293, 0.74183804024271838, 0.73888837609339864]
 
 No ARD:
     
