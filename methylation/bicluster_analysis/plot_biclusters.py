@@ -163,15 +163,7 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, plot_name):
 folder_biclusters = project_location+'HMF/methylation/bicluster_analysis/plots_biclusters/'
 
 biclusters = [ # list of S matrix, bicluster index (k,l), and dataset name
-    #(S_ge, (0,1), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
-    (S_ge, (2,5), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
-    #(S_ge, (6,1), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
-    #(S_ge, (4,5), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
-    #(S_ge, (7,6), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
-    #(S_ge, (3,8), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
-    #(S_ge, (5,1), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
-    #(S_ge, (4,7), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
-    #(S_ge, (7,9), 'ge'), #(S_pm, (0,1), 'pm'), (S_gm, (0,1), 'gm'),
+    (S_pm, (21, 9), 'pm'), 
 ]
 
 for S, (k,l), name in biclusters:

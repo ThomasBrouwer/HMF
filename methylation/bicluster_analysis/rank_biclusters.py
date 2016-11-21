@@ -76,7 +76,7 @@ if __name__ == "__main__":
     
     ''' Print ranked biclusters using total variance. '''
     sorted_all_variance = sorted_biclusters_all_variance(S_ge,S_pm,S_gm,F_genes,F_samples)
-    print "Top %s, sorted by variance:" % top_n
+    print "\nTop %s, sorted by variance:" % top_n
     for v in sorted_all_variance[:top_n]:
         print v
     

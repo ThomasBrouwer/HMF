@@ -13,7 +13,7 @@ import numpy
 
 
 ''' Settings HMF '''
-iterations, burn_in, thinning = 200, 150, 2 #1000, 800, 10
+iterations, burn_in, thinning = 200, 150, 2 # 1000, 800, 5 #
 indices_thinning = range(burn_in,iterations,thinning)  
 
 settings = {
@@ -40,10 +40,9 @@ init = {
     'tau'     : 'exp'
 }
 
-iterations, burn_in, thinning = 1000, 800, 5 #200, 150, 2
 
 E = ['genes','samples']
-K = {'genes':10, 'samples':10}
+K = {'genes':40, 'samples':40}
 alpha_n = [1., 1., 1.] # GE, PM, GM
 
 
