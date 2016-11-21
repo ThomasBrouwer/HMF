@@ -42,7 +42,7 @@ init = {
 
 
 E = ['genes','samples']
-K = {'genes':40, 'samples':40}
+K = {'genes':20, 'samples':20}
 alpha_n = [1., 1., 1.] # GE, PM, GM
 
 

@@ -84,3 +84,4 @@ if __name__ == "__main__":
     sorted_ge_variance = sorted_biclusters_one_variance(S_ge,F_genes,F_samples)
     sorted_pm_variance = sorted_biclusters_one_variance(S_pm,F_genes,F_samples)
     sorted_gm_variance = sorted_biclusters_one_variance(S_gm,F_genes,F_samples)
+    
