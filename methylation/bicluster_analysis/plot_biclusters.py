@@ -10,9 +10,13 @@ sys.path.append(project_location)
 
 from HMF.methylation.load_methylation import filter_driver_genes_std
 from HMF.methylation.load_methylation import load_tumor_label_list
+from HMF.methylation.load_methylation import load_top_n_GO_terms
+from HMF.methylation.load_methylation import load_top_n_GO_terms_as_rank
 
 import numpy
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+from matplotlib.colors import BoundaryNorm
 from scipy.cluster.hierarchy import linkage
 from scipy.cluster.hierarchy import dendrogram
 
@@ -30,13 +34,19 @@ dim_top_dendrogram = [0.15,0.85,0.8,0.15]
 dim_left_dendrogram = [0.,0.125,0.15,0.725]
 dim_heatmap = [0.15,0.125,0.8,0.725]
 dim_labels = [0.15,0.11,0.8,0.01]
+dim_go_terms = [0.953,0.125,0.01,0.725]
 
 # Font sizes axis ticks and labels
 fontsize_ticks = 4
 fontsize_labels = 15
 
-# How much padding of heatmap xaxis labels to add for tumour labels
-pad_labels = 15
+# How much padding of heatmap xaxis labels to add for tumour labels, and yaxis for go terms
+pad_xlabels = 15
+pad_ylabels = 20
+
+# Colours for the GO term labels
+colours_go_terms = ['r', 'g', 'b', 'y', 'w', 'k', 'm']
+bounds_go_terms = [0.5] + [0.5+n for n in range(1,len(colours_go_terms)+1)]
 
 # Image quality
 dpi = 300
@@ -61,9 +71,12 @@ S_pm = numpy.loadtxt(folder_matrices+'S_pm')
 S_gm = numpy.loadtxt(folder_matrices+'S_gm')
 
 
-''' Also load in list of genes and samples. '''
+''' Also load in list of genes, samples, sample labels, and gene GO ids. '''
 _, _, _, genes, samples = filter_driver_genes_std()
 labels_tumour = load_tumor_label_list()
+top_n_go = 5 # number of GO term classes to use, +1 for 'other'
+genes_go = load_top_n_GO_terms(n=top_n_go, genes=genes)
+genes_go_rank = load_top_n_GO_terms_as_rank(n=top_n_go, genes=genes)
 
 
 ''' Method for computing dendrogram. Return order of indices. '''
@@ -78,7 +91,7 @@ def compute_dendrogram(R):
 
 
 ''' Method for plotting specified biclusters. '''
-def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, plot_name):
+def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, go_terms, plot_name):
     ''' Set up plot. '''
     fig = plt.figure(figsize=figsize)      
 
@@ -133,6 +146,10 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, plot_name):
     ax3.set_xticklabels(samples_reordered, minor=False, fontsize=fontsize_ticks)
     ax3.set_yticklabels(genes_reordered, minor=False, fontsize=fontsize_ticks)
     
+    # Move xaxis labels down a bit to make space for tumour labels, and yaxis for go terms
+    ax3.tick_params(axis='x', which='major', pad=pad_xlabels)
+    ax3.tick_params(axis='y', which='major', pad=pad_ylabels)
+    
     # Turn off all the ticks
     ax3 = plt.gca()
     for t in ax3.xaxis.get_major_ticks():
@@ -142,17 +159,27 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, plot_name):
         t.tick1On = False
         t.tick2On = False
         
-    # Move xaxis labels down a bit to make space for tumour labels
-    ax3.tick_params(axis='x', which='major', pad=pad_labels)
-    
     ''' Add the healthy vs diseased labels. '''
-    labels_tumour_matrix = numpy.matrix([labels_reordered])
+    labels_tumour_matrix = numpy.array(labels_reordered)
+    labels_tumour_matrix.shape = (1,len(labels_tumour_matrix))
     ax4 = fig.add_axes(dim_labels, frame_on=frame_on_heatmap)
     ax4.imshow(labels_tumour_matrix, aspect='auto', cmap=plt.cm.coolwarm, interpolation='nearest', vmin=0, vmax=1)
     
     # Turn off axes
     ax4.get_xaxis().set_visible(False)
     ax4.get_yaxis().set_visible(False)
+    
+    ''' Add the gene GO term classes. '''
+    go_terms_matrix = numpy.array(go_terms)
+    go_terms_matrix.shape = (len(go_terms_matrix),1)
+    cmap = ListedColormap(colours_go_terms) # defines colours for labels
+    norm = BoundaryNorm(bounds_go_terms, cmap.N) # defines the value thresholds for colours
+    ax5 = fig.add_axes(dim_go_terms, frame_on=frame_on_heatmap)
+    ax5.matshow(go_terms_matrix, aspect='auto', cmap=cmap, norm=norm)    
+    
+    # Turn off axes
+    ax5.get_xaxis().set_visible(False)
+    ax5.get_yaxis().set_visible(False)
         
     ''' Store plot. '''
     fig.show()
@@ -171,4 +198,4 @@ for S, (k,l), name in biclusters:
     new_S[k,l] = S[k,l]
     new_R = numpy.dot(F_genes, numpy.dot(new_S, F_samples.T))
     plot_name = folder_biclusters+"bicluster_%s_%s_%s" % (name,k,l)
-    plot_heatmap_clustering_labels(new_R, genes, samples, labels_tumour, plot_name)
+    plot_heatmap_clustering_labels(new_R, genes, samples, labels_tumour, genes_go_rank, plot_name)

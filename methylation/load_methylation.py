@@ -235,7 +235,7 @@ def load_GO_term(genes=[], go_terms=[]):
     # Replace any GO ids not in :go_terms by 'other'    
     if go_terms:
         for i,go_term in enumerate(go_in_order):
-            if go_term not in go_terms:
+            if go_term not in go_terms or go_term == '(no value)':
                 go_in_order[i] = 'other'
         
     # Reorder genes to order specified by :genes
@@ -258,6 +258,22 @@ def load_top_n_GO_terms(n, genes=[]):
     # Finally, return the list of GO terms associated with the genes (replacing uncommon ones with 'other')
     return load_GO_term(genes=genes, go_terms=top_n_go_terms)
 
+def load_top_n_GO_terms_as_rank(n, genes=[]):
+    ''' Same as above but return the rank (1, 2, ..., n+1) of each GO term sorted by frequency. '''
+    # First count the occurrences for each GO term id and sort them
+    go_terms = load_GO_term(genes=genes)
+    c = Counter(go_terms)
+    
+    # Extract the top n GO term ids    
+    top_n_go_terms_and_counts = c.most_common(n)
+    top_n_go_terms = [v[0] for v in top_n_go_terms_and_counts]
+    
+    # Replace GO terms by its ranking. 'other' has ranking n+1
+    rank_go_terms = []    
+    for go_term in go_terms:
+        rank_go_terms.append(n+1 if go_term not in top_n_go_terms else top_n_go_terms.index(go_term)+1)
+    return rank_go_terms
+    
 
 #(R_ge, R_pm, R_gm, genes, samples) = filter_driver_genes()
 #(R_ge_std, R_pm_std, R_gm_std, genes_std, samples_std) = filter_driver_genes_std()
@@ -270,3 +286,5 @@ def load_top_n_GO_terms(n, genes=[]):
 #go_terms_reordered = load_GO_term(genes=genes_reordered, go_terms=['GO:0000122', 'GO:0000165', 'GO:0006351'])
 #top_go_terms = load_top_n_GO_terms(n=3)
 #top_go_terms_reordered = load_top_n_GO_terms(n=3, genes=genes_reordered)
+#top_go_term_ranks = load_top_n_GO_terms_as_rank(n=3)
+#top_go_term_ranks_reordered = load_top_n_GO_terms_as_rank(n=3, genes=genes_reordered)
