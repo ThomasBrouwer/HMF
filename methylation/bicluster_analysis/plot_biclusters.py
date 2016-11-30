@@ -118,6 +118,7 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, go_terms, plot_
     ''' Reorder rows, columns, names, labels. '''
     R_kl_reordered = R_kl[reordered_indices_genes,:][:,reordered_indices_samples]
     genes_reordered = [genes[i] for i in reordered_indices_genes]
+    go_terms_reordered = [go_terms[i] for i in reordered_indices_genes]
     samples_reordered = [samples[i] for i in reordered_indices_samples]
     labels_reordered = [labels[i] for i in reordered_indices_samples]
     
@@ -125,8 +126,9 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, go_terms, plot_
     ax3 = fig.add_axes(dim_heatmap, frame_on=frame_on_heatmap) #(left,bottom,width,height)
     ax3.imshow(R_kl_reordered, aspect='auto', cmap=plt.cm.bwr, interpolation='nearest', vmin=-2, vmax=2)
     
-    # Flip y-axis to make it align with heatmap
-    ax3.invert_yaxis()    
+    # Flip x-axis and y-axis orders
+    #ax3.invert_xaxis()
+    #ax3.invert_yaxis() 
     
     # Axes labels
     ax3.set_xlabel("Samples", fontsize=fontsize_labels)
@@ -170,7 +172,7 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, go_terms, plot_
     ax4.get_yaxis().set_visible(False)
     
     ''' Add the gene GO term classes. '''
-    go_terms_matrix = numpy.array(go_terms)
+    go_terms_matrix = numpy.array(go_terms_reordered)
     go_terms_matrix.shape = (len(go_terms_matrix),1)
     cmap = ListedColormap(colours_go_terms) # defines colours for labels
     norm = BoundaryNorm(bounds_go_terms, cmap.N) # defines the value thresholds for colours
