@@ -13,7 +13,7 @@ from collections import Counter
 import numpy
 
 
-location_methylation = '/home/tab43/Documents/Projects/libraries/HMF/methylation/data/'
+location_methylation = '/Users/thomasbrouwer/Documents/Projects/libraries/HMF/methylation/data/' # '/home/tab43/Documents/Projects/libraries/HMF/methylation/data/'
 name_gene_expression = 'matched_expression'
 name_promoter_methylation = 'matched_methylation_genePromoter'
 name_gene_body_methylation = 'matched_methylation_geneBody'
