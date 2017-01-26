@@ -5,16 +5,18 @@ Methods for (randomly) generating a mask M of 1 values if a value is known, and
 
 import numpy, random, itertools
 
-# Generate a mask matrix M with <fraction> missing entries
+
 def generate_M(I,J,fraction):
+    ''' Generate a mask matrix M with <fraction> missing entries. '''
     M = numpy.ones([I,J])
     values = random.sample(range(0,I*J),int(I*J*fraction))
     for v in values:
         M[v / J][v % J] = 0
     return M
     
-# Try generating the matrix <attempts> times
+
 def try_generate_M(I,J,fraction,attempts):
+    ''' Try generating the matrix <attempts> times. '''
     for attempt in range(1,attempts+1):
         try:
             M = generate_M(I,J,fraction)
@@ -30,8 +32,11 @@ def try_generate_M(I,J,fraction,attempts):
             pass
     raise Exception("Tried to generate M %s times, with I=%s, J=%s, fraction=%s, but failed." % (attempts,I,J,fraction))
       
-# Given a mask matrix M, generate an even more sparse matrix M_test, and M_train (s.t. M_test+M_train=M)
-# The new mask matrix has <fraction> missing entries overall (so not fraction missing out of the observed entries, but out of all entries)
+''' Given a mask matrix M, generate an even more sparse matrix M_test, and 
+    M_train (s.t. M_test+M_train=M).
+    The new mask matrix has <fraction> missing entries overall (so not fraction 
+    missing out of the observed entries, but out of all entries). 
+'''
 def generate_M_from_M(M,fraction):
     I,J = M.shape
     indices = nonzero_indices(M)
@@ -58,6 +63,19 @@ def try_generate_M_from_M(M,fraction,attempts):
         if check_empty_rows_columns(M_train):
             return M_train,M_test
     assert False, "Failed to generate folds for training and test data, %s attempts, fraction %s." % (attempts,fraction)
+
+
+''' More cleverly generate a mask, guaranteeing 1 entry in each row and/or column. '''
+def generate_M_clever(I,J,fraction):
+    #TODO: 
+    pass
+
+def generate_M_from_M_clever(M,fraction):
+    I, J = M.shape
+    #TODO: 
+    pass
+
+
 
 # Compute <no_folds> folds, returning a list of M's. If M is defined, we split
 # only the 1 entries into the folds.

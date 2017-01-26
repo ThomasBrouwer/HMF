@@ -1,0 +1,7 @@
+Trying factorisation: {'CCLE_EC': 'R', 'CTRP': 'R', 'CCLE_IC': 'R', 'GDSC': 'R'}. 
+Running HMF cross-validation, for K = {'Drugs': 10, 'Cell_lines': 10}.
+Performance fold 1: {'R^2': 0.6367815729400133, 'MSE': 0.06295940142921605, 'Rp': 0.79869809949055193}.
+Performance fold 2: {'R^2': 0.6649963126070154, 'MSE': 0.057955963604763981, 'Rp': 0.81615437470018937}.
+Performance fold 3: {'R^2': 0.6170466093757451, 'MSE': 0.065896259382852915, 'Rp': 0.78916656796643714}.
+Performance fold 4: {'R^2': 0.7366876846762169, 'MSE': 0.047310657094451772, 'Rp': 0.85870051747647091}.
+Performance fold 5: {'R^2': 0.5487250514792799, 'MSE': 0.073255641014293452, 'Rp': 0.74778541600013793}.
