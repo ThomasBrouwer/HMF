@@ -39,7 +39,7 @@ init = {
     'lambdat' : 'exp',
     'tau'     : 'exp'
 }
-alpha = [0.5, 0.5, 1.5]
+alpha = [0.5, 0.5, 0.5]
 K = {'genes':10, 'samples':10}
 
 settings = {

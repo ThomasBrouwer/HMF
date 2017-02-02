@@ -39,7 +39,7 @@ init = {
     'lambdat' : 'exp',
     'tau'     : 'exp'
 }
-alpha = [0.5, 0.5, 1.5]
+alpha = [0.5, 0.5, 0.5]
 K = {'genes':10, 'samples':10}
 
 settings = {
@@ -129,7 +129,7 @@ for factorisation in values_factorisation:
     print "Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s." % \
         (all_MSE.mean(),all_MSE.std(),all_R2.mean(),all_R2.std(),all_Rp.mean(),all_Rp.std())
 
-    fout.write('Tried HMF on GE, GM -> PM, with factorisation = %s.\n' % (factorisation))
+    fout.write('Tried HMF on GE, PM -> GM, with factorisation = %s.\n' % (factorisation))
     fout.write('Average MSE: %s +- %s. \nAverage R^2: %s +- %s. \nAverage Rp:  %s +- %s.\n' % \
         (all_MSE.mean(),all_MSE.std(),all_R2.mean(),all_R2.std(),all_Rp.mean(),all_Rp.std()))
     fout.write('All MSE: %s. \nAll R^2: %s. \nAll Rp: %s.\n\n' % (list(all_MSE),list(all_R2),list(all_Rp)))
