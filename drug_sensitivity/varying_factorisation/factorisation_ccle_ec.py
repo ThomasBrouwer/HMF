@@ -69,16 +69,16 @@ file_performance = 'results_ccle_ec.txt'
 
 ''' The different factorisations, and a method to construct the matrices. '''
 values_factorisation = [
-    #{ 'GDSC': 'R', 'CTRP': 'R', 'CCLE_IC': 'R', 'CCLE_EC': 'R' },
-    #{ 'GDSC': 'D', 'CTRP': 'R', 'CCLE_IC': 'R', 'CCLE_EC': 'R' },
-    #{ 'GDSC': 'R', 'CTRP': 'D', 'CCLE_IC': 'R', 'CCLE_EC': 'R' },
-    #{ 'GDSC': 'R', 'CTRP': 'R', 'CCLE_IC': 'D', 'CCLE_EC': 'R' },
-    #{ 'GDSC': 'R', 'CTRP': 'R', 'CCLE_IC': 'R', 'CCLE_EC': 'D' },
-    #{ 'GDSC': 'D', 'CTRP': 'D', 'CCLE_IC': 'R', 'CCLE_EC': 'R' },
-    #{ 'GDSC': 'D', 'CTRP': 'R', 'CCLE_IC': 'D', 'CCLE_EC': 'R' },
-    #{ 'GDSC': 'D', 'CTRP': 'R', 'CCLE_IC': 'R', 'CCLE_EC': 'D' },
-    #{ 'GDSC': 'R', 'CTRP': 'D', 'CCLE_IC': 'D', 'CCLE_EC': 'R' },
-    #{ 'GDSC': 'R', 'CTRP': 'D', 'CCLE_IC': 'R', 'CCLE_EC': 'D' },
+    { 'GDSC': 'R', 'CTRP': 'R', 'CCLE_IC': 'R', 'CCLE_EC': 'R' },
+    { 'GDSC': 'D', 'CTRP': 'R', 'CCLE_IC': 'R', 'CCLE_EC': 'R' },
+    { 'GDSC': 'R', 'CTRP': 'D', 'CCLE_IC': 'R', 'CCLE_EC': 'R' },
+    { 'GDSC': 'R', 'CTRP': 'R', 'CCLE_IC': 'D', 'CCLE_EC': 'R' },
+    { 'GDSC': 'R', 'CTRP': 'R', 'CCLE_IC': 'R', 'CCLE_EC': 'D' },
+    { 'GDSC': 'D', 'CTRP': 'D', 'CCLE_IC': 'R', 'CCLE_EC': 'R' },
+    { 'GDSC': 'D', 'CTRP': 'R', 'CCLE_IC': 'D', 'CCLE_EC': 'R' },
+    { 'GDSC': 'D', 'CTRP': 'R', 'CCLE_IC': 'R', 'CCLE_EC': 'D' },
+    { 'GDSC': 'R', 'CTRP': 'D', 'CCLE_IC': 'D', 'CCLE_EC': 'R' },
+    { 'GDSC': 'R', 'CTRP': 'D', 'CCLE_IC': 'R', 'CCLE_EC': 'D' },
     { 'GDSC': 'R', 'CTRP': 'R', 'CCLE_IC': 'D', 'CCLE_EC': 'D' },
     { 'GDSC': 'D', 'CTRP': 'D', 'CCLE_IC': 'D', 'CCLE_EC': 'D' },
 ]
