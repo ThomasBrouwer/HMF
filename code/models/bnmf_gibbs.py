@@ -46,9 +46,9 @@ Finally, we can return the goodness of fit of the data using the quality(metric)
 
 import sys
 sys.path.append("/home/tab43/Documents/Projects/libraries/")
-from DI_MMTF.code.distributions.exponential import exponential_draw
-from DI_MMTF.code.distributions.gamma import gamma_draw
-from DI_MMTF.code.distributions.truncated_normal_vector import TN_vector_draw
+from HMF.code.distributions.exponential import exponential_draw
+from HMF.code.distributions.gamma import gamma_draw
+from HMF.code.distributions.truncated_normal_vector import TN_vector_draw
 
 import numpy, itertools, math, time
 

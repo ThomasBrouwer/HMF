@@ -28,7 +28,8 @@ Initialisation can be done by running the initialise(init,tauUV) function. We in
 
 import sys
 sys.path.append("/home/tab43/Documents/Projects/libraries/")
-from DI_MMTF.code.distributions.exponential import exponential_draw
+
+from HMF.code.distributions.exponential import exponential_draw
 import numpy, math, itertools, time
 
 class nmf_np:
