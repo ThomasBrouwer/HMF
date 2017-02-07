@@ -10,8 +10,11 @@ We consider the following datasets:
   http://www.broadinstitute.org/ccle
   (if website is down, use https://cghub.ucsc.edu/datasets/ccle.html)
 - CTRP (Cancer Therapeutics Response Portal)
+
   EC50 values. Number drugs: 545. Number cell lines: 887. Number of observed entries: 387130. Fraction observed: 0.800823309165. 
+  
   http://www.broadinstitute.org/ctrp/?page=#ctd2BodyHome
+  
   Download from https://ctd2.nci.nih.gov/dataPortal/	
 
 Difference IC50 and EC50 (from http://www.fda.gov/ohrms/dockets/ac/00/slides/3621s1d/sld036.htm):
