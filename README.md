@@ -10,22 +10,32 @@ The folder structure is outlined below, giving details of where to find the code
 
 ### Folder structure
 
-#### Test
+#### /code/
+Code for the HMF model, as well as other matrix factorisation models, helper methods, and more.
+- **/Gibbs/** - Folder containing the general matrix factorisation Gibbs sampling updates, draws, and initialisations. This code does most of the heavy lifting.
 
-- **/code/** - Code for the HMF model, as well as other matrix factorisation models, helper methods, and more.
-  - **/Gibbs/**
-    - **draws_Gibbs.py** - Code for drawing new values for matrix factorisation models using Gibbs sampling (given the parameter values).
-    - **init_Gibbs.py** - Code implementing the different initialisation approaches for the Gibbs sampling parameters (random, expectation, K-means, least squares).
-    - **updates_Gibbs.py** - Code for computing the Gibbs sampling posterior parameter updates.
-  - **/models/** - Classes that implement the actual matrix factorisation models - NMF, NMTF, BNMF, BNMTF, HMF. These use the /Gibbs/ files.
-  - **/distributions/** - Python classes that handle computing the mean and variance, and drawing samples, from the probability distributions used in the models.
-  - **/kmeans/** - Implementation of K-means clustering when the matrix is only partially observed.
-  - **/kernels/** - Classes for computing, storing, and loading, similarity kernels (Jaccard and Gaussian).
-  - **/statistics/** - Python code for computing the prediction errors of a list or matrix of values (MSE, R^2, Rp).
-  - **/model_selection/** - Classes that help with heuristic model selection of the BNMF and BNMTF models (using line search, grid search, or greedy search - see NIPS workshop paper).
-  - **/cross_validation/** - Python scripts for performing in-matrix cross-validation experiments for non-probabilistic and Bayesian matrix factorisation models, and HMF. Some scripts also allow you to do model selection (either nested cross-validation, or using heuristics from NIPS workshop paper).
-  - **/generate_mask/** - Methods for helping generate observation matrices (1 indicating observed entries, 0 indicating unobserved).
-  - **/generate_toy/** - Method for generating toy/synthetic data for the HMF model.
+  - **draws_Gibbs.py** - Code for drawing new values for matrix factorisation models using Gibbs sampling (given the parameter values).
+  - **init_Gibbs.py** - Code implementing the different initialisation approaches for the Gibbs sampling parameters (random, expectation, K-means, least squares).
+  - **updates_Gibbs.py** - Code for computing the Gibbs sampling posterior parameter updates.
+
+- **/models/** - Classes that implement the actual matrix factorisation models - NMF, NMTF, BNMF, BNMTF, HMF. These use the code in /Gibbs/ extensively.
+
+- **/distributions/** - Python classes that handle computing the mean and variance, and drawing samples, from the probability distributions used in the models.
+
+- **/kmeans/** - Implementation of K-means clustering when the matrix is only partially observed. From [my other Github project](https://github.com/ThomasBrouwer/kmeans_missing).
+
+- **/kernels/** - Classes for computing, storing, and loading, similarity kernels (Jaccard and Gaussian).
+
+- **/statistics/** - Python code for computing the prediction errors of a list or matrix of values, compared to the observed values (MSE, R^2, Rp).
+
+- **/model_selection/** - Classes that help with heuristic model selection of the BNMF and BNMTF models (using line search, grid search, or greedy search - see my [NIPS workshop paper](http://arxiv.org/abs/1610.08127)).
+
+- **/cross_validation/** - Python scripts for performing in-matrix cross-validation experiments for non-probabilistic and Bayesian matrix factorisation models, and HMF. Some scripts also allow you to do model selection (either nested cross-validation, or using heuristics from NIPS workshop paper).
+
+- **/generate_mask/** - Methods for helping generate observation matrices (1 indicating observed entries, 0 indicating unobserved).
+
+- **/generate_toy/** - Method for generating toy/synthetic data for the HMF model.
+
 
 - **/drug_sensitivity/** - Data and code for drug sensitivity data integration experiments.
   - **/data/** - Data for drug sensitivity application (GDSC, CTRP, CCLE IC50, CCLE EC50). See description.txt for more details.
