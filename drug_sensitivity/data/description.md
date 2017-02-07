@@ -1,35 +1,25 @@
-(More data in ~/Documents/Projects/Drug sensitivity for data integration/)
-
 Folder containing the drug sensitivity datasets used for the data integration model for predicting drug sensitivity values.
 
 We consider the following datasets:
-- Sanger "Genomics of Drug Sensitivity in Cancer"
-	IC50 values. Number drugs: 139. Number cell lines: 707. Number of observed entries: 79262. Fraction observed: 0.806549103009
-	http://www.cancerrxgene.org/downloads/
-	COSMIC is pretty much the same database.
-- CCLE (Cancer Cell Line Encyclopedia)
-	IC50 and EC50 values. Number drugs: 24. Number cell lines: 504. Number of observed entries IC50 / EC50: 11670 / 7626. Fraction observed IC50 / EC50: 0.964781746032 / 0.630456349206.
-	http://www.broadinstitute.org/ccle
-	(website is down, use https://cghub.ucsc.edu/datasets/ccle.html)
-- CancerDR
-	Combines CCLE and COSMIC.
-	~1000 cell lines, ~100 drugs
-	http://crdd.osdd.net/raghava/cancerdr/
+- Sanger GDSC (*Genomics of Drug Sensitivity in Cancer*)
+  IC50 values. Number drugs: 139. Number cell lines: 707. Number of observed entries: 79262. Fraction observed: 0.806549103009
+  http://www.cancerrxgene.org/downloads/
+  COSMIC is pretty much the same database.
+- CCLE (*Cancer Cell Line Encyclopedia*)
+  IC50 and EC50 values. Number drugs: 24. Number cell lines: 504. Number of observed entries IC50 / EC50: 11670 / 7626. Fraction observed IC50 / EC50: 0.964781746032 / 0.630456349206.
+  http://www.broadinstitute.org/ccle
+  (if website is down, use https://cghub.ucsc.edu/datasets/ccle.html)
 - CTRP (Cancer Therapeutics Response Portal)
-	EC50 values. Number drugs: 545. Number cell lines: 887. Number of observed entries: 387130. Fraction observed: 0.800823309165. 
-	http://www.broadinstitute.org/ctrp/?page=#ctd2BodyHome
-	Download from https://ctd2.nci.nih.gov/dataPortal/	
+  EC50 values. Number drugs: 545. Number cell lines: 887. Number of observed entries: 387130. Fraction observed: 0.800823309165. 
+  http://www.broadinstitute.org/ctrp/?page=#ctd2BodyHome
+  Download from https://ctd2.nci.nih.gov/dataPortal/	
 
 Difference IC50 and EC50 (from http://www.fda.gov/ohrms/dockets/ac/00/slides/3621s1d/sld036.htm):
 "The IC50 represents the concentration of a drug that is required for 50% inhibition of viral replication in vitro (can be corrected for protein binding etc.).
 The EC50 represents the plasma concentration/AUC required for obtaining 50% of the maximum effect in vivo."
 (In vitro = in controlled environment outside living organism, in vivo = experimentation using a whole, living organism)
 
-We use the Sanger and CTRP.
-
-Should plot the range of values for these datasets to see how the distribution differs.
-
-Files and folders:
+The datasets are stored in **/GDSC/**, **/CTRP/**, and **/CCLE/**. Each folder contains a **/raw/** folder containing the raw datasets, as downloaded, and a Python/numpy-friendly version in **/processed_all/**, created by the Python script **process_all_gdsc/ctrp/ccle.py**.
 
 venn_cell_lines.pdf - Venn diagram of the intersections of the cell lines between the different datasets.
 venn_drugs.pdf - Venn diagram of the intersections of the drugs between the different datasets.
