@@ -74,8 +74,8 @@ Data and code for gene expression and methylation data integration experiments. 
   - **matched_expression** - gene expression data (first row is sample names, first row is gene ids).
   - **matched_methylation_geneBody** - gene body methylation data (first row is sample names, first row is gene ids).
   - **matched_methylation_genePromoter** - promoter-region methylation data (first row is sample names, first row is gene ids).
-  - compute_correlation_datasets.py - Computes the correlations of the three datasets. Used in supplementary materials.
-  - construct_similarity_kernels_genes.py, construct_similarity_kernels_samples.py - Scripts that computes Gaussian similarity kernels for the three datasets, resulting in files: kernel_ge_std_genes, kernel_ge_std_samples, kernel_gm_std_genes, kernel_gm_std_samples, kernel_pm_std_genes, kernel_pm_std_samples.
+  - **compute_correlation_datasets.py** - Computes the correlations of the three datasets. Used in supplementary materials.
+  - **construct_similarity_kernels_genes.py**, **construct_similarity_kernels_samples.py** - Scripts that computes Gaussian similarity kernels for the three datasets, resulting in files: kernel_ge_std_genes, kernel_ge_std_samples, kernel_gm_std_genes, kernel_gm_std_samples, kernel_pm_std_genes, kernel_pm_std_samples.
 
 - **/convergence/** - Script for running HMF D-MTF on the gene expression and promoter-region methylation data, to check convergence.
 
