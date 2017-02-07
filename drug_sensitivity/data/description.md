@@ -36,7 +36,7 @@ After computing the overlap between the datasets, we conducted further preproces
 
 Preprocessing order: process_all_gdsc.py, process_all_ctrp.py, process_all_ccle.py, find_overlap.py, construct_datasets_overlap.py, extract_features_cell_lines.py, extract_features_drugs.py, process_data.py, construct_kernels.py.
 
-Below more details are given about each folder in **/overlap/**:
+### Details on folders in /overlap/
 - **/data_all/** - Drug sensitivity datasets containing overlap of the four datasets.
 - **/data_features/** - Drug sensitivity datasets containing overlap of four datasets, but only the cell lines with features in GDSC.
   - **gdsc_ic50_features.txt**, **ctrp_ec50_features.txt**, **ccle_ic50_features.txt**, **ccle_ec50_features.txt**
@@ -72,114 +72,39 @@ Below more details are given about each folder in **/overlap/**:
 - **/similarity_kernels/** - The similarity kernels constructed from the feature datasets. For the Gaussian kernels, we use sigma^2 = D, where D is the number of features.
 - **/plots_distributions/** - Plots of the values in each of the kernels.
 
+### Details on folders in /GDSC/, /CTRP/, /CCLE/**
 
-###############################################################################################################################################################################
+#### /GDSC/
+- **/raw/** - Original Sanger "Genomics of Drug Sensitivity in Cancer" datasets (nothing filtered). Contains 140 drugs and 707 cell lines.
+  - **gdsc_manova_input_w5.csv** - The complete raw dataset from Sanger.
+- **/processed_all/** - Extracted the data from the raw data files and put it into a big matrix. There is one duplicate drug (AZD6482_IC_50) so we filter it.
+  - **ic50.txt** - The IC50 values only for all drugs and cell lines. Rows are cell lines, columns are drugs.
+  - **drugs.txt** - List of drugs (in order of ic50.txt) - normalised name, name.
+  - **cell_lines.txt** - List of cell lines (in order of ic50.txt) - normalised name, name, COSMIC id, cancer type, tissue.
 
-/GDSC/
-	/raw/
-	Original Sanger "Genomics of Drug Sensitivity in Cancer" datasets (nothing filtered). Contains 140 drugs and 707 cell lines.
+#### /CTRP/
+- **/raw/** - Original Cancer Therapeutic Response Portal datasets. Contains 481 compounds (70 DFA approved, 100 clinical candidates, 311 small-molecule probes) and 860 cancer cell lines. Most of the following files not actually included due to Github size limit.
+  - **CTRPv2.0._COLUMNS.xlsx** - Descriptions of the columns in CTRPv2.0_2015_ctd2_ExpandedDataset.
+  - **CTRPv2.0._INFORMER_SET.xlsx** - Descriptions of the drugs in CTRPv2.0_2015_ctd2_ExpandedDataset (including SMILES codes).
+  - **CTRPv2.0._README.docx** - Descriptions of files in CTRPv2.0_2015_ctd2_ExpandedDataset.zip
+  - **CTRPv2.0_2015_ctd2_ExpandedDataset.zip** - Zipped raw data.
+  - **CTRPv2.0_2015_ctd2_ExpandedDataset** Unzipped. Interesting files are:
+    - **v20.meta.per_experiment.txt** - Data about experiments (each experiment corresponds to one cell line)
+    - **v20.meta.per_compound.txt** - Data about drugs (id's, SMILES).
+    - **v20.meta.per_cell_line.txt** - Data about cell lines (id's, tissue and cancer types).
+    - **v20.data.curves_post_qc.txt** - Area-under-concentration-response curve (AUC) sensitivity scores, curve-fit parameters, and confidence intervals for each cancer cell line and each compound. experiment_id gives the experiment id, which can give the cell line name in v20.meta.per_experiment.txt. apparent_ec50_umol gives the EC50 value. master_cpd_id gives the drug id. So need to extract the apparent_ec50_umol values, link up the experiment_id to the cell line id, and then make one big matrix.
+- /processed_all/ - Extracted the data from the raw data files and put it into a big matrix. There are some VERY large values that we may want to filter out.
+  - **ec50.txt** - The EC50 values only for all drugs and cell lines. Rows are cell lines, columns are drugs.
+  - **drugs.txt** - List of drugs (in order of ic50.txt) - normalised name, name, id, SMILES code.
+  - **cell_lines.txt** - List of cell lines (in order of ic50.txt) - normalised name, name, id, cancer type, tissue.
 
-		gdsc_manova_input_w5.csv
-		The complete raw dataset from Sanger.
-
-	/processed_all/
-	Extracted the data from the raw data files and put it into a big matrix. There is one duplicate drug (AZD6482_IC_50) so we filter it.
-	Number drugs: 139. Number cell lines: 707. Number of observed entries: 79262. Fraction observed: 0.806549103009.
-
-		ic50.txt
-		The IC50 values only for all drugs and cell lines. Rows are cell lines, columns are drugs.
-
-		drugs.txt
-		List of drugs (in order of ic50.txt) - normalised name, name.
-
-		cell_lines.txt
-		List of cell lines (in order of ic50.txt) - normalised name, name, COSMIC id, cancer type, tissue.
-
-	/features/
-	Features for the drugs and cell lines.
-
-		gdsc_en_input_w5.csv
-		Contains all the cell line features, including cell lines we do not have drug sensitivity data of. First row gives the cell line names, first column gives the feature names - first 13321 rows are gene expression values, next 426 are copy number profiles, final 82 are cancer gene mutations. Original file from website is called gdsc_en_input_w5.csv. 
-
-###############################################################################################################################################################################
-
-/CTRP/
-	/raw/
-	Original Cancer Therapeutic Response Portal datasets. Contains 481 compounds (70 DFA approved, 100 clinical candidates, 311 small-molecule probes) and 860 cancer cell lines.
-
-		CTRPv2.0._COLUMNS.xlsx
-		Descriptions of the columns in CTRPv2.0_2015_ctd2_ExpandedDataset.
-
-		CTRPv2.0._INFORMER_SET.xlsx
-		Descriptions of the drugs in CTRPv2.0_2015_ctd2_ExpandedDataset (including SMILES codes).
-
-		CTRPv2.0._README.docx
-		Descriptions of files in CTRPv2.0_2015_ctd2_ExpandedDataset.zip
-
-		CTRPv2.0_2015_ctd2_ExpandedDataset.zip
-		Zipped raw data.
-
-		CTRPv2.0_2015_ctd2_ExpandedDataset
-		Unzipped. Interesting files are:
-		- v20.meta.per_experiment.txt
-			Data about experiments (each experiment corresponds to one cell line)
-		- v20.meta.per_compound.txt
-			Data about drugs (id's, SMILES).
-		- v20.meta.per_cell_line.txt
-			Data about cell lines (id's, tissue and cancer types).
-		- v20.data.curves_post_qc.txt
-			Area-under-concentration-response curve (AUC) sensitivity scores, curve-fit parameters, and confidence intervals for each cancer cell line and each compound.
-			experiment_id gives the experiment id, which can give the cell line name in v20.meta.per_experiment.txt.
-			apparent_ec50_umol gives the EC50 value 
-			master_cpd_id gives the drug id
-		So need to extract the apparent_ec50_umol values, link up the experiment_id to the cell line id, and then make one big matrix.
-
-	/processed_all/
-	Extracted the data from the raw data files and put it into a big matrix. There are some VERY large values that we may want to filter out.
-	Number drugs: 545. Number cell lines: 887. Number of observed entries: 387130. Fraction observed: 0.800823309165.
-
-		ec50.txt
-		The EC50 values only for all drugs and cell lines. Rows are cell lines, columns are drugs.
-
-		drugs.txt
-		List of drugs (in order of ic50.txt) - normalised name, name, id, SMILES code.
-
-		cell_lines.txt
-		List of cell lines (in order of ic50.txt) - normalised name, name, id, cancer type, tissue.
-
-###############################################################################################################################################################################
-
-/CCLE/
-	/raw/
-	Raw Cancer Cell Line Encyclopedia datasets. Contains 24 cancer drugs and 504 cell lines.
-
-		CCLE_NP24.2009_Drug_data_2015.02.24.csv
-		Drug sensitivity values as list of experiments - drug dose on a specific cell line, IC50, EC50.
-		Should use this dataset. Extract both IC50 and EC50 and then use one. IC50 has lots of 8 values (where EC50 is normally NA).
-
-		CCLE_NP24.2009_profiling_2012.02.20.csv
-		Data about drugs - name, primary targets, manifacturer.
-
-		CCLE_GNF_data_090613.xls
-		Values of the 24 drugs on 504 cell lines. Some values are missing, NoFit, >20, or <0.000x. 
-		This seems to be drug sensitivity but does not have the same values as stored in CCLE_NP24.2009_Drug_data_2015.02.24.csv.
-
-	/processed_all/
-	Extracted the data from the raw data files and put it into a big matrix.
-	Number drugs: 24. Number cell lines: 504. Number of observed entries IC50 / EC50: 11670 / 7626. Fraction observed IC50 / EC50: 0.964781746032 / 0.630456349206.
-
-		ec50.txt
-		The EC50 values only for all drugs and cell lines. Rows are cell lines, columns are drugs.
-
-		ic50.txt
-		The IC50 values only for all drugs and cell lines. Rows are cell lines, columns are drugs.
-
-		drugs.txt
-		List of drugs (in order of ic50.txt) - normalised name, name, id, SMILES code.
-
-		cell_lines.txt
-		List of cell lines (in order of ic50.txt) - normalised name, name, id, cancer type, tissue.
-
-###############################################################################################################################################################################
-
-
+####/CCLE/
+- **/raw/** - Raw Cancer Cell Line Encyclopedia datasets. Contains 24 cancer drugs and 504 cell lines.
+  - **CCLE_NP24.2009_Drug_data_2015.02.24.csv** - Drug sensitivity values as list of experiments - drug dose on a specific cell line, IC50, EC50.
+  - **CCLE_NP24.2009_profiling_2012.02.20.csv** - Data about drugs - name, primary targets, manifacturer.
+  - **CCLE_GNF_data_090613.xls** - Values of the 24 drugs on 504 cell lines. 
+- **/processed_all/** - Extracted the data from the raw data files and put it into a big matrix.
+  - **ec50.txt** - The EC50 values only for all drugs and cell lines. Rows are cell lines, columns are drugs.
+  - **ic50.txt** - The IC50 values only for all drugs and cell lines. Rows are cell lines, columns are drugs.
+  - **drugs.txt** - List of drugs (in order of ic50.txt) - normalised name, name, id, SMILES code.
+  - **cell_lines.txt** - List of cell lines (in order of ic50.txt) - normalised name, name, id, cancer type, tissue.
