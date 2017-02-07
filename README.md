@@ -1,5 +1,12 @@
 # Bayesian hybrid matrix factorisation for data integration
-## Python implementation of the Hybrid Matrix Factorisation model.
+
+To appear in: 20th International Conference on Artificial Intelligence and Statistics (AISTATS 2017).
+
+Authors: **Thomas Brouwer**, **Pietro Lio'**.
+
+This project contains an implementation of the Bayesian hybrid matrix factorisation model presented in the paper **Bayesian hybrid matrix factorisation for data integration**. We furthermore provide all datasets used (including the preprocessing scripts), and code for experiments.
+
+The folder structure is outlined below, giving details of where to find the code, data, and experiments. If you have any comments, please feel free to contact me (tab43 @ cam.ac.uk).
 
 ### Folder structure
 

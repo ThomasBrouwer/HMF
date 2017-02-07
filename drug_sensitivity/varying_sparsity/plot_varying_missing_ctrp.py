@@ -51,7 +51,7 @@ avr_performances = [
 ]
 colours = ['#0000ff','#ff0000','#00ff00','#00ffff','#ff00ff','#ffff00']
 
-# Also compute the median values
+# Also compute the median values, and stds
 def compute_medians(all_performances):
     medians = {}
     for metric in ['MSE','R^2','Rp']:
@@ -60,6 +60,14 @@ def compute_medians(all_performances):
             medians[metric].append(numpy.median(performances))
     return medians
     
+def compute_stds(all_performances):
+    stds = {}
+    for metric in ['MSE','R^2','Rp']:
+        stds[metric] = []
+        for performances in all_performances[metric]:
+            stds[metric].append(numpy.std(performances))
+    return stds
+    
 median_performances = [
     compute_medians(np_nmf_all),
     compute_medians(np_nmtf_all),
@@ -67,6 +75,14 @@ median_performances = [
     compute_medians(bnmtf_all),
     compute_medians(hmf_mf_all),
     compute_medians(hmf_mtf_all)
+]
+std_performances = [
+    compute_stds(np_nmf_all),
+    compute_stds(np_nmtf_all),
+    compute_stds(bnmf_all),
+    compute_stds(bnmtf_all),
+    compute_stds(hmf_mf_all),
+    compute_stds(hmf_mtf_all),
 ]
 
 # What to plot - averages or medians
@@ -82,10 +98,11 @@ for metric in metrics:
     plt.xticks(fontsize=8) #fontsize=6
     
     x = fractions_unknown
-    for method,performance,colour in zip(methods,values_to_plot,colours):
+    for method, performance, std, colour in zip(methods, values_to_plot, std_performances, colours):
         y = performance[metric]
-        #plt.plot(x,y,label=method)
-        plt.plot(x,y,linestyle='-', linewidth=1.2, marker='o', label=method, c=colour, markersize=5) #linewidth=0.5, markersize=2)
+        e = std[metric]
+        e = [v if v <= MSE_max else 0 for v in e] # If a performance is > MSE_max, have 0 std
+        plt.errorbar(x, y, e, linestyle='-', linewidth=1.2, marker='o', label=method, c=colour, markersize=4) #linewidth=0.5, markersize=2)
      
     plt.xlim(fraction_min,fraction_max)
     plt.ylim(MSE_min,MSE_max)
