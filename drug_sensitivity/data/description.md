@@ -30,13 +30,11 @@ The EC50 represents the plasma concentration/AUC required for obtaining 50% of t
 
 The datasets are stored in **/GDSC/**, **/CTRP/**, and **/CCLE/**. Each folder contains a **/raw/** folder containing the raw datasets, as downloaded, and a Python/numpy-friendly version in **/processed_all/**, created by the Python script **process_all_gdsc/ctrp/ccle.py**.
 
-venn_cell_lines.pdf - Venn diagram of the intersections of the cell lines between the different datasets.
-venn_drugs.pdf - Venn diagram of the intersections of the drugs between the different datasets.
+We compute the overlap of the four datasets, as described in the paper and supplementary materials, using **construct_datasets_overlap.py**, placing the files in **/overlap/**. The script **print_statistics_overlap.py** gives some statistics about the overlaps between the datasets, and **print_statistics_correlation.py** the correlation between overlapping values between the datasets. We also constructed two Venn diagrams for the overlapping drugs and cell lines, using **find_overlap.py**.
 
-###############################################################################################################################################################################
+After computing the overlap between the datasets, we conducted further preprocessing in **/overlap/**, again as described in the paper and supplementary materials. **extract_features_cell_lines.py** extracts the gene expression, CNV and mutation features for the cell lines from features_cell_lines/gdsc_en_input_w5.csv. Also store version of IC50, EC50 datasets using only cell lines with features. **extract_features_drugs.py** extract the drug target features from GDSC for 48 of our drugs, and make all entries NaN for the other 4. Also remove features (targets, 1D2D, fingerprints) with same value for all drugs, and store list of remaining target names. **process_data.py** preprocesses the IC50 and EC50 values: cuts off values too high/low and plot the distribution of values. Creates row- and column-standardised datasets, and [0,1] per row/column as well. **plot_overlap_observed.py** makes a Venn diagram of the overlaps between observed entries in the dataset of 52 drugs and 399 cell lines. **construct_kernels.py** constructs the similarity kernels from the feature datasets, and plots their distributions.
 
-/overlap/
-	Datasets GDSC, CTRP, CCLE, but only considering drugs and cell lines that have entries in at least two of the three datasets.
+
 
 	/data_all/
 	Drug sensitivity datasets containing overlap of the four datasets.
@@ -272,36 +270,4 @@ venn_drugs.pdf - Venn diagram of the intersections of the drugs between the diff
 
 ###############################################################################################################################################################################
 
-Scripts:
-- CCLE/process_raw_ccle.py
-	Process raw CCLE data.
-- CTRP/process_raw_ctrp.py
-	Process raw CTRP data.
-- CTRP/process_raw_gdsc.py
-	Process raw GDSC data.
-- find_overlap.py
-	Finds the overlaps between the drugs and cell lines between CCLE, CTRP, GDSC. Plots a Venn diagram and saves it. Stores the list of drugs and cell lines with 2+ datasets (both normalised and full names).
-- construct_datasets_overlap.py
-	Filters out the rows and columns from the IC50 and EC50 datasets to only contain the overlap (2+ datasets). Also prints some statistics about how many entries are observed.
-- overlap/extract_features_cell_lines.py
-	Extract the gene expression, CNV and mutation features for the cell lines from features_cell_lines/gdsc_en_input_w5.csv. 
-	Also store version of IC50, EC50 datasets using only cell lines with features.
-- overlap/extract_features_drugs.py
-	Extract the drug target features from GDSC for 48 of our drugs, and make all entries NaN for the other 4.
-	Also remove features (targets, 1D2D, fingerprints) with same value for all drugs, and store list of remaining target names.
-- overlap/process_data.py
-	Preprocess the IC50 and EC50 values: cut off values too high/low and plot the distribution of values.
-	Create row- and column-standardised datasets, and [0,1] per row/column as well.
-- overlap/plot_overlap_observed.py
-	Make a Venn diagram of the overlaps between observed entries in the dataset of 52 drugs and 399 cell lines.
-- construct_kernels.py
-	Construct the similarity kernels from the feature datasets, and plot their distributions.
 
-Order of processing:
-1. CCLE/process_raw_ccle.py, CTRP/process_raw_ctrp.py, CTRP/process_raw_gdsc.py
-2. find_overlap.py
-3. construct_datasets_overlap.py
-4. overlap/extract_features_drugs.py
-5. overlap/extract_features_drugs.py
-6. overlap/process_data.py
-7. overlap/construct_kernels.py
