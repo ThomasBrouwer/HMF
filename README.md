@@ -100,4 +100,4 @@ Very brief tests on the toy dataset, mainly for checking convergence of the mode
 
 ### Usage
 If you need any help running this code, please reach out!
-If you wish to rerun my experiments, change the *project_folder* variable in the following files (in addition to the script you are running): TODO.
+If you wish to rerun the experiments, do not forget to change the *project_folder* variable in the appropriate files.
