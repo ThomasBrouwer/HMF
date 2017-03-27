@@ -14,7 +14,7 @@ complementary error function for 1-cdf(x) = 0.5*erfc(x/sqrt(2)), as for large
 x (>8), cdf(x)=1., so we get 0. instead of something like n*e^-n.
 
 As mu gets lower (negative), and tau higher, we get draws and expectations that
-are closer to an exponential distribution with scale parameter mu * tau.
+are closer to an exponential distribution with scale parameter | mu * tau |.
 
 The draws in this case work effectively, but computing the mean and variance
 fails due to numerical errors. As a result, the mean and variance go to 0 after
@@ -116,4 +116,19 @@ exp_tn = [TN_expectation(mup,tau) for mup in mus]
 plt.plot(mus,exp_exp,label='Exp')
 plt.plot(mus,exp_tn,label='TN')
 plt.legend()
+'''
+
+
+'''
+""" Plot TN draws and exponential draws when mu*tau << 0. """
+from exponential import exponential_draw
+mu, tau = -1000., 10.
+draws = 1000
+TN = [TN_draw(mu,tau) for i in range(0,draws)]
+E =  [exponential_draw(abs(mu*tau)) for i in range(0,draws)]
+
+fig, ax = plt.subplots(2, sharex=True)
+ax[0].hist(TN, normed=True)
+ax[1].hist(E, normed=True)
+plt.show()
 '''

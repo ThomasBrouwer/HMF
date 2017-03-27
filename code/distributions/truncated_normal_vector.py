@@ -15,7 +15,7 @@ complementary error function for 1-cdf(x) = 0.5*erfc(x/sqrt(2)), as for large
 x (>8), cdf(x)=1., so we get 0. instead of something like n*e^-n.
 
 As mu gets lower (negative), and tau higher, we get draws and expectations that
-are closer to an exponential distribution with scale parameter mu * tau.
+are closer to an exponential distribution with scale parameter | mu * tau |.
 
 The draws in this case work effectively, but computing the mean and variance
 fails due to numerical errors. As a result, the mean and variance go to 0 after
