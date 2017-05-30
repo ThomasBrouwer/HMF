@@ -2,7 +2,7 @@
 Sort the biclusters by importance.
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
+project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/" # "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     S_gm = numpy.loadtxt(folder_matrices+'S_gm')
     
     ''' Print ranked biclusters using total S. '''
-    top_n = 20    
+    top_n = 10
     
     sorted_all_S = sorted_biclusters_all_S(S_ge,S_pm,S_gm)
     print "Top %s, sorted by S:" % top_n

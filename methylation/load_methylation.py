@@ -3,7 +3,7 @@ Methods for loading methylation and gene expression datasets, and for filtering
 out the top n genes with the most variation.
 '''
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
+project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/" # "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
 
@@ -275,8 +275,8 @@ def load_top_n_GO_terms_as_rank(n, genes=[]):
     return rank_go_terms
     
 
-#(R_ge, R_pm, R_gm, genes, samples) = filter_driver_genes()
-#(R_ge_std, R_pm_std, R_gm_std, genes_std, samples_std) = filter_driver_genes_std()
+(R_ge, R_pm, R_gm, genes, samples) = filter_driver_genes()
+(R_ge_std, R_pm_std, R_gm_std, genes_std, samples_std) = filter_driver_genes_std()
 #K_ge, K_pm, K_gm = load_kernels()
 
 #(R_ge_reordered, R_pm_reordered, R_gm_reordered, labels_tumour, genes, sorted_samples) = load_driver_genes_std_tumour_labels_reordered()

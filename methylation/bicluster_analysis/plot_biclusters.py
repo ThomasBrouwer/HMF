@@ -4,7 +4,7 @@ Also do hierarchical clustering to reorder rows/columns, add this hierarchy to
 the plot, and add the healthy vs diseased labels.
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
+project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/" # "/home/tab43/Documents/Projects/libraries/"
 import sys
 sys.path.append(project_location)
 
@@ -37,12 +37,12 @@ dim_labels = [0.15,0.11,0.8,0.01]
 dim_go_terms = [0.953,0.125,0.01,0.725]
 
 # Font sizes axis ticks and labels
-fontsize_ticks = 4
+fontsize_ticks = 3
 fontsize_labels = 15
 
 # How much padding of heatmap xaxis labels to add for tumour labels, and yaxis for go terms
-pad_xlabels = 15
-pad_ylabels = 20
+pad_xlabels = 7#15
+pad_ylabels = 12#20
 
 # Colours for the GO term labels
 colours_go_terms = ['r', 'g', 'b', 'y', 'w', 'k', 'm']
@@ -128,7 +128,7 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, go_terms, plot_
     
     # Flip x-axis and y-axis orders
     #ax3.invert_xaxis()
-    #ax3.invert_yaxis() 
+    ax3.invert_yaxis() 
     
     # Axes labels
     ax3.set_xlabel("Samples", fontsize=fontsize_labels)
@@ -192,12 +192,8 @@ def plot_heatmap_clustering_labels(R_kl, genes, samples, labels, go_terms, plot_
 folder_biclusters = project_location+'HMF/methylation/bicluster_analysis/plots_biclusters/'
 
 biclusters = [ # list of S matrix, bicluster index (k,l), and dataset name
-    (S_ge, (0, 18), 'ge'), #(S_gm, (0, 18), 'gm'), (S_pm, (0, 18), 'pm'), 
-    (S_gm, (19, 7), 'gm'),
-    (S_ge, (8, 15), 'ge'),
-    (S_ge, (12,12), 'ge'),
-    (S_ge, (6, 6 ), 'ge'),
-    (S_pm, (9, 10), 'pm'),
+    (S_gm, (19, 7), 'gm'), (S_ge, (19, 7), 'ge'), (S_pm, (19, 7), 'pm'),
+    (S_ge, (0, 18), 'ge'), (S_pm, (0, 18), 'pm'), (S_gm, (0, 18), 'gm'),
 ]
 
 for S, (k,l), name in biclusters:
