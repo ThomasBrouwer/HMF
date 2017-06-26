@@ -1,6 +1,6 @@
 # Bayesian hybrid matrix factorisation for data integration
 
-To appear in: 20th International Conference on Artificial Intelligence and Statistics (AISTATS 2017).
+20th International Conference on Artificial Intelligence and Statistics (AISTATS 2017).
 
 Authors: **Thomas Brouwer**, **Pietro Lio'**.
 
