@@ -1027,19 +1027,34 @@ class HMF_Gibbs:
         R_pred = self.triple_dot(exp_F1,exp_Sn,exp_F2.T)
         return self.compute_statistics(M_pred,self.all_Rn[n],R_pred)
         
+    def return_Rn(self,n,burn_in,thinning):
+        E1,E2 = self.E_per_Rn[n]
+        exp_F1 = self.approx_expectation_Ft(E1,burn_in,thinning)
+        exp_F2 = self.approx_expectation_Ft(E2,burn_in,thinning)
+        exp_Sn = self.approx_expectation_Sn(n,burn_in,thinning)
+        R_pred = self.triple_dot(exp_F1,exp_Sn,exp_F2.T)
+        return R_pred
+    
     def predict_Cm(self,m,M_pred,burn_in,thinning):
         E = self.E_per_Cm[m]
         exp_F = self.approx_expectation_Ft(E,burn_in,thinning)
         exp_Sm = self.approx_expectation_Sm(m,burn_in,thinning)
-        R_pred = self.triple_dot(exp_F,exp_Sm,exp_F.T)
-        return self.compute_statistics(M_pred,self.all_Cm[m],R_pred)
+        C_pred = self.triple_dot(exp_F,exp_Sm,exp_F.T)
+        return self.compute_statistics(M_pred,self.all_Cm[m],C_pred)
         
     def predict_Dl(self,l,M_pred,burn_in,thinning):
         E = self.E_per_Dl[l]
         exp_F = self.approx_expectation_Ft(E,burn_in,thinning)
         exp_G = self.approx_expectation_Gl(l,burn_in,thinning)
-        R_pred = numpy.dot(exp_F,exp_G.T)
-        return self.compute_statistics(M_pred,self.all_Dl[l],R_pred)
+        D_pred = numpy.dot(exp_F,exp_G.T)
+        return self.compute_statistics(M_pred,self.all_Dl[l],D_pred)
+    
+    def return_Dl(self,l,burn_in,thinning):
+        E = self.E_per_Dl[l]
+        exp_F = self.approx_expectation_Ft(E,burn_in,thinning)
+        exp_G = self.approx_expectation_Gl(l,burn_in,thinning)
+        D_pred = numpy.dot(exp_F,exp_G.T)
+        return D_pred
         
     def predict_while_running_Rn(self,n):
         E1,E2 = self.E_per_Rn[n]

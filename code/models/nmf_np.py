@@ -130,6 +130,10 @@ class nmf_np:
         R2 = self.compute_R2(M_pred,self.R,R_pred)    
         Rp = self.compute_Rp(M_pred,self.R,R_pred)        
         return {'MSE':MSE,'R^2':R2,'Rp':Rp}        
+    
+    def return_R_predicted(self):
+        R_pred = numpy.dot(self.U,self.V.T)
+        return R_pred
         
     def compute_MSE(self,M,R,R_pred):
         return (M * (R-R_pred)**2).sum() / float(M.sum())

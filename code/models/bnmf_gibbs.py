@@ -179,6 +179,11 @@ class bnmf_gibbs:
         R2 = self.compute_R2(M_pred,self.R,R_pred)    
         Rp = self.compute_Rp(M_pred,self.R,R_pred)        
         return {'MSE':MSE,'R^2':R2,'Rp':Rp}
+    
+    def return_R_predicted(self,burn_in,thinning):
+        (exp_U,exp_V,_) = self.approx_expectation(burn_in,thinning)
+        R_pred = numpy.dot(exp_U,exp_V.T)
+        return R_pred
         
     def predict_while_running(self):
         R_pred = numpy.dot(self.U,self.V.T)

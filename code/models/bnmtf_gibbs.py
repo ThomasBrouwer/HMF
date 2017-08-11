@@ -222,6 +222,11 @@ class bnmtf_gibbs:
         (exp_F,exp_S,exp_G,_) = self.approx_expectation(burn_in,thinning)
         R_pred = self.triple_dot(exp_F,exp_S,exp_G.T)
         return self.compute_statistics(M_pred,self.R,R_pred)
+    
+    def return_R_predicted(self,burn_in,thinning):
+        (exp_F,exp_S,exp_G,_) = self.approx_expectation(burn_in,thinning)
+        R_pred = self.triple_dot(exp_F,exp_S,exp_G.T)
+        return R_pred
         
     def predict_while_running(self):
         R_pred = self.triple_dot(self.F,self.S,self.G.T)
