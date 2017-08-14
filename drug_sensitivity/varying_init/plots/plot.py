@@ -28,7 +28,7 @@ markersize = 1
 ''' Method for plotting. '''
 def plot(name, MSE_min, MSE_max, all_performances, no_iterations):
     fig = plt.figure(figsize=(4.5,3.0))
-    fig.subplots_adjust(left=0.16, right=0.965, bottom=0.12, top=0.97)
+    fig.subplots_adjust(left=0.135, right=0.99, bottom=0.12, top=0.97)
     plt.xlabel("Iterations", fontsize=12, labelpad=1) #fontsize=8
     plt.ylabel("MSE", fontsize=12, labelpad=2) #fontsize=8, labelpad=-1
     plt.yticks(fontsize=8) #fontsize=6
