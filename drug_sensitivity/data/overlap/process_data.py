@@ -59,10 +59,10 @@ def map_to_01(matrix):
     matrix_col01 = (matrix - min_cols) / (max_cols - min_cols)
     return matrix_row01, matrix_col01
 
-ccle_ic50_row_01, ccle_ic50_col_01 = map_to_01(ccle_ic50)
-ccle_ec50_row_01, ccle_ec50_col_01 = map_to_01(ccle_ec50)
-ctrp_ec50_row_01, ctrp_ec50_col_01 = map_to_01(ctrp_ec50_capped)
-gdsc_ic50_row_01, gdsc_ic50_col_01 = map_to_01(gdsc_ic50_capped)
+#ccle_ic50_row_01, ccle_ic50_col_01 = map_to_01(ccle_ic50)
+#ccle_ec50_row_01, ccle_ec50_col_01 = map_to_01(ccle_ec50)
+#ctrp_ec50_row_01, ctrp_ec50_col_01 = map_to_01(ctrp_ec50_capped)
+#gdsc_ic50_row_01, gdsc_ic50_col_01 = map_to_01(gdsc_ic50_capped)
 
 #plot_distribution(ccle_ic50_row_01,"CCLE IC50 rows [0,1]","ccle_ic50_row01")
 #plot_distribution(ccle_ec50_row_01,"CCLE EC50 rows [0,1]","ccle_ec50_row01")
