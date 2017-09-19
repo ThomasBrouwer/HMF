@@ -83,15 +83,26 @@ n_cell_lines_ccle_ctrp_gdsc = len(overlap_cell_lines_all)
 from matplotlib_venn import venn3
 from matplotlib import pyplot as plt
 
-plt.figure()
-venn3(subsets=[set(drugs_ccle),set(drugs_ctrp),set(drugs_gdsc)], set_labels=("CCLE","CTRP","GDSC"))
-plt.title("Intersections drugs for drug sensitivity datasets")
-plt.savefig("./venn_drugs.pdf")
+fontsize_labels = 25
+fontsize_subset_labels = 20
 
 plt.figure()
-venn3(subsets=[set(cell_lines_ccle),set(cell_lines_ctrp),set(cell_lines_gdsc)], set_labels=("CCLE","CTRP","GDSC"))
-plt.title("Intersections cell lines for drug sensitivity datasets")
-plt.savefig("./venn_cell_lines.pdf")
+out_drugs = venn3(subsets=[set(drugs_ccle),set(drugs_ctrp),set(drugs_gdsc)], set_labels=("CCLE","CTRP","GDSC"))
+#plt.title("Intersections drugs for drug sensitivity datasets")
+for text in out_drugs.set_labels:
+    text.set_fontsize(fontsize_labels)
+for text in out_drugs.subset_labels:
+    text.set_fontsize(fontsize_subset_labels)
+plt.savefig("./venn_drugs.pdf", bbox_inches='tight')
+
+plt.figure()
+out_cell_lines = venn3(subsets=[set(cell_lines_ccle),set(cell_lines_ctrp),set(cell_lines_gdsc)], set_labels=("CCLE","CTRP","GDSC"))
+#plt.title("Intersections cell lines for drug sensitivity datasets")
+for text in out_cell_lines.set_labels:
+    text.set_fontsize(fontsize_labels)
+for text in out_cell_lines.subset_labels:
+    text.set_fontsize(fontsize_subset_labels)
+plt.savefig("./venn_cell_lines.pdf", bbox_inches='tight')
 
 ''' Store the drug and cell line names with 2+ datasets '''
 numpy.savetxt("./overlap/features_drugs/drugs.txt", drugs_in_two_or_more_datasets, fmt="%s")
