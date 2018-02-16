@@ -2,9 +2,10 @@
 Generate a toy dataset for the data integration matrix tri-factorisation model, and store it.
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
+
 from HMF.code.distributions.exponential import exponential_draw
 from HMF.code.distributions.normal import normal_draw
 from ml_helpers.code.mask import generate_M

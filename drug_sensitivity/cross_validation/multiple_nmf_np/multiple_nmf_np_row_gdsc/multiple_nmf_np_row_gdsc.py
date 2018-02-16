@@ -3,9 +3,10 @@ Run nested cross-validation on the GDSC dataset with multiple non-probabilistic
 NMF, where we concatenate the rows of the datasets (so R=[R1,..,R4].T).
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../../"
 sys.path.append(project_location)
+
 from HMF.code.models.nmf_np import nmf_np
 from HMF.code.cross_validation.multiple_nmf_nested_matrix_cross_validation import MultipleNMFNestedCrossValidation
 from HMF.drug_sensitivity.load_dataset import load_data_without_empty, load_data_filter

@@ -2,9 +2,10 @@
 Run nested cross-validation on the GDSC dataset with non-probabilistic NMF.
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../../"
 sys.path.append(project_location)
+
 from DI_MMTF.code.models.nmtf_np import nmtf_np
 from DI_MMTF.code.cross_validation.nested_matrix_cross_validation import MatrixNestedCrossValidation
 from DI_MMTF.drug_sensitivity.load_dataset import load_data_without_empty

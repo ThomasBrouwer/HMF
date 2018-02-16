@@ -2,8 +2,8 @@
 Sort the biclusters by importance.
 """
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/" # "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
 
 from plot_datasets import plot_heatmap

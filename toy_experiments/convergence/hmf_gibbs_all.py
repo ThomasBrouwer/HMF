@@ -5,9 +5,10 @@ Gibbs, using all datasets.
 We can plot the MSE, R2 and Rp as it converges.
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
+
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs
 
 import numpy, matplotlib.pyplot as plt

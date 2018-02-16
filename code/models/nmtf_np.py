@@ -31,8 +31,9 @@ Initialisation can be done by running the initialise(init,tauUV) function. We in
   where expo_prior is an additional parameter (default 1)
 """
 
-import sys
-sys.path.append("/home/tab43/Documents/Projects/libraries/")#("/home/thomas/Documenten/PhD/")#
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
+sys.path.append(project_location)
 
 from HMF.code.kmeans.kmeans import KMeans
 from HMF.code.distributions.exponential import exponential_draw

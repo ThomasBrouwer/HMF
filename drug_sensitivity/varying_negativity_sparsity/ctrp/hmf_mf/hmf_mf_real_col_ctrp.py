@@ -5,8 +5,8 @@ We repeat this 10 times per fraction and average that.
 This is the real-valued D-MF version with column-wise posterior draws.
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../../"
 sys.path.append(project_location)
 
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs

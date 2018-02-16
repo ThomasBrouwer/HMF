@@ -6,8 +6,8 @@ This then allows us to plot the performances grouped by how many observations
 in that row or column we have.
 """
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
 
 import HMF.code.generate_mask.mask as mask

@@ -2,9 +2,10 @@
 Run the cross validation for Support Vector Regression on the drug sensitivity datasets.
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../"
 sys.path.append(project_location)
+
 from HMF.drug_sensitivity.load_dataset import load_data_without_empty, load_data_filter
 import HMF.code.generate_mask.mask as mask
 from HMF.code.statistics.statistics import all_statistics_list

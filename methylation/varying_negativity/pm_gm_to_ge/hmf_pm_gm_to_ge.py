@@ -3,9 +3,10 @@ Script for using multiple matrix tri-actorisation to predict the gene expression
 values, using promoter region methylation as a second dataset.
 '''
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../"
 sys.path.append(project_location)
+
 from HMF.methylation.load_methylation import filter_driver_genes_std
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs
 

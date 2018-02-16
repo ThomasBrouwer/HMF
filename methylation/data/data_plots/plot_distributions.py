@@ -2,8 +2,8 @@
 Pretty plot the row-normalised datasets.
 '''
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../"
 sys.path.append(project_location)
 
 from HMF.methylation.load_methylation import filter_driver_genes_std
@@ -24,7 +24,7 @@ def plot_distribution(matrix, plot_location, binsize=0.2, dpi=600):
     plt.savefig(plot_location, dpi=dpi, bbox_inches='tight')
 
 ''' Load the data '''
-#(R_ge_std, R_pm_std, R_gm_std, genes_std, samples_std) = filter_driver_genes_std()
+(R_ge_std, R_pm_std, R_gm_std, genes_std, samples_std) = filter_driver_genes_std()
 
 ''' Plot the data '''
 plot_distribution(R_ge_std, "pretty_ge_std")

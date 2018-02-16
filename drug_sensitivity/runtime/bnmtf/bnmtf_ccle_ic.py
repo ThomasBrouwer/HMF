@@ -5,9 +5,10 @@ Time taken: 26.0816020966 seconds. Average per iteration: 0.0521632041931.
 
 """
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/" # "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../"
 sys.path.append(project_location)
+
 from HMF.code.models.bnmtf_gibbs import bnmtf_gibbs
 from HMF.drug_sensitivity.load_dataset import load_data_without_empty
 

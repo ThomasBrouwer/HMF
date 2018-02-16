@@ -11,8 +11,10 @@ Everything is the same, except the run() method. We now pass one of two argument
 One should be an integer, the other should be None.
 """
 
-import sys
-sys.path.append("/home/tab43/Documents/Projects/libraries/")
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
+sys.path.append(project_location)
+
 import DI_MMTF.code.generate_mask.mask as mask
 from parallel_matrix_cross_validation import ParallelMatrixCrossValidation, run_fold
 

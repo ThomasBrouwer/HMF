@@ -3,9 +3,10 @@ Run the cross validation for HMF (datasets, using MTF) on the drug sensitivity
 datasets, where we vary the negativity constraints.
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../"
 sys.path.append(project_location)
+
 from HMF.code.cross_validation.cross_validation_hmf import CrossValidation
 from HMF.drug_sensitivity.load_dataset import load_data_without_empty, load_data_filter
 

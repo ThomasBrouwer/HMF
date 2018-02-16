@@ -2,8 +2,10 @@
 Unit tests for the methods in draws_Gibbs.py.
 '''
 
-import sys
-sys.path.append("/home/tab43/Documents/Projects/libraries/")
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
+sys.path.append(project_location)
+
 import HMF.code.Gibbs.draws_Gibbs as draws_Gibbs
 
 import numpy, itertools

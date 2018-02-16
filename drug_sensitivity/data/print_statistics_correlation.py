@@ -10,9 +10,10 @@ Correlation CTRP and CCLE EC50: 0.449244917323.
 Correlation CCLE IC50 and CCLE EC50: 0.645008511739.
 '''
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/" # "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
+
 from HMF.drug_sensitivity.load_dataset import load_data
 
 from scipy.stats import spearmanr

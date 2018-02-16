@@ -3,9 +3,10 @@ Script for using a random forest regressor to predict the promoter region
 methylation values, using gene expression as features.
 '''
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../"
 sys.path.append(project_location)
+
 from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes, filter_driver_genes_std
 from HMF.code.statistics.statistics import all_statistics_matrix
 

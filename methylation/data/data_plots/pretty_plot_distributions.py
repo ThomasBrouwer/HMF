@@ -4,8 +4,8 @@ we select the cancer driver genes; both before and after preprocessing.
 Also plot the similarity kernels.
 '''
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../"
 sys.path.append(project_location)
 
 from HMF.methylation.load_methylation import filter_driver_genes

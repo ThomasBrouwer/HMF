@@ -2,8 +2,10 @@
 Tests for the HMF Gibbs sampler.
 """
 
-import sys
-sys.path.append("/home/tab43/Documents/Projects/libraries/")
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
+sys.path.append(project_location)
+
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs
 
 import numpy, math, pytest, itertools
@@ -353,7 +355,7 @@ def test_initialise():
             expected_lambdan_kl = alphaS / float(betaS)
             assert HMF.all_lambdan[n][k,l] == expected_lambdan_kl
             assert HMF.all_Sn[n][k,l] == 1./expected_lambdan_kl
-        assert HMF.all_taun[n] == expected_all_taun[n]
+        assert abs(HMF.all_taun[n] - expected_all_taun[n]) < 0.0000000001
             
     expected_all_taum = [0.0062975762814580696,3.7505835292008993]
     for m in range(0,M):
@@ -362,14 +364,14 @@ def test_initialise():
             expected_lambdam_kl = alphaS / float(betaS)
             assert HMF.all_lambdam[m][k,l] == expected_lambdam_kl
             assert HMF.all_Sm[m][k,l] == 1./expected_lambdam_kl
-        assert HMF.all_taum[m] == expected_all_taum[m]
+        assert abs(HMF.all_taum[m] - expected_all_taum[m]) < 0.000000001
             
     expected_all_taul = [7.2634333565945441]
     for l in range(0,L):
         E1 = E_per_Dl[l]
         for j,k in itertools.product(xrange(0,J[l]),xrange(0,K[E1])):
             assert HMF.all_Gl[l][j,k] == 1./HMF.all_lambdat[E1][k]
-        assert HMF.all_taul[l] == expected_all_taul[l]
+        assert abs(HMF.all_taul[l] - expected_all_taul[l]) < 0.00000001
             
     ''' F Exp, G Exp, S N, no ARD, element-wise sparsity. F random, G exp, Sn exp, Sm random, tau random. '''
     settings = { 'priorF' : 'exponential', 'priorG' : 'exponential', 'priorSn' : 'normal', 'priorSm' : 'normal',
@@ -764,7 +766,7 @@ def test_predict():
     
     assert performances_D['MSE'] == MSE_D
     assert performances_D['R^2'] == R2_D
-    assert performances_D['Rp'] == Rp_D
+    assert abs(performances_D['Rp'] - Rp_D) < 0.00000000001
 
 
 """ Test the evaluation measures MSE, R^2, Rp """

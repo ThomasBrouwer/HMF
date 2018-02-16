@@ -4,9 +4,10 @@ Measure the time it takes to train a single model.
 Time taken: 36.6487932205 seconds. Average per iteration: 0.0366487932205.
 """
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/" # "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../"
 sys.path.append(project_location)
+
 from HMF.code.models.nmtf_np import nmtf_np
 from HMF.drug_sensitivity.load_dataset import load_data_without_empty
 

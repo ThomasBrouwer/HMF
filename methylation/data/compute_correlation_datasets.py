@@ -7,9 +7,10 @@ GE and PM. Global: -0.116864662226. Average per sample: -0.12496024005.   Averag
 GM and PM. Global: 0.13777601632.   Average per sample: 0.0739930362991.  Average per gene: 0.139168951876.
 '''
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/" # "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
+
 from HMF.methylation.load_methylation import filter_driver_genes_std
 
 import numpy

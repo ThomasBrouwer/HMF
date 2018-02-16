@@ -26,8 +26,8 @@ Matrix tri-factorisation:
 The 'prior' parameter has to be either 'normal' or 'exponential'.
 '''
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
 
 import updates_Gibbs

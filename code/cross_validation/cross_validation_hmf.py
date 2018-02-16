@@ -21,8 +21,10 @@ Arguments:
 We start the search using run(iterations,burn_in,thinning).
 """
 
-import sys
-sys.path.append("/home/tab43/Documents/Projects/libraries/")
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
+sys.path.append(project_location)
+
 import HMF.code.generate_mask.mask as mask
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs
 

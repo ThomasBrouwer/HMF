@@ -21,8 +21,10 @@ We start the search using run(). If we use ICM we use run(minimum_TN=<>)
 run(burn_in=<>,thinning=<>).
 """
 
-import sys
-sys.path.append("/home/tab43/Documents/Projects/libraries/")
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
+sys.path.append(project_location)
+
 import DI_MMTF.code.generate_mask.mask as mask
 from DI_MMTF.code.model_selection.greedy_search_bnmtf import GreedySearch
 

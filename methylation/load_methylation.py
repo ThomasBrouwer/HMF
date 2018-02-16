@@ -3,8 +3,8 @@ Methods for loading methylation and gene expression datasets, and for filtering
 out the top n genes with the most variation.
 '''
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/" # "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../"
 sys.path.append(project_location)
 
 from HMF.code.kernels.gaussian_kernel import GaussianKernel
@@ -12,8 +12,7 @@ from HMF.code.kernels.gaussian_kernel import GaussianKernel
 from collections import Counter
 import numpy
 
-
-location_methylation = '/Users/thomasbrouwer/Documents/Projects/libraries/HMF/methylation/data/' # '/home/tab43/Documents/Projects/libraries/HMF/methylation/data/'
+location_methylation = os.path.dirname(__file__)+"/data/"
 name_gene_expression = 'matched_expression'
 name_promoter_methylation = 'matched_methylation_genePromoter'
 name_gene_body_methylation = 'matched_methylation_geneBody'

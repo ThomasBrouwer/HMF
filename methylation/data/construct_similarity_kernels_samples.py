@@ -6,8 +6,8 @@ We use only the cancer driver genes, and standardise the values per gene.
 We use a Gaussian kernel, using sigma^2 = no. genes
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
 
 from load_methylation import filter_driver_genes_std

@@ -2,8 +2,10 @@
 Unit tests for the methods in updates_Gibbs.py.
 '''
 
-import sys
-sys.path.append("/home/tab43/Documents/Projects/libraries/")
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
+sys.path.append(project_location)
+
 import HMF.code.Gibbs.updates_Gibbs as updates_Gibbs
 
 import numpy, itertools
@@ -539,7 +541,7 @@ def test_row_precision_F():
             )
         for kp in range(0,K)] for k in range(0,K)])    
         precision_F = updates_Gibbs.row_precision_F([],[(Cs,Ms,Fs,Ss,tau,alpha)],[],lambdaFs[i],i,True)
-        assert numpy.array_equal(expected_precision_F,precision_F)
+        assert all(numpy.isclose(expected_precision_F,precision_F).flatten())
     
 
 def test_row_mu_F():
@@ -624,7 +626,7 @@ def test_row_mu_F():
         expected_mu_F = numpy.dot(sigma_F,expected_mu_F)
         
         mu_F = updates_Gibbs.row_mu_F([(R,M,Fp,Sp,Gp,tau,alpha)],[],[],lambdaF[i],precision_F,i,True)
-        assert numpy.array_equal(expected_mu_F,mu_F)
+        assert all(numpy.isclose(expected_mu_F,mu_F))
         
     for j in range(0,J):
         precision_G = numpy.array([[

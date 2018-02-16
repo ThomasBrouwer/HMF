@@ -49,8 +49,10 @@ Finally, we can return the goodness of fit of the data using the quality(metric)
 (we want to maximise these values)
 """
 
-import sys
-sys.path.append("/home/tab43/Documents/Projects/libraries/")
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
+sys.path.append(project_location)
+
 from HMF.code.kmeans.kmeans import KMeans
 from HMF.code.distributions.exponential import exponential_draw
 from HMF.code.distributions.gamma import gamma_draw

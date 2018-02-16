@@ -4,8 +4,8 @@ Plot the cross-validation performances (MSE) of the six methods,
 where we group the rows by the number of observed entries we have in M.
 """
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../"
 sys.path.append(project_location)
 
 from HMF.drug_sensitivity.load_dataset import load_data_without_empty

@@ -30,8 +30,8 @@ to values_K_tried(), and the best value of K and L can be returned using
 best_value(metric).
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
 
 from DI_MMTF.code.models.di_mmtf_gibbs import di_mmtf_gibbs

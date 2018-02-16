@@ -167,8 +167,9 @@ quality(metric,thinning,burn_in) function:
          = 'MSE'           -> return Mean Square Error 
 '''
 
-import sys
-sys.path.append("/home/tab43/Documents/Projects/libraries/")
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
+sys.path.append(project_location)
 
 from HMF.code.Gibbs.draws_Gibbs import draw_tau
 from HMF.code.Gibbs.draws_Gibbs import draw_F

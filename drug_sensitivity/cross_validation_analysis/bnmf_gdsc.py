@@ -6,8 +6,8 @@ in that row or column we have.
 We use the most common dimensionality from nested cross-validation.
 """
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
 
 import HMF.code.generate_mask.mask as mask

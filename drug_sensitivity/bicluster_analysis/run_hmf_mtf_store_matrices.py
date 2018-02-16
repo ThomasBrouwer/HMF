@@ -3,9 +3,10 @@ Run the HMF D-MTF method on the drug sensitivity datasets, and store the factor
 matrices F, Sn - both the thinned out draws, and the expectation.
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
+
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs
 from HMF.drug_sensitivity.load_dataset import load_data
 from HMF.drug_sensitivity.load_dataset import load_names

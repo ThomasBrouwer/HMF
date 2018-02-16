@@ -5,9 +5,10 @@ values, using promoter region methylation as a second dataset.
 We append the columns of the two matrices, and mark the unknown rows as 0 in M.
 '''
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../../"
 sys.path.append(project_location)
+
 from HMF.methylation.load_methylation import load_ge_pm_top_n_genes, filter_driver_genes, filter_driver_genes_std
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs
 

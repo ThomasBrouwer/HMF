@@ -7,8 +7,8 @@ For lambda (ARD) we return a new vector.
 For the tau (noise) parameters we return a single new value.
 """
 
-project_location = "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
 
 import updates_Gibbs as updates

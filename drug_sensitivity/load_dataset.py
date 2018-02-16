@@ -3,9 +3,10 @@ Helper method for loading the specified file.
 Return (R,M) where M is the mask, and R is the dataset (missing values set to 0).
 """
 
+import os
 import numpy
 
-data_folder = "/Users/thomasbrouwer/Documents/Projects/libraries/HMF/drug_sensitivity/data/overlap/" # "/home/tab43/Documents/Projects/libraries/HMF/drug_sensitivity/data/overlap/"
+data_folder = os.path.dirname(__file__)+"/data/overlap/"
 location_cell_line_names = data_folder+"features_cell_lines/cell_lines_features_full.txt"
 location_drug_names = data_folder+"features_drugs/drugs_full.txt"
 

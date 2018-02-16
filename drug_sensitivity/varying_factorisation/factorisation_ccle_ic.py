@@ -4,8 +4,8 @@ the four drug sensitivity datasets, doing in-matrix predictions on the CCLE
 IC50 dataset.
 '''
 
-project_location = "/Users/thomasbrouwer/Documents/Projects/libraries/" # "/home/tab43/Documents/Projects/libraries/"
-import sys
+import sys, os
+project_location = os.path.dirname(__file__)+"/../../../"
 sys.path.append(project_location)
 
 from HMF.code.cross_validation.cross_validation_hmf import CrossValidation
