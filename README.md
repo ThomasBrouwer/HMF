@@ -1,7 +1,7 @@
 # Bayesian hybrid matrix factorisation for data integration
 This project contains an implementation of the Bayesian hybrid matrix factorisation models presented in the paper [**Bayesian hybrid matrix factorisation for data integration**](https://arxiv.org/abs/1704.04962), published at the 20th International Conference on Artificial Intelligence and Statistics (AISTATS 2017). We furthermore provide all datasets used (including the preprocessing scripts), and Python scripts for experiments.
 
-<img src="./images/hmf_overview.png" width="100%"/> 
+<img src="./images/in_out_of_matrix_and_mf_mtf_and_multiple_mf_mtf.png" width="65%"/> <img src="./images/hmf_overview.png" width="33%"/> 
 
 #### Paper abstract
 We introduce a novel Bayesian hybrid matrix factorisation model (HMF) for data integra- tion, based on combining multiple matrix fac- torisation methods, that can be used for in- and out-of-matrix prediction of missing val- ues. The model is very general and can be used to integrate many datasets across dif- ferent entity types, including repeated exper- iments, similarity matrices, and very sparse datasets. We apply our method on two bio- logical applications, and extensively compare it to state-of-the-art machine learning and matrix factorisation models. For in-matrix predictions on drug sensitivity datasets we obtain consistently better performances than existing methods. This is especially the case when we increase the sparsity of the datasets. Furthermore, we perform out-of-matrix pre- dictions on methylation and gene expression datasets, and obtain the best results on two of the three datasets, especially when the pre- dictivity of datasets is high.
