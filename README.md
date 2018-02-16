@@ -26,10 +26,15 @@ If you wish to use the matrix factorisation models, or replicate the experiments
 4. You can now import the models in your code, e.g.
 ```
 from HMF.code.models.hmf_Gibbs import HMF_Gibbs
-model = HMF_Gibbs(TODO)
-model.initialise(TODO)
-model.train(TODO)
-model.predict(TODO)
+import numpy
+R1, R2 = numpy.ones((4,3)), numpy.ones((4,3))
+M1, M2 = numpy.ones((4,3)), numpy.ones((4,3))
+C, D, R = [], [], [(R1,M1,'row_entities','col_entities',1.), (R2,M2,'row_entities','col_entities',1.)]
+K = { 'row_entities': 2, 'col_entities': 2 }
+model = HMF_Gibbs(R=R,C=C,D=D,K=K)
+model.initialise()
+model.run(iterations=10)
+model.predict_Rn(n=0,M_pred=M1,burn_in=5,thinning=1)
 ```
 
 ## Examples
