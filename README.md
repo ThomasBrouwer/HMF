@@ -139,5 +139,8 @@ py.test unit tests for a large portion of the code and classes in **/code/**. To
 ### /toy_experiments/
 Very brief tests on the toy dataset, mainly for checking convergence of the model.
 
+### /images/
+The images at the top of this README.
+
 </br>
 </details>
