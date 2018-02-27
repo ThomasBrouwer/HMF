@@ -41,7 +41,7 @@ model.predict_Rn(n=0,M_pred=M1,burn_in=5,thinning=1)
 A good example of the hybrid matrix factorisation model running on toy data can be found in this [convergence experiment](./toy_experiments/convergence/hmf_gibbs_all.py), which uses a combination of main datasets, feature datasets, and similarity datasets. 
 
 ## Citation
-If this project was useful for your research, please consider our [paper](https://arxiv.org/abs/1704.04962).
+If this project was useful for your research, please consider citing our [paper](https://arxiv.org/abs/1704.04962).
 > Thomas Brouwer and Pietro Lió (2017). Bayesian Hybrid Matrix Factorisation for Data Integration. Proceedings of the 20th International Conference on Arti cial Intelligence and Statistics (AISTATS 2017).
 ```
 @inproceedings{Brouwer2017a,
