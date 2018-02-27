@@ -53,7 +53,10 @@ If this project was useful for your research, please consider citing our [paper]
 ```
 
 ## Project structure
-Below you can find a description of the different folders and files available in this repository.
+<details>
+<summary>Click here to find a description of the different folders and files available in this repository.</summary>
+
+<br>
 
 ### /code/
 Code for the HMF model, as well as other matrix factorisation models, helper methods, and more.
@@ -135,3 +138,6 @@ py.test unit tests for a large portion of the code and classes in **/code/**. To
 
 ### /toy_experiments/
 Very brief tests on the toy dataset, mainly for checking convergence of the model.
+
+</br>
+</details>
