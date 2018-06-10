@@ -8,7 +8,7 @@ We introduce a novel Bayesian hybrid matrix factorisation model (HMF) for data i
 
 #### Authors
 Thomas Brouwer, Pietro Lio'. 
-Contact: tab43@cam.ac.uk / thomas.a.brouwer@gmail.com.
+Contact: thomas.a.brouwer@gmail.com.
 
 ## Installation 
 If you wish to use the matrix factorisation models, or replicate the experiments, follow these steps. Please ensure you have Python 2.7 (3 is currently not supported). 
